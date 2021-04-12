@@ -1,2 +1,1 @@
-# TKOM - project
 
