@@ -1,4 +1,4 @@
-#include "include/program.hpp"
+#include "program.hpp"
 
 std::mutex Program::singletonMutex;
 

@@ -9,17 +9,18 @@ project(TKOM VERSION 1.0
 
 set(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/)
 set(HEADER_DIRECTORY ${PROJECT_SOURCE_DIR}/include/)
+set(SOURCE_DIRECTORY ${PROJECT_SOURCE_DIR}/src/)
 
-target_include_directories(TKOM PRIVATE ${HEADER_DIRECTORY})
+include_directories(${HEADER_DIRECTORY})
 
 add_subdirectory(tests)
 
 set(SOURCES 
-        main.cpp
-        program.cpp
-        source.cpp
+        ${SOURCE_DIRECTORY}/main.cpp
+        ${SOURCE_DIRECTORY}/program.cpp
+        ${SOURCE_DIRECTORY}/source.cpp
         ${HEADER_DIRECTORY}/program.hpp
         ${HEADER_DIRECTORY}/source.hpp
 )
 
-#add_executable(TKOM ${SOURCES})
+add_executable(TKOM ${SOURCES})
