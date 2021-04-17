@@ -14,6 +14,6 @@ CustomExceptions::Exception::Exception(ExceptionType type, const std::string &me
                     + std::to_string(line) + ":" + std::to_string(position);
 }
 
-const char* CustomExceptions::Exception::what() const{
+const char* CustomExceptions::Exception::what() const noexcept{
     return message.c_str();
 }

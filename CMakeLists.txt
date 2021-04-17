@@ -19,8 +19,10 @@ set(SOURCES
         ${SOURCE_DIRECTORY}/main.cpp
         ${SOURCE_DIRECTORY}/program.cpp
         ${SOURCE_DIRECTORY}/source.cpp
+        ${SOURCE_DIRECTORY}/exception.cpp
         ${HEADER_DIRECTORY}/program.hpp
         ${HEADER_DIRECTORY}/source.hpp
+        ${HEADER_DIRECTORY}/exception.hpp
 )
 
 add_executable(TKOM ${SOURCES})

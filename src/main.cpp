@@ -2,6 +2,6 @@
 
 
 int main(int argc, char *argv[]){
-    Program::getInstance().start();
+    Program::getInstance().start(argc, argv);
     return 0;
 }
