@@ -4,15 +4,12 @@ std::mutex Program::singletonMutex;
 
 Program &Program::getInstance()
 {
-    std::lock_guard<std::mutex> guard(singletonMutex);
     static Program program;
-
     return program;
 }
 
 void Program::start(int argc, char **argv)
 {
-    std::cout << "Buongiorno Signora!" << std::endl;
 
     if (argc == 1)
     {
@@ -29,18 +26,18 @@ void Program::parseFlags(char **argv)
 {
     try
     {
-        switch (resolveOption(argv[1]))
+        switch (flagResolver->resolveOption(argv[1]))
         {
-        case (Options::File):
+        case (FlagResolver::Options::File):
             startWFile(argv[2]);
             break;
-        case (Options::Socket):
+        case (FlagResolver::Options::Socket):
             startWSocket(argv);
             break;
-        case (Options::String):
+        case (FlagResolver::Options::String):
             startWString(argv[2]);
             break;
-        case (Options::Help):
+        case (FlagResolver::Options::Help):
             showHelp();
             break;
         default:
@@ -59,10 +56,10 @@ void Program::showHelp(){
 
     std::cout<<"*******************************************************************\n";
     std::cout<<"*                       AVAILABLE FLAGS:                          *\n";
-    std::cout<<"*   --help shows help                                             *\n";
-    std::cout<<"*   --string <source string> parse code from string               *\n";
-    std::cout<<"*   --file <path to source file> parse code from file             *\n";
-    std::cout<<"*   --socket <source string> parse code from string               *\n";
+    std::cout<<"*   --help/-h shows help                                          *\n";
+    std::cout<<"*   --string/-s <source string> parse code from string            *\n";
+    std::cout<<"*   --file/-f <path to source file> parse code from file          *\n";
+    std::cout<<"*   --socket/-sc <source string> parse code from string           *\n";
     std::cout<<"*******************************************************************\n";
 }
 
@@ -77,27 +74,14 @@ void Program::startWFile(std::string pathToFile){
     if(!std::filesystem::exists(pathToFile))
         throw CustomExceptions::Exception(CustomExceptions::ExceptionType::StringNotAPath,
                                               "String you provided is not a valid path!");
-    
+    source->openFile(pathToFile);
 }
 
-Program::Options Program::resolveOption(std::string option){
-
-    if(option == "--help" || option == "--h"){
-        return Options::Help;
-    }else if(option == "--file" || option == "--f"){
-        return Options::File;
-    }else if(option == "--socket" || option == "--sc"){
-        return Options::Socket;
-    }else if(option == "--string" || option == "--s"){
-        return Options::String;
-    }
-    return Options::Null;
-}
 
 void Program::startWSocket(char **argv){
-
+    source->openSocket(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 }
 
 void Program::startWString(std::string sourceString){
-
+    source->openString(sourceString);
 }

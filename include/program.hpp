@@ -2,8 +2,9 @@
 #include <iostream>
 #include <mutex>
 #include <filesystem>
-#include "exception.hpp"
+#include "helpers/exception.hpp"
 #include "source.hpp"
+#include "helpers/flagResolver.hpp"
 
 class Program
 {
@@ -12,21 +13,18 @@ public:
     static Program &getInstance();
 
 private:
+    Program() = default;
+    ~Program() = default;
+    Program(const Program &) = delete;
+    Program &operator=(const Program &) = delete;
     SourceUptr source;
-    enum class Options{
-        File,
-        Socket,
-        String,
-        Help,
-        Null
-    };
+    FlagResolverUptr flagResolver;
+
     static std::mutex singletonMutex;
     void startInterpreter();
-    void parseFlags(char **argv);
     void startWFile(std::string pathToFile);
     void startWString(std::string sourceString);
     void startWSocket(char **argv);
+    void parseFlags(char **argv);
     void showHelp();
-    Options resolveOption(std::string option);
-
 };

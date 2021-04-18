@@ -10,6 +10,7 @@ project(TKOM VERSION 1.0
 set(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/)
 set(HEADER_DIRECTORY ${PROJECT_SOURCE_DIR}/include/)
 set(SOURCE_DIRECTORY ${PROJECT_SOURCE_DIR}/src/)
+set(HELPERS_DIRECTORY /helpers/)
 
 include_directories(${HEADER_DIRECTORY})
 
@@ -19,10 +20,14 @@ set(SOURCES
         ${SOURCE_DIRECTORY}/main.cpp
         ${SOURCE_DIRECTORY}/program.cpp
         ${SOURCE_DIRECTORY}/source.cpp
-        ${SOURCE_DIRECTORY}/exception.cpp
+        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/exception.cpp
+        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
         ${HEADER_DIRECTORY}/program.hpp
         ${HEADER_DIRECTORY}/source.hpp
-        ${HEADER_DIRECTORY}/exception.hpp
+        ${HEADER_DIRECTORY}/${HELPERS_DIRECTORY}/exception.hpp
+        ${HEADER_DIRECTORY}/${HELPERS_DIRECTORY}/flagResolver.hpp
+        ${HEADER_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.hpp
+        
 )
 
 add_executable(TKOM ${SOURCES})

@@ -20,5 +20,10 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
                  EXCLUDE_FROM_ALL)
 
-add_executable(tests main.cpp test.cpp)
+set(SOURCES 
+  main.cpp 
+  flagResolverTests.cpp
+)
+add_executable(tests  ${SOURCES})
+
 target_link_libraries(tests gtest gtest_main)

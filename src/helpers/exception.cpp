@@ -1,4 +1,4 @@
-#include "exception.hpp"
+#include "helpers/exception.hpp"
 
 CustomExceptions::Exception::Exception(ExceptionType type, const std::string &message) 
                                        : type(type), message(message){}
