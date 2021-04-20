@@ -12,6 +12,8 @@ set(HEADER_DIRECTORY ${PROJECT_SOURCE_DIR}/include/)
 set(SOURCE_DIRECTORY ${PROJECT_SOURCE_DIR}/src/)
 set(HELPERS_DIRECTORY /helpers/)
 
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+
 include_directories(${HEADER_DIRECTORY})
 
 add_subdirectory(tests)
@@ -22,12 +24,6 @@ set(SOURCES
         ${SOURCE_DIRECTORY}/source.cpp
         ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/exception.cpp
         ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
-        ${HEADER_DIRECTORY}/program.hpp
-        ${HEADER_DIRECTORY}/source.hpp
-        ${HEADER_DIRECTORY}/${HELPERS_DIRECTORY}/exception.hpp
-        ${HEADER_DIRECTORY}/${HELPERS_DIRECTORY}/flagResolver.hpp
-        ${HEADER_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.hpp
-        
 )
 
 add_executable(TKOM ${SOURCES})

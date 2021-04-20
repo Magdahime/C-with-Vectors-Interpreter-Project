@@ -9,8 +9,9 @@ void Source::openString(std::string sourceString)
 {
     source = sourceString;
 }
-void Source::openSocket(int domain, int type, int protocol)
+void Source::openSocket()
 {
+    socketWrapper->initSocket();
 }
 
 char Source::getChar()

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h> // googletest header file
+#include <gtest/gtest.h>
 
 #include "helpers/flagResolver.hpp"
 
@@ -20,6 +20,6 @@ TEST(FlagResolverTest, Wrong) {
   EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--hp"));
   EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--ffile"));
   EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--fc"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--sosa"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--ss"));
+  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--soccket"));
+  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("1235435"));
 }

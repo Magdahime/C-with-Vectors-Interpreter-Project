@@ -12,6 +12,7 @@ public:
         WrongEndingOfFormula,
         UnexpectedEndOfFile,
         StringNotAPath,
+        SocketProblem,
     };
 
     class Exception : public std::exception

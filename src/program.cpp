@@ -32,7 +32,7 @@ void Program::parseFlags(char **argv)
             startWFile(argv[2]);
             break;
         case (FlagResolver::Options::Socket):
-            startWSocket(argv);
+            startWSocket();
             break;
         case (FlagResolver::Options::String):
             startWString(argv[2]);
@@ -59,7 +59,7 @@ void Program::showHelp(){
     std::cout<<"*   --help/-h shows help                                          *\n";
     std::cout<<"*   --string/-s <source string> parse code from string            *\n";
     std::cout<<"*   --file/-f <path to source file> parse code from file          *\n";
-    std::cout<<"*   --socket/-sc <source string> parse code from string           *\n";
+    std::cout<<"*   --socket/-sc  parse code from socket                          *\n";
     std::cout<<"*******************************************************************\n";
 }
 
@@ -78,8 +78,8 @@ void Program::startWFile(std::string pathToFile){
 }
 
 
-void Program::startWSocket(char **argv){
-    source->openSocket(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+void Program::startWSocket(){
+    source->openSocket();
 }
 
 void Program::startWString(std::string sourceString){

@@ -24,7 +24,7 @@ private:
     void startInterpreter();
     void startWFile(std::string pathToFile);
     void startWString(std::string sourceString);
-    void startWSocket(char **argv);
+    void startWSocket();
     void parseFlags(char **argv);
     void showHelp();
 };

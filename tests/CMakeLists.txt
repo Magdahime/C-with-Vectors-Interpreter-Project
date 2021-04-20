@@ -14,16 +14,23 @@ endif()
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-set(EXECUTABLE_OUTPUT_PATH bin)
-
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
                  EXCLUDE_FROM_ALL)
 
+
+set(HEADER_DIRECTORY ${PROJECT_SOURCE_DIR}/include/)
+set(SOURCE_DIRECTORY ${PROJECT_SOURCE_DIR}/src/)
+set(HELPERS_DIRECTORY /helpers/)
+
+include_directories(${HEADER_DIRECTORY})
+
 set(SOURCES 
   main.cpp 
   flagResolverTests.cpp
+  socketWrapperTests.cpp
+  socketWrapperTests.cpp
+  ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/exception.cpp
 )
-add_executable(tests  ${SOURCES})
-
+add_executable(tests ${SOURCES})
 target_link_libraries(tests gtest gtest_main)
