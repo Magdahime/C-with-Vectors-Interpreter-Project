@@ -2,13 +2,19 @@
 
 std::mutex Program::singletonMutex;
 
+Program::Program()
+{
+    source = std::make_unique<Source>();
+    flagResolver = std::make_unique<FlagResolver>();
+};
+
 Program &Program::getInstance()
 {
     static Program program;
     return program;
 }
 
-void Program::start(int argc, char **argv)
+void Program::start(int argc, std::vector<std::string> &arguments)
 {
 
     if (argc == 1)
@@ -17,25 +23,25 @@ void Program::start(int argc, char **argv)
     }
     else
     {
-        parseFlags(argv);
+        parseFlags(arguments);
     }
 }
 
-
-void Program::parseFlags(char **argv)
+void Program::parseFlags(std::vector<std::string> &arguments)
 {
     try
     {
-        switch (flagResolver->resolveOption(argv[1]))
+        std::string sourceString = std::string(arguments[2]);
+        switch (flagResolver->resolveOption(arguments[1]))
         {
         case (FlagResolver::Options::File):
-            startWFile(argv[2]);
+            startWFile(arguments[2]);
             break;
         case (FlagResolver::Options::Socket):
             startWSocket();
             break;
         case (FlagResolver::Options::String):
-            startWString(argv[2]);
+            startWString(sourceString);
             break;
         case (FlagResolver::Options::Help):
             showHelp();
@@ -47,20 +53,21 @@ void Program::parseFlags(char **argv)
     }
     catch (CustomExceptions::Exception &ex)
     {
-        std::cout << ex.what() <<"\n";
+        std::cout << ex.what() << "\n";
         return;
     }
 }
 
-void Program::showHelp(){
+void Program::showHelp()
+{
 
-    std::cout<<"*******************************************************************\n";
-    std::cout<<"*                       AVAILABLE FLAGS:                          *\n";
-    std::cout<<"*   --help/-h shows help                                          *\n";
-    std::cout<<"*   --string/-s <source string> parse code from string            *\n";
-    std::cout<<"*   --file/-f <path to source file> parse code from file          *\n";
-    std::cout<<"*   --socket/-sc  parse code from socket                          *\n";
-    std::cout<<"*******************************************************************\n";
+    std::cout << "*******************************************************************\n";
+    std::cout << "*                       AVAILABLE FLAGS:                          *\n";
+    std::cout << "*   --help/-h shows help                                          *\n";
+    std::cout << "*   --string/-s <source string> parse code from string            *\n";
+    std::cout << "*   --file/-f <path to source file> parse code from file          *\n";
+    std::cout << "*   --socket/-sc  parse code from socket                          *\n";
+    std::cout << "*******************************************************************\n";
 }
 
 void Program::startInterpreter()
@@ -68,20 +75,21 @@ void Program::startInterpreter()
     std::cout << "Hello from interpreter!" << std::endl;
 }
 
+void Program::startWFile(std::string &pathToFile)
+{
 
-void Program::startWFile(std::string pathToFile){
-
-    if(!std::filesystem::exists(pathToFile))
+    if (!std::filesystem::exists(pathToFile))
         throw CustomExceptions::Exception(CustomExceptions::ExceptionType::StringNotAPath,
-                                              "String you provided is not a valid path!");
+                                          "String you provided is not a valid path!");
     source->openFile(pathToFile);
 }
 
-
-void Program::startWSocket(){
+void Program::startWSocket()
+{
     source->openSocket();
 }
 
-void Program::startWString(std::string sourceString){
+void Program::startWString(std::string &sourceString)
+{
     source->openString(sourceString);
 }

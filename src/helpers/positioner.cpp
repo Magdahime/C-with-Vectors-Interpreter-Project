@@ -10,5 +10,4 @@ void Positioner::nextLine()
 {
     this->line += 1;
     this->character = 0;
-    this->absolutePosition +=1;
 }

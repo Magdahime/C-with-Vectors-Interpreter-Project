@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <string>
 #include <iostream>
 #include <mutex>
 #include <filesystem>
@@ -9,11 +11,11 @@
 class Program
 {
 public:
-    void start(int argc, char **argv);
+    void start(int argc, std::vector<std::string>& arguments);
     static Program &getInstance();
 
 private:
-    Program() = default;
+    Program();
     ~Program() = default;
     Program(const Program &) = delete;
     Program &operator=(const Program &) = delete;
@@ -22,9 +24,9 @@ private:
 
     static std::mutex singletonMutex;
     void startInterpreter();
-    void startWFile(std::string pathToFile);
-    void startWString(std::string sourceString);
+    void startWFile(std::string& pathToFile);
+    void startWString(std::string& sourceString);
     void startWSocket();
-    void parseFlags(char **argv);
+    void parseFlags(std::vector<std::string>& arguments);
     void showHelp();
 };

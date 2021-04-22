@@ -29,8 +29,11 @@ set(SOURCES
   main.cpp 
   flagResolverTests.cpp
   socketWrapperTests.cpp
-  socketWrapperTests.cpp
+  sourceTest.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/exception.cpp
+  ${SOURCE_DIRECTORY}/program.cpp
+  ${SOURCE_DIRECTORY}/source.cpp
+  ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
 )
 add_executable(tests ${SOURCES})
 target_link_libraries(tests gtest gtest_main)
