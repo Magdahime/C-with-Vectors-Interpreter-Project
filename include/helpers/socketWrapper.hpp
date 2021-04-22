@@ -37,9 +37,9 @@ public:
 
     void deinitSocket()
     {
-
         close(receiveSocket);
     }
+    
     int getPort() { return PORT; }
     int getSocket() {return receiveSocket;}
 

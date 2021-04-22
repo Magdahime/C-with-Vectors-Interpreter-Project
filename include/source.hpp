@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <memory>
 #include <variant>
@@ -16,7 +17,7 @@ public:
     Source();
     void openFile(std::string filepath);
     void openString(std::string sourceString);
-    void openSocket();
+    void openSocket(int socket);
     char getChar();
     ~Source();
     std::variant<std::string, int, std::fstream> codeSource;

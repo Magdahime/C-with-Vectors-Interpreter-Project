@@ -1,24 +1,41 @@
 #include <gtest/gtest.h>
-#include "program.hpp"
 #include "source.hpp"
+#include <thread>
+#include "clientTCP.hpp"
 
-int number = 3;
-std::vector<std::string> arguments1 = {"TKOM", "--s", "test"};
-std::vector<std::string> arguments2 = {"TKOM", "--f", "test"};
+std::string sample = "test";
 
-TEST(ProgramTest, FileNeg)
+TEST(SourceTest, openStringTest)
 {
-    try
-    {
-        Program::getInstance().start(number, arguments2);
-    }
-    catch (CustomExceptions::Exception &ex)
-    {
-        EXPECT_EQ(ex.getType(), CustomExceptions::ExceptionType::StringNotAPath);
-    }
+    Source src;
+    src.openString(sample);
+    char letter = src.getChar();
+    EXPECT_EQ(letter, 't');
+    letter = src.getChar();
+    EXPECT_EQ(letter, 'e');
+
 }
 
-TEST(ProgramTest, String)
+TEST(SourceTest, openFileTest)
 {
-    Program::getInstance().start(number, arguments1);
+    Source src;
+    src.openFile("../tests/res/sampleText.txt");
+    char letter = src.getChar();
+    EXPECT_EQ(letter, 'L');
+    letter = src.getChar();
+    EXPECT_EQ(letter, 'o');
+}
+
+TEST(SourceTest, openSocketTest){
+    SocketWrapper sw;
+    std::thread thread1([&] { sw.initSocket(); });
+    std::thread thread2([&] { ClientTCP::run(sample.c_str(), sw.getPort()); });
+    thread1.join();
+    thread2.join();
+    Source src;
+    src.openSocket(sw.getSocket());
+    char letter = src.getChar();
+    EXPECT_EQ(letter, 't');
+    letter = src.getChar();
+    EXPECT_EQ(letter, 'e');
 }

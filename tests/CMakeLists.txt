@@ -21,19 +21,23 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 
 set(HEADER_DIRECTORY ${PROJECT_SOURCE_DIR}/include/)
 set(SOURCE_DIRECTORY ${PROJECT_SOURCE_DIR}/src/)
+set(RESOURCE_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/res/)
 set(HELPERS_DIRECTORY /helpers/)
 
-include_directories(${HEADER_DIRECTORY})
+include_directories(${HEADER_DIRECTORY} 
+                    ${RESOURCE_DIRECTORY})
 
 set(SOURCES 
   main.cpp 
   flagResolverTests.cpp
   socketWrapperTests.cpp
   sourceTest.cpp
+  programTest.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/exception.cpp
   ${SOURCE_DIRECTORY}/program.cpp
   ${SOURCE_DIRECTORY}/source.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
 )
+
 add_executable(tests ${SOURCES})
 target_link_libraries(tests gtest gtest_main)

@@ -8,16 +8,15 @@ Source::Source()
 void Source::openFile(std::string filepath)
 {
     codeSource = std::fstream();
-    std::get<std::fstream>(codeSource).open(filepath, std::ios::out);
+    std::get<std::fstream>(codeSource).open(filepath, std::ios::out | std::ios::in);
 }
 void Source::openString(std::string sourceString)
 {
     codeSource = sourceString;
 }
-void Source::openSocket()
+void Source::openSocket(int socket)
 {
-    socketWrapper->initSocket();
-    codeSource = socketWrapper->getSocket();
+    codeSource = socket;
 }
 
 char Source::getChar()
