@@ -19,7 +19,7 @@ void Source::openSocket(int socket)
     codeSource = socket;
 }
 
-char Source::getChar()
+Source::NextCharacter Source::getChar()
 {
     char letter;
     std::visit(VisitSource(), codeSource,
@@ -28,7 +28,8 @@ char Source::getChar()
     positioner->nextChar();
     if (letter == '\n')
         positioner->nextLine();
-    return letter;
+    return Source::NextCharacter(letter, positioner->getAbsolutePosition(),
+                                positioner->getChar(), positioner->getLine());
 }
 
 Source::~Source()

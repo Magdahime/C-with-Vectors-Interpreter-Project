@@ -9,24 +9,36 @@ TEST(SourceTest, openStringTest)
 {
     Source src;
     src.openString(sample);
-    char letter = src.getChar();
-    EXPECT_EQ(letter, 't');
+    Source::NextCharacter letter = src.getChar();
+    EXPECT_EQ(letter.nextLetter, 't');
+    EXPECT_EQ(letter.absolutePosition, 1);
+    EXPECT_EQ(letter.characterPosition, 1);
+    EXPECT_EQ(letter.linePosition, 0);
     letter = src.getChar();
-    EXPECT_EQ(letter, 'e');
-
+    EXPECT_EQ(letter.nextLetter, 'e');
+    EXPECT_EQ(letter.absolutePosition, 2);
+    EXPECT_EQ(letter.characterPosition, 2);
+    EXPECT_EQ(letter.linePosition, 0);
 }
 
 TEST(SourceTest, openFileTest)
 {
     Source src;
     src.openFile("../tests/res/sampleText.txt");
-    char letter = src.getChar();
-    EXPECT_EQ(letter, 'L');
+    Source::NextCharacter letter = src.getChar();
+    EXPECT_EQ(letter.nextLetter, 'L');
+    EXPECT_EQ(letter.absolutePosition, 1);
+    EXPECT_EQ(letter.characterPosition, 1);
+    EXPECT_EQ(letter.linePosition, 0);
     letter = src.getChar();
-    EXPECT_EQ(letter, 'o');
+    EXPECT_EQ(letter.nextLetter, 'o');
+    EXPECT_EQ(letter.absolutePosition, 2);
+    EXPECT_EQ(letter.characterPosition, 2);
+    EXPECT_EQ(letter.linePosition, 0);
 }
 
-TEST(SourceTest, openSocketTest){
+TEST(SourceTest, openSocketTest)
+{
     SocketWrapper sw;
     std::thread thread1([&] { sw.initSocket(); });
     std::thread thread2([&] { ClientTCP::run(sample.c_str(), sw.getPort()); });
@@ -34,8 +46,14 @@ TEST(SourceTest, openSocketTest){
     thread2.join();
     Source src;
     src.openSocket(sw.getSocket());
-    char letter = src.getChar();
-    EXPECT_EQ(letter, 't');
+    Source::NextCharacter letter = src.getChar();
+    EXPECT_EQ(letter.nextLetter, 't');
+    EXPECT_EQ(letter.absolutePosition, 1);
+    EXPECT_EQ(letter.characterPosition, 1);
+    EXPECT_EQ(letter.linePosition, 0);
     letter = src.getChar();
-    EXPECT_EQ(letter, 'e');
+    EXPECT_EQ(letter.nextLetter, 'e');
+    EXPECT_EQ(letter.absolutePosition, 2);
+    EXPECT_EQ(letter.characterPosition, 2);
+    EXPECT_EQ(letter.linePosition, 0);
 }
