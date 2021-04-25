@@ -52,3 +52,8 @@ class WronglyDefinedNumberLiteral : public Exception {
 public:
     WronglyDefinedNumberLiteral(const char *m) : Exception(m) {}
 };
+
+class NotConsistentIndent : public Exception {
+public:
+    NotConsistentIndent(const char *m) : Exception(m) {}
+};

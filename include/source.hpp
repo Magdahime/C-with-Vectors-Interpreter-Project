@@ -13,6 +13,8 @@ struct NextCharacter
     NextCharacter() = default;
     NextCharacter(char letter, uint64_t aPos, uint64_t cPos, uint64_t lPos) : nextLetter(letter), absolutePosition(aPos),
                                                                               characterPosition(cPos), linePosition(lPos) {}
+    std::string getLinePosition() { return std::to_string(characterPosition) + ":" + std::to_string(linePosition); }
+
     char nextLetter;
     uint64_t absolutePosition;
     uint64_t characterPosition;
@@ -65,7 +67,8 @@ public:
         positioner = std::make_unique<Positioner>(Positioner());
     }
     void waitForData();
-    int getPort()const {return socketWrapper->getPort();}
+    int getPort() const { return socketWrapper->getPort(); }
+
 private:
     int socketSource;
     SocketWrapperUptr socketWrapper;

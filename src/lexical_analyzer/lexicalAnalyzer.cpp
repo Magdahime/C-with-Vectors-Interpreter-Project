@@ -5,6 +5,19 @@ Token LexicalAnalyzer::getToken()
     Token nextToken = buildEOF();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
+    if (!isNextLine)
+        skipWhites();
+    else
+    {
+        nextToken = buildIndent();
+        if (nextToken.getType() != Token::TokenType::NullToken)
+        {
+            isNextLine = false;
+            return nextToken;
+        }else{
+            isNextLine = false;
+        }
+    }
     nextToken = buildStringLiteral();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
@@ -26,34 +39,8 @@ Token LexicalAnalyzer::getToken()
     nextToken = buildLogicalOperatorToken();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
-    return buildUnindentified();
-}
 
-void LexicalAnalyzer::initKeywordTable()
-{
-    keywordTable["matrix"] = Token::TokenType::MatrixToken;
-    keywordTable["text"] = Token::TokenType::TextToken;
-    keywordTable["double"] = Token::TokenType::DoubleToken;
-    keywordTable["integer"] = Token::TokenType::IntegerToken;
-    keywordTable["function"] = Token::TokenType::FunctionToken;
-    keywordTable["void"] = Token::TokenType::VoidToken;
-    keywordTable["condition"] = Token::TokenType::ConditionToken;
-    keywordTable["case"] = Token::TokenType::CaseToken;
-    keywordTable["if"] = Token::TokenType::IfToken;
-    keywordTable["otherwise"] = Token::TokenType::OtherwiseToken;
-    keywordTable["loop"] = Token::TokenType::LoopToken;
-    keywordTable["asLongAs"] = Token::TokenType::AsLongAsToken;
-    keywordTable["continue"] = Token::TokenType::ContinueToken;
-    keywordTable["break"] = Token::TokenType::BreakToken;
-    keywordTable["default"] = Token::TokenType::DefaultToken;
-    keywordTable["true"] = Token::TokenType::TrueToken;
-    keywordTable["false"] = Token::TokenType::FalseToken;
-    keywordTable["and"] = Token::TokenType::AndToken;
-    keywordTable["or"] = Token::TokenType::OrToken;
-    keywordTable["not"] = Token::TokenType::NotToken;
-    keywordTable["det"] = Token::TokenType::DetToken;
-    keywordTable["trans"] = Token::TokenType::TransToken;
-    keywordTable["inv"] = Token::TokenType::InvToken;
+    return buildUnindentified();
 }
 
 Token LexicalAnalyzer::buildIdentifierOrKeyword()
@@ -64,7 +51,7 @@ Token LexicalAnalyzer::buildIdentifierOrKeyword()
         std::stringstream ss;
         ss << current.nextLetter;
         NextCharacter nextCharacter = source->getChar();
-        while (isalpha(nextCharacter.nextLetter))
+        while (isalnum(nextCharacter.nextLetter) || nextCharacter.nextLetter == '_')
         {
             ss << nextCharacter.nextLetter;
             nextCharacter = source->getChar();
@@ -110,7 +97,7 @@ Token LexicalAnalyzer::buildComment()
         }
         if (length >= MAXSIZE)
         {
-            std::string message = "Commentary at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is too long.";
+            std::string message = "Commentary at " + current.getLinePosition() + " is too long.";
             throw TooLongStringLiteral(message.c_str());
         }
         return Token(Token::TokenType::CommentToken, TokenVariant(ss.str()),
@@ -148,7 +135,7 @@ Token LexicalAnalyzer::buildDivisionTokenOrComment()
             }
             if (length >= MAXSIZE)
             {
-                std::string message = "Commentary at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is too long.";
+                std::string message = "Commentary at " + current.getLinePosition() + " is too long.";
                 throw TooLongStringLiteral(message.c_str());
             }
 
@@ -177,7 +164,8 @@ Token LexicalAnalyzer::buildOneCharToken()
                      current.characterPosition, current.absolutePosition, current.linePosition);
     case ('\n'):
         source->getChar();
-        return Token(Token::TokenType::NextLineToken, TokenVariant("\n"),
+        isNextLine = true;
+        return Token(Token::TokenType::NextLineToken, TokenVariant(""),
                      current.characterPosition, current.absolutePosition, current.linePosition);
     case ('-'):
         source->getChar();
@@ -208,6 +196,10 @@ Token LexicalAnalyzer::buildOneCharToken()
         source->getChar();
         return Token(Token::TokenType::PointToken, TokenVariant("."),
                      current.characterPosition, current.absolutePosition, current.linePosition);
+    case (','):
+        source->getChar();
+        return Token(Token::TokenType::CommaToken, TokenVariant(","),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
     }
     return Token(Token::TokenType::NullToken);
 }
@@ -229,7 +221,7 @@ Token LexicalAnalyzer::buildStringLiteral()
         }
         if (length >= MAXSIZE)
         {
-            std::string message = "String literal at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is too long.";
+            std::string message = "String literal at " + current.getLinePosition() + " is too long.";
             throw TooLongStringLiteral(message.c_str());
         }
         else if (nextCharacter.nextLetter == delimiter)
@@ -243,7 +235,7 @@ Token LexicalAnalyzer::buildStringLiteral()
         }
         else
         {
-            std::string message = "String literal at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is malformed.";
+            std::string message = "String literal at " + current.getLinePosition() + " is malformed.";
             throw WronglyDefinedStringLiteral(message.c_str());
         }
     }
@@ -292,13 +284,11 @@ Token LexicalAnalyzer::buildNumber()
 Token LexicalAnalyzer::buildLogicalOperatorToken()
 {
     NextCharacter current = source->getCurrentCharacter();
-    std::cout << "CURR: "<<current.nextLetter << std::endl;
     switch (current.nextLetter)
     {
     case ('<'):
     {
         NextCharacter nextCharacter = source->getChar();
-        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
         if (nextCharacter.nextLetter == '=')
         {
             source->getChar();
@@ -318,7 +308,6 @@ Token LexicalAnalyzer::buildLogicalOperatorToken()
     case ('>'):
     {
         NextCharacter nextCharacter = source->getChar();
-        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
         if (nextCharacter.nextLetter == '=')
         {
             source->getChar();
@@ -338,13 +327,14 @@ Token LexicalAnalyzer::buildLogicalOperatorToken()
     case ('='):
     {
         NextCharacter nextCharacter = source->getChar();
-        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
-        if (nextCharacter.nextLetter == '='){
+        if (nextCharacter.nextLetter == '=')
+        {
             source->getChar();
             return Token(Token::TokenType::LogicalOperatorToken,
                          Token::TokenSubtype::EqualToken, TokenVariant(""),
                          current.characterPosition, current.absolutePosition, current.linePosition);
-        }else
+        }
+        else
         {
             return Token(Token::TokenType::AssignmentOperatorToken,
                          TokenVariant(""),
@@ -356,7 +346,6 @@ Token LexicalAnalyzer::buildLogicalOperatorToken()
     case ('!'):
     {
         NextCharacter nextCharacter = source->getChar();
-        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
         if (nextCharacter.nextLetter == '=')
         {
             source->getChar();
@@ -367,11 +356,107 @@ Token LexicalAnalyzer::buildLogicalOperatorToken()
         else
         {
             return Token(Token::TokenType::NotToken,
-                         TokenVariant(""),current.characterPosition, 
+                         TokenVariant(""), current.characterPosition,
                          current.absolutePosition, current.linePosition);
         }
         break;
     }
     }
     return Token(Token::TokenType::NullToken);
+}
+
+void LexicalAnalyzer::skipWhites()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (isspace(current.nextLetter) && current.nextLetter != '\n')
+    {
+        NextCharacter nextCharacter = source->getChar();
+        while (isspace(nextCharacter.nextLetter) && current.nextLetter != '\n')
+        {
+            nextCharacter = source->getChar();
+        }
+    }
+}
+
+Token LexicalAnalyzer::buildIndent()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (current.nextLetter == ' ' || current.nextLetter == '\t')
+    {
+        if (chosenIndentChar == 0)
+        {
+            chosenIndentChar = current.nextLetter;
+        }
+        else if (current.nextLetter != chosenIndentChar)
+        {
+            std::string messsage = "Inconsistent use of tabs and spaces in indentation at " +
+                                   current.getLinePosition();
+            throw NotConsistentIndent(messsage.c_str());
+        }
+        std::stringstream ss;
+        ss << current.nextLetter;
+        NextCharacter nextCharacter = source->getChar();
+        while (nextCharacter.nextLetter == chosenIndentChar)
+        {
+            ss << nextCharacter.nextLetter;
+            nextCharacter = source->getChar();
+        }
+        auto indentString = ss.str();
+        if (indentStack.top() != indentString)
+        {
+            if (indentStack.top().length() < indentString.length())
+            {
+                indentStack.push(indentString);
+                return Token(Token::TokenType::OpenBlockToken, TokenVariant(indentString),
+                current.characterPosition, current.absolutePosition, current.linePosition);
+            }
+            else
+            {
+                while (indentStack.top().length() > indentString.length())
+                {
+                    indentStack.pop();
+                }
+                if (indentStack.top().length() == indentString.length())
+                {
+                return Token(Token::TokenType::CloseBlockToken, TokenVariant(indentString),
+                    current.characterPosition, current.absolutePosition, current.linePosition);   
+                }
+                else
+                {
+                    std::string messsage = "Inconsistent indentation at " +
+                                           current.getLinePosition();
+                    throw NotConsistentIndent(messsage.c_str());
+                }
+            }
+        }
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+void LexicalAnalyzer::initKeywordTable()
+{
+    keywordTable["matrix"] = Token::TokenType::MatrixToken;
+    keywordTable["text"] = Token::TokenType::TextToken;
+    keywordTable["double"] = Token::TokenType::DoubleToken;
+    keywordTable["integer"] = Token::TokenType::IntegerToken;
+    keywordTable["function"] = Token::TokenType::FunctionToken;
+    keywordTable["void"] = Token::TokenType::VoidToken;
+    keywordTable["condition"] = Token::TokenType::ConditionToken;
+    keywordTable["case"] = Token::TokenType::CaseToken;
+    keywordTable["if"] = Token::TokenType::IfToken;
+    keywordTable["otherwise"] = Token::TokenType::OtherwiseToken;
+    keywordTable["loop"] = Token::TokenType::LoopToken;
+    keywordTable["asLongAs"] = Token::TokenType::AsLongAsToken;
+    keywordTable["continue"] = Token::TokenType::ContinueToken;
+    keywordTable["break"] = Token::TokenType::BreakToken;
+    keywordTable["default"] = Token::TokenType::DefaultToken;
+    keywordTable["true"] = Token::TokenType::TrueToken;
+    keywordTable["false"] = Token::TokenType::FalseToken;
+    keywordTable["and"] = Token::TokenType::AndToken;
+    keywordTable["or"] = Token::TokenType::OrToken;
+    keywordTable["not"] = Token::TokenType::NotToken;
+    keywordTable["det"] = Token::TokenType::DetToken;
+    keywordTable["trans"] = Token::TokenType::TransToken;
+    keywordTable["inv"] = Token::TokenType::InvToken;
+    keywordTable["return"] = Token::TokenType::ReturnToken;
 }

@@ -162,6 +162,16 @@ TEST(LexicalAnalyzerTest, trueKeywordTest)
     EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
 }
 
+TEST(LexicalAnalyzerTest, returnKeywordTest)
+{
+    StringSource src("return");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::ReturnToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
 TEST(LexicalAnalyzerTest, andKeywordTest)
 {
     StringSource src("and");
@@ -509,4 +519,122 @@ TEST(LexicalAnalyzerTest, doubleLiterals4Test)
     EXPECT_EQ(std::get<double>(token.getValue()),27.99777);
     token = lexicAna.getToken();
     EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, IndentTestFAILURE)
+{
+    std::string_view source = "  \n \n   \n";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CloseBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, Indent2Test)
+{
+    std::string_view source = "  \n  \n   \n";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+//Przeparsowane kilka linijek mpp
+TEST(LexicalAnalyzerTest, FINALTEST)
+{
+    FileSource src("../tests/res/sampleCode.mpp");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IdentifierToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()),"age");
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::AssignmentOperatorToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),45);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+   token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CommentToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()),"//dwa sposoby inicjalizacji macierzy");
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::MatrixToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenSquareBracketToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CloseSquareBracketToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenSquareBracketToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),3);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CloseSquareBracketToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IdentifierToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()),"matrix1");
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::AssignmentOperatorToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::OpenSquareBracketToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),1);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CommaToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CommaToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),3);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CommaToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),4);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CommaToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),5);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CommaToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),6);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::CloseSquareBracketToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NextLineToken);
 }

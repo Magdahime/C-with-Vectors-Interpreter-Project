@@ -36,6 +36,7 @@ public:
         ColonToken,
         OpenBlockToken,
         CloseBlockToken,
+        CommaToken,
         PointToken,
         VoidToken,
         ContinueToken,
@@ -55,7 +56,8 @@ public:
         DoubleLiteralToken,
         DetToken,
         TransToken,
-        InvToken
+        InvToken,
+        ReturnToken,
     };
 
     enum class TokenSubtype
