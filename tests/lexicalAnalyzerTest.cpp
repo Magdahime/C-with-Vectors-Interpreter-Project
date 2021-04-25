@@ -202,6 +202,37 @@ TEST(LexicalAnalyzerTest, falseKeywordTest)
     EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
 }
 
+
+TEST(LexicalAnalyzerTest, detKeywordTest)
+{
+    StringSource src("det");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::DetToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, InvKeywordTest)
+{
+    StringSource src("inv");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::InvToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, TransKeywordTest)
+{
+    StringSource src("trans");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::TransToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
 TEST(LexicalAnalyzerTest, commentKeywordTest)
 {
     StringSource src("#To jest komentarz\n");
@@ -286,6 +317,52 @@ TEST(LexicalAnalyzerTest, someOperatorsTest)
     EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::MinusToken);
     token = lexicAna.getToken();
     EXPECT_EQ(token.getType(), Token::TokenType::ColonToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, someOperators2Test)
+{
+    StringSource src("==<=>==!!=");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::EqualToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::LessOrEqualToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::GreaterOrEqualToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::AssignmentOperatorToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::NotToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::NotEqualToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, someOperators3Test)
+{
+    StringSource src("<<==>>");
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::LessToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::LessOrEqualToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::AssignmentOperatorToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::GreaterToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::LogicalOperatorToken);
+    EXPECT_EQ(token.getSubtype(), Token::TokenSubtype::GreaterToken);
     token = lexicAna.getToken();
     EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
 }

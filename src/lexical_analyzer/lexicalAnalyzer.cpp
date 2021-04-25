@@ -23,6 +23,9 @@ Token LexicalAnalyzer::getToken()
     nextToken = buildOneCharToken();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
+    nextToken = buildLogicalOperatorToken();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
     return buildUnindentified();
 }
 
@@ -48,6 +51,9 @@ void LexicalAnalyzer::initKeywordTable()
     keywordTable["and"] = Token::TokenType::AndToken;
     keywordTable["or"] = Token::TokenType::OrToken;
     keywordTable["not"] = Token::TokenType::NotToken;
+    keywordTable["det"] = Token::TokenType::DetToken;
+    keywordTable["trans"] = Token::TokenType::TransToken;
+    keywordTable["inv"] = Token::TokenType::InvToken;
 }
 
 Token LexicalAnalyzer::buildIdentifierOrKeyword()
@@ -265,7 +271,7 @@ Token LexicalAnalyzer::buildNumber()
             double doubleBase = 0.1;
             while (isdigit(nextCharacter.nextLetter))
             {
-                doubleToBe += doubleBase * (nextCharacter.nextLetter -'0');
+                doubleToBe += doubleBase * (nextCharacter.nextLetter - '0');
                 doubleBase *= 0.1;
                 nextCharacter = source->getChar();
             }
@@ -279,6 +285,93 @@ Token LexicalAnalyzer::buildNumber()
                          TokenVariant(integerToBe), current.characterPosition,
                          current.absolutePosition, current.linePosition);
         }
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildLogicalOperatorToken()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    std::cout << "CURR: "<<current.nextLetter << std::endl;
+    switch (current.nextLetter)
+    {
+    case ('<'):
+    {
+        NextCharacter nextCharacter = source->getChar();
+        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
+        if (nextCharacter.nextLetter == '=')
+        {
+            source->getChar();
+            return Token(Token::TokenType::LogicalOperatorToken,
+                         Token::TokenSubtype::LessOrEqualToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        else
+        {
+            return Token(Token::TokenType::LogicalOperatorToken,
+                         Token::TokenSubtype::LessToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        break;
+    }
+
+    case ('>'):
+    {
+        NextCharacter nextCharacter = source->getChar();
+        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
+        if (nextCharacter.nextLetter == '=')
+        {
+            source->getChar();
+            return Token(Token::TokenType::LogicalOperatorToken,
+                         Token::TokenSubtype::GreaterOrEqualToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        else
+        {
+            return Token(Token::TokenType::LogicalOperatorToken,
+                         Token::TokenSubtype::GreaterToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        break;
+    }
+
+    case ('='):
+    {
+        NextCharacter nextCharacter = source->getChar();
+        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
+        if (nextCharacter.nextLetter == '='){
+            source->getChar();
+            return Token(Token::TokenType::LogicalOperatorToken,
+                         Token::TokenSubtype::EqualToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }else
+        {
+            return Token(Token::TokenType::AssignmentOperatorToken,
+                         TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        break;
+    }
+
+    case ('!'):
+    {
+        NextCharacter nextCharacter = source->getChar();
+        std::cout<<"NEXT "<<nextCharacter.nextLetter<<std::endl;
+        if (nextCharacter.nextLetter == '=')
+        {
+            source->getChar();
+            return Token(Token::TokenType::LogicalOperatorToken,
+                         Token::TokenSubtype::NotEqualToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        else
+        {
+            return Token(Token::TokenType::NotToken,
+                         TokenVariant(""),current.characterPosition, 
+                         current.absolutePosition, current.linePosition);
+        }
+        break;
+    }
     }
     return Token(Token::TokenType::NullToken);
 }

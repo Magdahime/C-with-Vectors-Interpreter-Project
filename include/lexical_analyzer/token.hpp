@@ -17,7 +17,6 @@ public:
         DoubleToken,
         AdditiveOperatorToken,
         MultiplicativeOperatorToken,
-        MatrixOperationToken,
         RelationalOperatorToken,
         LogicalOperatorToken,
         AssignmentOperatorToken,
@@ -37,7 +36,6 @@ public:
         ColonToken,
         OpenBlockToken,
         CloseBlockToken,
-        ApostropheToken,
         PointToken,
         VoidToken,
         ContinueToken,
@@ -54,7 +52,10 @@ public:
         NotToken,
         StringLiteralToken,
         IntegerLiteralToken,
-        DoubleLiteralToken
+        DoubleLiteralToken,
+        DetToken,
+        TransToken,
+        InvToken
     };
 
     enum class TokenSubtype
@@ -63,6 +64,10 @@ public:
         MinusToken,
         GreaterOrEqualToken,
         LessOrEqualToken,
+        LessToken,
+        GreaterToken,
+        EqualToken,
+        NotEqualToken,
         DivisionToken,
         MultiplicationToken,
     };
