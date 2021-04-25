@@ -289,3 +289,51 @@ TEST(LexicalAnalyzerTest, someOperatorsTest)
     token = lexicAna.getToken();
     EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
 }
+
+TEST(LexicalAnalyzerTest, stringLiteralsTest)
+{
+    std::string_view source = "'\\t\\nmamatata..43224\"\".:  '";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()).size(), source.size()-2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, stringLiterals2Test)
+{
+    std::string_view source = "'                        '";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()).size(), source.size()-2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, stringLiteralTestFAILURE)
+{
+    std::string_view source = "'  \n";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()).size(), source.size()-2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, stringLiterals4Test)
+{
+    std::string_view source = "'                    '";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token.getValue()).size(), source.size()-2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}

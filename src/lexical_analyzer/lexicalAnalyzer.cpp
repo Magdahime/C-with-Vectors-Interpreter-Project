@@ -2,8 +2,10 @@
 
 Token LexicalAnalyzer::getToken()
 {
-
     Token nextToken = buildEOF();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
+    nextToken = buildStringLiteral();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
     nextToken = buildIdentifierOrKeyword();
@@ -18,7 +20,6 @@ Token LexicalAnalyzer::getToken()
     nextToken = buildOneCharToken();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
-
     return buildUnindentified();
 }
 
@@ -91,8 +92,8 @@ Token LexicalAnalyzer::buildComment()
         ss << current.nextLetter;
         uint32_t length = 1;
         NextCharacter nextCharacter = source->getChar();
-        while (nextCharacter.nextLetter != '\n' &&
-               nextCharacter.nextLetter != '\0' && ss.str().length() <= MAXSIZE)
+        while (length <= MAXSIZE && nextCharacter.nextLetter != '\n' &&
+               nextCharacter.nextLetter != '\0' )
         {
             ss << nextCharacter.nextLetter;
             nextCharacter = source->getChar();
@@ -100,10 +101,7 @@ Token LexicalAnalyzer::buildComment()
         }
         if (length >= MAXSIZE)
         {
-            std::string message = "Commentary at " 
-            + std::to_string(current.characterPosition) 
-            + " : " + std::to_string(current.linePosition) 
-            + " is too long.";
+            std::string message = "Commentary at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is too long.";
             throw TooLongStringLiteral(message.c_str());
         }
         return Token(Token::TokenType::CommentToken, TokenVariant(ss.str()),
@@ -132,7 +130,8 @@ Token LexicalAnalyzer::buildDivisionTokenOrComment()
             ss << nextCharacter.nextLetter;
             nextCharacter = source->getChar();
             uint32_t length = 2;
-            while (nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != '\0' && length < MAXSIZE)
+            while (length < MAXSIZE && 
+            nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != '\0')
             {
                 ss << nextCharacter.nextLetter;
                 nextCharacter = source->getChar();
@@ -140,10 +139,7 @@ Token LexicalAnalyzer::buildDivisionTokenOrComment()
             }
             if (length >= MAXSIZE)
             {
-                std::string message = "Commentary at " 
-                + std::to_string(current.characterPosition) 
-                + " : " + std::to_string(current.linePosition) 
-                + " is too long.";
+                std::string message = "Commentary at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is too long.";
                 throw TooLongStringLiteral(message.c_str());
             }
 
@@ -203,6 +199,47 @@ Token LexicalAnalyzer::buildOneCharToken()
         source->getChar();
         return Token(Token::TokenType::PointToken, TokenVariant("."),
                      current.characterPosition, current.absolutePosition, current.linePosition);
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildStringLiteral()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (current.nextLetter == '\'' || current.nextLetter == '\"')
+    {
+        char delimiter = current.nextLetter;
+        std::stringstream ss;
+        NextCharacter nextCharacter = source->getChar();
+        uint32_t length = 1;
+        while (length < MAXSIZE && isprint(nextCharacter.nextLetter) 
+                && nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != delimiter
+                && nextCharacter.nextLetter != '\0')
+        {
+            ss << nextCharacter.nextLetter;
+            nextCharacter = source->getChar();
+            length++;
+        }
+        if (length >= MAXSIZE){
+                std::string message = "String literal at " 
+                + std::to_string(current.characterPosition) 
+                + " : " + std::to_string(current.linePosition) 
+                + " is too long.";
+                throw TooLongStringLiteral(message.c_str());
+        }else if(nextCharacter.nextLetter == delimiter){
+            source->getChar();
+            return Token(Token::TokenType::StringLiteralToken,
+                    TokenVariant(ss.str()), 
+                    current.characterPosition, 
+                    current.absolutePosition,
+                    current.linePosition);
+        }else{
+            std::string message = "String literal at " 
+                + std::to_string(current.characterPosition) 
+                + " : " + std::to_string(current.linePosition) 
+                + " is malformed.";
+            throw WronglyDefinedStringLiteral(message.c_str());
+        }
     }
     return Token(Token::TokenType::NullToken);
 }

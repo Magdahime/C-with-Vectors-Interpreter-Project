@@ -42,3 +42,8 @@ class TooLongStringLiteral : public Exception {
 public:
     TooLongStringLiteral(const char *m) : Exception(m) {}
 };
+
+class WronglyDefinedStringLiteral : public Exception {
+public:
+    WronglyDefinedStringLiteral(const char *m) : Exception(m) {}
+};

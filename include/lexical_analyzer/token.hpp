@@ -52,6 +52,7 @@ public:
         AndToken,
         OrToken,
         NotToken,
+        StringLiteralToken,
     };
 
     enum class TokenSubtype
@@ -75,8 +76,8 @@ public:
     Token(TokenType type) : type(type) {}
     Token(TokenType type, TokenVariant value) : type(type), value(value) {}
     TokenType getType() { return type; }
-    TokenSubtype getSubtype(){return subtype;}
-    TokenVariant getValue() const { return value; }
+    TokenSubtype getSubtype() { return subtype; }
+    TokenVariant getValue() const{return value;}
     uint64_t getCharacterPosition() { return characterPosition; }
     uint64_t getAbsolutePosition() { return absolutePosition; }
     uint64_t getLinePosition() { return linePosition; }

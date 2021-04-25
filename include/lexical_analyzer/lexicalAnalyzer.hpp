@@ -14,8 +14,7 @@ private:
     Token buildNumber();
     Token buildIdentifierOrKeyword();
     Token buildDivisionTokenOrComment();
-    Token buildConstString();
-    Token buildMatrix();
+    Token buildStringLiteral();
     Token buildComment();
     Token buildUnindentified();
     Token buildLogicalOperatorToken();
