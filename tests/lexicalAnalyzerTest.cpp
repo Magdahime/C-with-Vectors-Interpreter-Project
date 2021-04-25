@@ -337,3 +337,99 @@ TEST(LexicalAnalyzerTest, stringLiterals4Test)
     token = lexicAna.getToken();
     EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
 }
+
+TEST(LexicalAnalyzerTest, integerLiteralsTest)
+{
+    std::string_view source = "4";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),4);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, integerLiterals2Test)
+{
+    std::string_view source = "999";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),999);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, integerLiterals3Test)
+{
+    std::string_view source = "27";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),27);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, integerLiterals4Test)
+{
+    std::string_view source = "5555555";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::IntegerLiteralToken);
+    EXPECT_EQ(std::get<int64_t>(token.getValue()),5555555);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, doubleLiteralsTest)
+{
+    std::string_view source = "4.";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::DoubleLiteralToken);
+    EXPECT_EQ(std::get<double>(token.getValue()),4.0);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, doubleLiterals2Test)
+{
+    std::string_view source = "999.";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::DoubleLiteralToken);
+    EXPECT_EQ(std::get<double>(token.getValue()),999.0);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, doubleLiterals3Test)
+{
+    std::string_view source = "999.99";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::DoubleLiteralToken);
+    EXPECT_EQ(std::get<double>(token.getValue()), 999.99);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, doubleLiterals4Test)
+{
+    std::string_view source = "27.99777";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    Token token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::DoubleLiteralToken);
+    EXPECT_EQ(std::get<double>(token.getValue()),27.99777);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token.getType(), Token::TokenType::EndOfFileToken);
+}

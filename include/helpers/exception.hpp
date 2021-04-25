@@ -47,3 +47,8 @@ class WronglyDefinedStringLiteral : public Exception {
 public:
     WronglyDefinedStringLiteral(const char *m) : Exception(m) {}
 };
+
+class WronglyDefinedNumberLiteral : public Exception {
+public:
+    WronglyDefinedNumberLiteral(const char *m) : Exception(m) {}
+};

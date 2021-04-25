@@ -8,6 +8,9 @@ Token LexicalAnalyzer::getToken()
     nextToken = buildStringLiteral();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
+    nextToken = buildNumber();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
     nextToken = buildIdentifierOrKeyword();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
@@ -93,7 +96,7 @@ Token LexicalAnalyzer::buildComment()
         uint32_t length = 1;
         NextCharacter nextCharacter = source->getChar();
         while (length <= MAXSIZE && nextCharacter.nextLetter != '\n' &&
-               nextCharacter.nextLetter != '\0' )
+               nextCharacter.nextLetter != '\0')
         {
             ss << nextCharacter.nextLetter;
             nextCharacter = source->getChar();
@@ -130,8 +133,8 @@ Token LexicalAnalyzer::buildDivisionTokenOrComment()
             ss << nextCharacter.nextLetter;
             nextCharacter = source->getChar();
             uint32_t length = 2;
-            while (length < MAXSIZE && 
-            nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != '\0')
+            while (length < MAXSIZE &&
+                   nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != '\0')
             {
                 ss << nextCharacter.nextLetter;
                 nextCharacter = source->getChar();
@@ -212,33 +215,69 @@ Token LexicalAnalyzer::buildStringLiteral()
         std::stringstream ss;
         NextCharacter nextCharacter = source->getChar();
         uint32_t length = 1;
-        while (length < MAXSIZE && isprint(nextCharacter.nextLetter) 
-                && nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != delimiter
-                && nextCharacter.nextLetter != '\0')
+        while (length < MAXSIZE && isprint(nextCharacter.nextLetter) && nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != delimiter && nextCharacter.nextLetter != '\0')
         {
             ss << nextCharacter.nextLetter;
             nextCharacter = source->getChar();
             length++;
         }
-        if (length >= MAXSIZE){
-                std::string message = "String literal at " 
-                + std::to_string(current.characterPosition) 
-                + " : " + std::to_string(current.linePosition) 
-                + " is too long.";
-                throw TooLongStringLiteral(message.c_str());
-        }else if(nextCharacter.nextLetter == delimiter){
+        if (length >= MAXSIZE)
+        {
+            std::string message = "String literal at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is too long.";
+            throw TooLongStringLiteral(message.c_str());
+        }
+        else if (nextCharacter.nextLetter == delimiter)
+        {
             source->getChar();
             return Token(Token::TokenType::StringLiteralToken,
-                    TokenVariant(ss.str()), 
-                    current.characterPosition, 
-                    current.absolutePosition,
-                    current.linePosition);
-        }else{
-            std::string message = "String literal at " 
-                + std::to_string(current.characterPosition) 
-                + " : " + std::to_string(current.linePosition) 
-                + " is malformed.";
+                         TokenVariant(ss.str()),
+                         current.characterPosition,
+                         current.absolutePosition,
+                         current.linePosition);
+        }
+        else
+        {
+            std::string message = "String literal at " + std::to_string(current.characterPosition) + " : " + std::to_string(current.linePosition) + " is malformed.";
             throw WronglyDefinedStringLiteral(message.c_str());
+        }
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildNumber()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (isdigit(current.nextLetter))
+    {
+        int64_t integerToBe = current.nextLetter - '0';
+        uint64_t base = 10;
+        NextCharacter nextCharacter = source->getChar();
+        while (isdigit(nextCharacter.nextLetter))
+        {
+            integerToBe *= base;
+            integerToBe += nextCharacter.nextLetter - '0';
+            nextCharacter = source->getChar();
+        }
+        if (nextCharacter.nextLetter == '.')
+        {
+            nextCharacter = source->getChar();
+            double doubleToBe = integerToBe;
+            double doubleBase = 0.1;
+            while (isdigit(nextCharacter.nextLetter))
+            {
+                doubleToBe += doubleBase * (nextCharacter.nextLetter -'0');
+                doubleBase *= 0.1;
+                nextCharacter = source->getChar();
+            }
+            return Token(Token::TokenType::DoubleLiteralToken,
+                         TokenVariant(doubleToBe), current.characterPosition,
+                         current.absolutePosition, current.linePosition);
+        }
+        else
+        {
+            return Token(Token::TokenType::IntegerLiteralToken,
+                         TokenVariant(integerToBe), current.characterPosition,
+                         current.absolutePosition, current.linePosition);
         }
     }
     return Token(Token::TokenType::NullToken);

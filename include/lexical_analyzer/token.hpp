@@ -53,6 +53,8 @@ public:
         OrToken,
         NotToken,
         StringLiteralToken,
+        IntegerLiteralToken,
+        DoubleLiteralToken
     };
 
     enum class TokenSubtype
