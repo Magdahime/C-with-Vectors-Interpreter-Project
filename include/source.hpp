@@ -75,7 +75,7 @@ private:
 class StringSource : public SourceBase
 {
 public:
-    virtual void open() {}
+    virtual void open();
     virtual void close() {}
     virtual NextCharacter getChar() override;
     StringSource(const std::string_view &codeSource) : stringSource(codeSource)

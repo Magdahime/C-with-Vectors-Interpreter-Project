@@ -4,20 +4,28 @@
 class LexicalAnalyzer
 {
 public:
-    LexicalAnalyzer(SourceBase* source):source(source){};
+    LexicalAnalyzer(SourceBase* source):source(source){
+        source->open();
+        initKeywordTable();
+    };
     Token getToken();
+
+private:
     Token buildNumber();
     Token buildIdentifierOrKeyword();
-    Token buildOperator();
+    Token buildDivisionTokenOrComment();
     Token buildConstString();
     Token buildMatrix();
     Token buildComment();
-private:
-    Token buildInteger();
-    Token buildFloatingPoint();
+    Token buildUnindentified();
+    Token buildLogicalOperatorToken();
+    Token buildEOF();
+    Token buildOneCharToken();
+    Token buildIndentToken();
     SourceBase* source;
     std::map<std::string, Token::TokenType> keywordTable;
     void initKeywordTable();
+    const uint32_t MAXSIZE = 2048;
 };
 
 using LexicalAnalyzerUptr = std::unique_ptr<LexicalAnalyzer>;

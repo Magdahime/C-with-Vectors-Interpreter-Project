@@ -2,6 +2,7 @@
 #include <memory>
 class Positioner{
 public:
+    Positioner() = default;
     void nextChar();
     void nextLine();
     uint64_t getChar() const {return character;}

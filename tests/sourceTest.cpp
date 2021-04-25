@@ -8,7 +8,8 @@ std::string sample = "test";
 TEST(SourceTest, openStringTest)
 {
     StringSource src(sample);
-    NextCharacter letter = src.getChar();
+    src.open();
+    NextCharacter letter = src.getCurrentCharacter();
     EXPECT_EQ(letter.nextLetter, 't');
     EXPECT_EQ(letter.absolutePosition, 0);
     EXPECT_EQ(letter.characterPosition, 0);
@@ -24,7 +25,7 @@ TEST(SourceTest, openFileTest)
 {
     FileSource src("../tests/res/sampleText.txt");
     src.open();
-    NextCharacter letter = src.getChar();
+    NextCharacter letter = src.getCurrentCharacter();
     EXPECT_EQ(letter.nextLetter, 'L');
     EXPECT_EQ(letter.absolutePosition, 0);
     EXPECT_EQ(letter.characterPosition, 0);
@@ -44,7 +45,7 @@ TEST(SourceTest, openSocketTest)
     thread1.join();
     thread2.join();
     src.open();
-    NextCharacter letter = src.getChar();
+    NextCharacter letter = src.getCurrentCharacter();
     EXPECT_EQ(letter.nextLetter, 't');
     EXPECT_EQ(letter.absolutePosition, 0);
     EXPECT_EQ(letter.characterPosition, 0);

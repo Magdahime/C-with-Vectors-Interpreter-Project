@@ -3,10 +3,17 @@
 void FileSource::open()
 {
     fileSource.open(filepath, std::fstream::in);
+    currentCharacter = getChar();
 }
 void SocketSource::open()
 {
     socketSource = socketWrapper->getSocket();
+    currentCharacter = getChar();
+}
+
+void StringSource::open(){
+
+    currentCharacter = getChar();
 }
 
 void FileSource::close()
@@ -34,6 +41,8 @@ NextCharacter StringSource::getChar()
 NextCharacter FileSource::getChar()
 {
     char letter = fileSource.get();
+    if(fileSource.eof())
+        letter = '\0';
     currentCharacter = NextCharacter(letter, positioner->getAbsolutePosition(),
                                      positioner->getChar(), positioner->getLine());
     positioner->nextChar();

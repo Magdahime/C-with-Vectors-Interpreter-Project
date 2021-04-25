@@ -2,12 +2,24 @@
 
 Token LexicalAnalyzer::getToken()
 {
-    NextCharacter current = source->getCurrentCharacter();
-    Token nextToken = buildIdentifierOrKeyword();
+
+    Token nextToken = buildEOF();
     if (nextToken.getType() != Token::TokenType::NullToken)
         return nextToken;
-    return Token(Token::TokenType::UndentifiedToken, TokenVariant(""),
-                 current.characterPosition, current.absolutePosition, current.linePosition);
+    nextToken = buildIdentifierOrKeyword();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
+    nextToken = buildComment();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
+    nextToken = buildDivisionTokenOrComment();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
+    nextToken = buildOneCharToken();
+    if (nextToken.getType() != Token::TokenType::NullToken)
+        return nextToken;
+
+    return buildUnindentified();
 }
 
 void LexicalAnalyzer::initKeywordTable()
@@ -29,32 +41,18 @@ void LexicalAnalyzer::initKeywordTable()
     keywordTable["default"] = Token::TokenType::DefaultToken;
     keywordTable["true"] = Token::TokenType::TrueToken;
     keywordTable["false"] = Token::TokenType::FalseToken;
-    keywordTable["#"] = Token::TokenType::CommentToken;
-    keywordTable["//"] = Token::TokenType::CommentToken;
+    keywordTable["and"] = Token::TokenType::AndToken;
+    keywordTable["or"] = Token::TokenType::OrToken;
+    keywordTable["not"] = Token::TokenType::NotToken;
 }
-
-// Token LexicalAnalyzer::buildInteger(){
-//     if(isdigit(source->getCurrentCharacter())){
-//         uint64_t integerToBe = source->getCurrentCharacter();
-//         uint64_t base = 10;
-//         NextCharacter nextCharacter = source->getChar();
-//         while(isdigit(nextCharacter.nextLetter)){
-//             integerToBe += base * nextCharacter.nextLetter;
-//         }
-//         if(isspace(source->getCurrentCharacter())){
-
-//         }
-//     }
-//     return Token(Token::TokenType::NullToken);
-// }
 
 Token LexicalAnalyzer::buildIdentifierOrKeyword()
 {
-    NextCharacter currentCharacter = source->getCurrentCharacter();
-    if (isalpha(currentCharacter.nextLetter))
+    NextCharacter current = source->getCurrentCharacter();
+    if (isalpha(current.nextLetter))
     {
         std::stringstream ss;
-        ss << currentCharacter.nextLetter;
+        ss << current.nextLetter;
         NextCharacter nextCharacter = source->getChar();
         while (isalpha(nextCharacter.nextLetter))
         {
@@ -64,11 +62,147 @@ Token LexicalAnalyzer::buildIdentifierOrKeyword()
         auto type = keywordTable.find(ss.str());
         if (type != keywordTable.end())
             return Token(type->second, TokenVariant(ss.str()),
-                         currentCharacter.characterPosition, currentCharacter.absolutePosition,
-                         currentCharacter.linePosition);
+                         current.characterPosition, current.absolutePosition,
+                         current.linePosition);
         else
             return Token(Token::TokenType::IdentifierToken, TokenVariant(ss.str()),
-                         currentCharacter.characterPosition, currentCharacter.absolutePosition, currentCharacter.linePosition);
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildEOF()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (current.nextLetter == '\0')
+    {
+        return Token(Token::TokenType::EndOfFileToken, TokenVariant(""),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildComment()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (current.nextLetter == '#')
+    {
+        std::stringstream ss;
+        ss << current.nextLetter;
+        uint32_t length = 1;
+        NextCharacter nextCharacter = source->getChar();
+        while (nextCharacter.nextLetter != '\n' &&
+               nextCharacter.nextLetter != '\0' && ss.str().length() <= MAXSIZE)
+        {
+            ss << nextCharacter.nextLetter;
+            nextCharacter = source->getChar();
+            ++length;
+        }
+        if (length >= MAXSIZE)
+        {
+            std::string message = "Commentary at " 
+            + std::to_string(current.characterPosition) 
+            + " : " + std::to_string(current.linePosition) 
+            + " is too long.";
+            throw TooLongStringLiteral(message.c_str());
+        }
+        return Token(Token::TokenType::CommentToken, TokenVariant(ss.str()),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildUnindentified()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    return Token(Token::TokenType::UnindentifiedToken, TokenVariant(""),
+                 current.characterPosition, current.absolutePosition, current.linePosition);
+}
+
+Token LexicalAnalyzer::buildDivisionTokenOrComment()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    if (current.nextLetter == '/')
+    {
+        std::stringstream ss;
+        ss << current.nextLetter;
+        NextCharacter nextCharacter = source->getChar();
+        if (current.nextLetter == '/')
+        {
+            ss << nextCharacter.nextLetter;
+            nextCharacter = source->getChar();
+            uint32_t length = 2;
+            while (nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != '\0' && length < MAXSIZE)
+            {
+                ss << nextCharacter.nextLetter;
+                nextCharacter = source->getChar();
+                ++length;
+            }
+            if (length >= MAXSIZE)
+            {
+                std::string message = "Commentary at " 
+                + std::to_string(current.characterPosition) 
+                + " : " + std::to_string(current.linePosition) 
+                + " is too long.";
+                throw TooLongStringLiteral(message.c_str());
+            }
+
+            return Token(Token::TokenType::CommentToken, TokenVariant(ss.str()),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+        else
+        {
+            return Token(Token::TokenType::MultiplicativeOperatorToken,
+                         Token::TokenSubtype::DivisionToken, TokenVariant(""),
+                         current.characterPosition, current.absolutePosition, current.linePosition);
+        }
+    }
+    return Token(Token::TokenType::NullToken);
+}
+
+Token LexicalAnalyzer::buildOneCharToken()
+{
+    NextCharacter current = source->getCurrentCharacter();
+    switch (current.nextLetter)
+    {
+    case ('+'):
+        source->getChar();
+        return Token(Token::TokenType::AdditiveOperatorToken, Token::TokenSubtype::PlusToken,
+                     TokenVariant("+"),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case ('\n'):
+        source->getChar();
+        return Token(Token::TokenType::NextLineToken, TokenVariant("\n"),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case ('-'):
+        source->getChar();
+        return Token(Token::TokenType::AdditiveOperatorToken, Token::TokenSubtype::MinusToken,
+                     TokenVariant("-"),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case ('('):
+        source->getChar();
+        return Token(Token::TokenType::OpenRoundBracketToken, TokenVariant("("),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case (')'):
+        source->getChar();
+        return Token(Token::TokenType::CloseRoundBracketToken, TokenVariant("("),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case ('['):
+        source->getChar();
+        return Token(Token::TokenType::OpenSquareBracketToken, TokenVariant("["),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case (']'):
+        source->getChar();
+        return Token(Token::TokenType::CloseSquareBracketToken, TokenVariant("]"),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case (':'):
+        source->getChar();
+        return Token(Token::TokenType::ColonToken, TokenVariant(":"),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
+    case ('.'):
+        source->getChar();
+        return Token(Token::TokenType::PointToken, TokenVariant("."),
+                     current.characterPosition, current.absolutePosition, current.linePosition);
     }
     return Token(Token::TokenType::NullToken);
 }

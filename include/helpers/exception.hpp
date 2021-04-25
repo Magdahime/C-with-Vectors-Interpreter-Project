@@ -37,3 +37,8 @@ class CannotCreateSourceException : public Exception {
 public:
     CannotCreateSourceException(const char *m) : Exception(m) {}
 };
+
+class TooLongStringLiteral : public Exception {
+public:
+    TooLongStringLiteral(const char *m) : Exception(m) {}
+};
