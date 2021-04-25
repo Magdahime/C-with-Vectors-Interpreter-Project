@@ -1,38 +1,64 @@
 #include "source.hpp"
 
-Source::Source()
+void FileSource::open()
 {
-    positioner = std::make_unique<Positioner>();
-    socketWrapper = std::make_unique<SocketWrapper>();
+    fileSource.open(filepath, std::fstream::in);
 }
-void Source::openFile(std::string filepath)
+void SocketSource::open()
 {
-    codeSource = std::fstream();
-    std::get<std::fstream>(codeSource).open(filepath, std::ios::out | std::ios::in);
-}
-void Source::openString(std::string sourceString)
-{
-    codeSource = sourceString;
-}
-void Source::openSocket(int socket)
-{
-    codeSource = socket;
+    socketSource = socketWrapper->getSocket();
 }
 
-Source::NextCharacter Source::getChar()
+void FileSource::close()
 {
-    char letter;
-    std::visit(VisitSource(), codeSource,
-               std::variant<uint64_t>(positioner->getAbsolutePosition()),
-               std::variant<char *>(&letter));
+    fileSource.close();
+}
+void SocketSource::close()
+{
+    ::close(socketSource);
+}
+
+NextCharacter StringSource::getChar()
+{
+    char letter = stringSource[positioner->getAbsolutePosition()];
+    currentCharacter = NextCharacter(letter, positioner->getAbsolutePosition(),
+                                     positioner->getChar(), positioner->getLine());
     positioner->nextChar();
     if (letter == '\n')
+    {
         positioner->nextLine();
-    return Source::NextCharacter(letter, positioner->getAbsolutePosition(),
-                                positioner->getChar(), positioner->getLine());
+    }
+    return currentCharacter;
 }
 
-Source::~Source()
+NextCharacter FileSource::getChar()
 {
-    std::visit(ClosingVisitSource(), codeSource);
+    char letter = fileSource.get();
+    currentCharacter = NextCharacter(letter, positioner->getAbsolutePosition(),
+                                     positioner->getChar(), positioner->getLine());
+    positioner->nextChar();
+    if (letter == '\n')
+    {
+        positioner->nextLine();
+    }
+    return currentCharacter;
+}
+
+NextCharacter SocketSource::getChar()
+{
+    char letter[1];
+    read(socketSource, letter, 1);
+    currentCharacter = NextCharacter(*(letter), positioner->getAbsolutePosition(),
+                                     positioner->getChar(), positioner->getLine());
+    positioner->nextChar();
+    if (letter[0] == '\n')
+    {
+        positioner->nextLine();
+    }
+    return currentCharacter;
+}
+
+void SocketSource::waitForData()
+{
+    socketWrapper->initSocket();
 }

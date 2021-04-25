@@ -1,10 +1,7 @@
 #include "program.hpp"
 
-std::mutex Program::singletonMutex;
-
 Program::Program()
 {
-    source = std::make_unique<Source>();
     flagResolver = std::make_unique<FlagResolver>();
 };
 
@@ -14,7 +11,7 @@ Program &Program::getInstance()
     return program;
 }
 
-void Program::start(int argc, std::vector<std::string> &arguments)
+void Program::start(const int argc, const std::vector<std::string_view> &arguments)
 {
 
     if (argc == 1)
@@ -27,38 +24,34 @@ void Program::start(int argc, std::vector<std::string> &arguments)
     }
 }
 
-void Program::parseFlags(std::vector<std::string> &arguments)
+void Program::parseFlags(const std::vector<std::string_view> &arguments)
 {
     try
     {
-        std::string sourceString = std::string(arguments[2]);
-        switch (flagResolver->resolveOption(arguments[1]))
+        auto option = flagResolver->resolveOption(arguments[1]);
+        switch (option)
         {
         case (FlagResolver::Options::File):
-            startWFile(arguments[2]);
-            break;
         case (FlagResolver::Options::Socket):
-            startWSocket(std::stoi(arguments[2]));
-            break;
         case (FlagResolver::Options::String):
-            startWString(sourceString);
+            source = SourceFactory().createSource(option, arguments);
             break;
         case (FlagResolver::Options::Help):
             showHelp();
             break;
         default:
-            throw CustomExceptions::Exception(CustomExceptions::ExceptionType::InvalidFlagOptions,
-                                              "Flags you provided are invalid. Try --help for help");
+            throw WrongFlagsException("Flags you provided are invalid. Try --help for help");
+            break;
         }
     }
-    catch (CustomExceptions::Exception &ex)
+    catch (WrongFlagsException &ex)
     {
         std::cout << ex.what() << "\n";
         return;
     }
 }
 
-void Program::showHelp()
+void Program::showHelp() const 
 {
 
     std::cout << "*******************************************************************\n";
@@ -70,26 +63,7 @@ void Program::showHelp()
     std::cout << "*******************************************************************\n";
 }
 
-void Program::startInterpreter()
+void Program::startInterpreter() const
 {
     std::cout << "Hello from interpreter!" << std::endl;
-}
-
-void Program::startWFile(std::string &pathToFile)
-{
-
-    if (!std::filesystem::exists(pathToFile))
-        throw CustomExceptions::Exception(CustomExceptions::ExceptionType::StringNotAPath,
-                                          "String you provided is not a valid path!");
-    source->openFile(pathToFile);
-}
-
-void Program::startWSocket(int socket)
-{
-    source->openSocket(socket);
-}
-
-void Program::startWString(std::string &sourceString)
-{
-    source->openString(sourceString);
 }

@@ -1,30 +1,39 @@
 #pragma once
-#include <string>
+#include <stdexcept>
 
-class CustomExceptions
+class Exception : public std::runtime_error
 {
 public:
-    enum class ExceptionType
-    {   
-        InvalidFlagOptions,
-        WrongIndent,
-        WrongKeyword,
-        WrongEndingOfFormula,
-        UnexpectedEndOfFile,
-        StringNotAPath,
-        SocketProblem,
-    };
+    Exception(const char *m) : std::runtime_error(m) {}
+};
 
-    class Exception : public std::exception
-    {
-    public:
-        Exception(ExceptionType type, const std::string &message);
-        Exception(ExceptionType type, const std::string &message, std::string function, int line, int position);
-        virtual ~Exception() = default;
-        virtual const char *what() const noexcept override;
-        ExceptionType getType(){return type;}
-    private:
-        ExceptionType type;
-        std::string message;
-    };
+class SocketProblemException : public Exception
+{
+public:
+    SocketProblemException(const char *m) : Exception(m) {}
+};
+class WrongIndentException : public Exception
+{
+public:
+    WrongIndentException(const char *m) : Exception(m) {}
+};
+class WrongKeywordException : public Exception
+{
+public:
+    WrongKeywordException(const char *m) : Exception(m) {}
+};
+class WrongFlagsException : public Exception
+{
+public:
+    WrongFlagsException(const char *m) : Exception(m) {}
+};
+class WrongFilepathException : public Exception
+{
+public:
+    WrongFilepathException(const char *m) : Exception(m) {}
+};
+
+class CannotCreateSourceException : public Exception {
+public:
+    CannotCreateSourceException(const char *m) : Exception(m) {}
 };

@@ -23,8 +23,8 @@ set(SOURCES
         ${SOURCE_DIRECTORY}/main.cpp
         ${SOURCE_DIRECTORY}/program.cpp
         ${SOURCE_DIRECTORY}/source.cpp
+        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
         ${LEXICAL_ANALYZER_DIRECTORY}lexicalAnalyzer.cpp
-        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/exception.cpp
         ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
 )
 

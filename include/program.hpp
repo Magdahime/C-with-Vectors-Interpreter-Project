@@ -2,16 +2,17 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <string_view>
 #include <mutex>
 #include <filesystem>
-#include "helpers/exception.hpp"
-#include "source.hpp"
+#include "helpers/sourceFactory.hpp"
 #include "helpers/flagResolver.hpp"
+#include "lexical_analyzer/lexicalAnalyzer.hpp"
 
 class Program
 {
 public:
-    void start(int argc, std::vector<std::string>& arguments);
+    void start(const int argc, const std::vector<std::string_view>& arguments);
     static Program &getInstance();
 
 private:
@@ -19,14 +20,12 @@ private:
     ~Program() = default;
     Program(const Program &) = delete;
     Program &operator=(const Program &) = delete;
-    SourceUptr source;
+    SourceSptr source;
     FlagResolverUptr flagResolver;
+    LexicalAnalyzerUptr lexicalAnalyzer;
 
-    static std::mutex singletonMutex;
-    void startInterpreter();
-    void startWFile(std::string& pathToFile);
-    void startWString(std::string& sourceString);
-    void startWSocket(int socket);
-    void parseFlags(std::vector<std::string>& arguments);
-    void showHelp();
+    void startInterpreter() const;
+    void openSource();
+    void parseFlags(const std::vector<std::string_view>& arguments);
+    void showHelp() const;
 };

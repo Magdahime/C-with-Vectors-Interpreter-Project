@@ -16,20 +16,17 @@ public:
     {
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
         if (serverSocket == -1)
-            throw CustomExceptions::Exception(CustomExceptions::ExceptionType::SocketProblem,
-                                              "Cannot open socket!");
+            throw SocketProblemException("Cannot open socket!");
         sockaddr_in server;
         server.sin_family = AF_INET;
         server.sin_addr.s_addr = INADDR_ANY;
         server.sin_port = htons(PORT);
         if (bind(serverSocket, (struct sockaddr *)&server, sizeof server) == -1)
-            throw CustomExceptions::Exception(CustomExceptions::ExceptionType::SocketProblem,
-                                              "Cannot bind socket!");
+            throw SocketProblemException("Cannot bind socket!");
         listen(serverSocket, 5);
         int messageSocket = accept(serverSocket, nullptr, nullptr);
         if (messageSocket == -1)
-            throw CustomExceptions::Exception(CustomExceptions::ExceptionType::SocketProblem,
-                                              "Cannot accept incoming connection!");
+            throw SocketProblemException("Cannot accept incoming connection!");
         else
             receiveSocket = messageSocket;
         close(serverSocket);
@@ -40,8 +37,8 @@ public:
         close(receiveSocket);
     }
     
-    int getPort() { return PORT; }
-    int getSocket() {return receiveSocket;}
+    int getPort() const { return PORT; }
+    int getSocket() const {return receiveSocket;}
 
 private:
     const int PORT = 35555;

@@ -12,7 +12,7 @@ struct FlagResolver
         Help,
         Null
     };
-    Options resolveOption(std::string option)
+    Options resolveOption(const std::string_view option)
     {
         if (option == "--help" || option == "--h")
             return Options::Help;
