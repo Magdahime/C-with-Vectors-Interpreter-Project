@@ -39,10 +39,14 @@ TEST(SourceTest, openFileTest)
 
 TEST(SourceTest, openSocketTest)
 {
+    std::thread thread2([&] {
+      {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1000ms);
+      }
+        ClientTCP::run(sample.c_str(), 35555);
+    });
     SocketSource src;
-    std::thread thread1([&] { src.waitForData(); });
-    std::thread thread2([&] { ClientTCP::run(sample.c_str(), src.getPort()); });
-    thread1.join();
     thread2.join();
     src.open();
     NextCharacter letter = src.getCurrentCharacter();

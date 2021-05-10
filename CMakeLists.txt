@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -g1 -lSegFault")
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -g1 -lSegFault -Werror -Wpedantic")
 
 project(TKOM VERSION 1.0
         DESCRIPTION "Very nice project"
@@ -25,7 +26,7 @@ set(SOURCES
         ${SOURCE_DIRECTORY}/source.cpp
         ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
         ${LEXICAL_ANALYZER_DIRECTORY}lexicalAnalyzer.cpp
-        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
+        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/position.cpp
 )
 
 add_executable(TKOM ${SOURCES})

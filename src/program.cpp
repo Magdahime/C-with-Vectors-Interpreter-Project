@@ -1,15 +1,7 @@
 #include "program.hpp"
 
-Program::Program()
-{
-    flagResolver = std::make_unique<FlagResolver>();
-};
-
-Program &Program::getInstance()
-{
-    static Program program;
-    return program;
-}
+SourceSptr Program::source;
+LexicalAnalyzerUptr Program::lexicalAnalyzer;
 
 void Program::start(const int argc, const std::vector<std::string_view> &arguments)
 {
@@ -28,13 +20,14 @@ void Program::parseFlags(const std::vector<std::string_view> &arguments)
 {
     try
     {
-        auto option = flagResolver->resolveOption(arguments[1]);
+        auto option = FlagResolver::resolveOption(arguments[1]);
         switch (option)
         {
         case (FlagResolver::Options::File):
         case (FlagResolver::Options::Socket):
         case (FlagResolver::Options::String):
-            source = SourceFactory().createSource(option, arguments);
+            source = SourceFactory::createSource(option, arguments);
+            Program::lexicalAnalyzer = std::make_unique<LexicalAnalyzer>(*source.get());
             break;
         case (FlagResolver::Options::Help):
             showHelp();
@@ -51,7 +44,7 @@ void Program::parseFlags(const std::vector<std::string_view> &arguments)
     }
 }
 
-void Program::showHelp() const 
+void Program::showHelp()
 {
 
     std::cout << "*******************************************************************\n";
@@ -63,7 +56,7 @@ void Program::showHelp() const
     std::cout << "*******************************************************************\n";
 }
 
-void Program::startInterpreter() const
+void Program::startInterpreter()
 {
     std::cout << "Hello from interpreter!" << std::endl;
 }

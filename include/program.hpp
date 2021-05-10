@@ -4,28 +4,18 @@
 #include <iostream>
 #include <string_view>
 #include <mutex>
+#include <optional>
 #include <filesystem>
 #include "helpers/sourceFactory.hpp"
 #include "helpers/flagResolver.hpp"
 #include "lexical_analyzer/lexicalAnalyzer.hpp"
 
-class Program
+namespace Program
 {
-public:
+    extern SourceSptr source;
+    extern LexicalAnalyzerUptr lexicalAnalyzer;
     void start(const int argc, const std::vector<std::string_view>& arguments);
-    static Program &getInstance();
-
-private:
-    Program();
-    ~Program() = default;
-    Program(const Program &) = delete;
-    Program &operator=(const Program &) = delete;
-    SourceSptr source;
-    FlagResolverUptr flagResolver;
-    LexicalAnalyzerUptr lexicalAnalyzer;
-
-    void startInterpreter() const;
-    void openSource();
+    void startInterpreter();
     void parseFlags(const std::vector<std::string_view>& arguments);
-    void showHelp() const;
-};
+    void showHelp();
+}

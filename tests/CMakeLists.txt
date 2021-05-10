@@ -34,7 +34,7 @@ set(SOURCES
   ${SOURCE_DIRECTORY}/program.cpp
   ${SOURCE_DIRECTORY}/source.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
-  ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/positioner.cpp
+  ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/position.cpp
   ${LEXICAL_ANALYZER_DIRECTORY}lexicalAnalyzer.cpp
 )
 

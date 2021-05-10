@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <string>
 #include "matrix.hpp"
+#include "source.hpp"
 
-using TokenVariant = std::variant<int64_t, double, std::string, Matrix>;
+using TokenVariant = std::variant<std::monostate, int64_t, double, std::string, Matrix>;
 
 class Token
 {
@@ -45,7 +46,6 @@ public:
         FalseToken,
         CommentToken,
         EndOfFileToken,
-        NullToken,
         UnindentifiedToken,
         NextLineToken,
         AndToken,
@@ -75,21 +75,23 @@ public:
     };
 
     Token(TokenType type, TokenVariant value,
-          uint64_t cPos, uint64_t aPos, uint64_t lPos)
+         NextCharacter& firstCharacter)
         : type(type), value(value),
-          characterPosition(cPos), absolutePosition(aPos), linePosition(lPos) {}
+        characterPosition(firstCharacter.characterPosition),
+        absolutePosition(firstCharacter.absolutePosition), linePosition(firstCharacter.linePosition) {}
     Token(TokenType type, TokenSubtype subtype, TokenVariant value,
-          uint64_t cPos, uint64_t aPos, uint64_t lPos)
+        NextCharacter& firstCharacter)
         : type(type), subtype(subtype), value(value),
-          characterPosition(cPos), absolutePosition(aPos), linePosition(lPos) {}
+        characterPosition(firstCharacter.characterPosition),
+        absolutePosition(firstCharacter.absolutePosition), linePosition(firstCharacter.linePosition) {}
     Token(TokenType type) : type(type) {}
     Token(TokenType type, TokenVariant value) : type(type), value(value) {}
-    TokenType getType() { return type; }
-    TokenSubtype getSubtype() { return subtype; }
+    TokenType getType() const { return type; }
+    TokenSubtype getSubtype() const { return subtype; }
     TokenVariant getValue() const{return value;}
-    uint64_t getCharacterPosition() { return characterPosition; }
-    uint64_t getAbsolutePosition() { return absolutePosition; }
-    uint64_t getLinePosition() { return linePosition; }
+    uint64_t getCharacterPosition() const { return characterPosition; }
+    uint64_t getAbsolutePosition() const { return absolutePosition; }
+    uint64_t getLinePosition() const { return linePosition; }
 
 private:
     TokenType type;
@@ -101,6 +103,11 @@ private:
 
     friend bool operator==(Token const &lhs, Token const &rhs)
     {
-        return lhs.type == rhs.type;
+        return lhs.type == rhs.type && lhs.value == rhs.value;
+    };
+
+    friend bool operator!=(Token const &lhs, Token const &rhs)
+    {
+        return  !operator==(rhs, lhs);
     };
 };

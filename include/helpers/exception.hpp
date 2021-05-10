@@ -57,3 +57,8 @@ class NotConsistentIndent : public Exception {
 public:
     NotConsistentIndent(const char *m) : Exception(m) {}
 };
+
+class IntegerTooBig : public Exception {
+public:
+    IntegerTooBig(const char *m) : Exception(m) {}
+};

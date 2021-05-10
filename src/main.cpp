@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     {
         arguments.push_back(argv[i]);
     }
-    
-    Program::getInstance().start(argc, arguments);
+
+    Program::start(argc, arguments);
     return 0;
 }

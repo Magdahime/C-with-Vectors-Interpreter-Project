@@ -37,12 +37,12 @@ public:
         close(receiveSocket);
     }
     
-    int getPort() const { return PORT; }
-    int getSocket() const {return receiveSocket;}
+    uint getPort() const { return PORT; }
+    uint getSocket() const {return receiveSocket;}
 
 private:
-    const int PORT = 35555;
-    int receiveSocket;
+    const uint PORT = 35555;
+    uint receiveSocket;
 };
 
 using SocketWrapperUptr = std::unique_ptr<SocketWrapper>;

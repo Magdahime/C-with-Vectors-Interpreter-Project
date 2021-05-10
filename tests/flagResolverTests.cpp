@@ -3,23 +3,21 @@
 #include "helpers/flagResolver.hpp"
 
 TEST(FlagResolverTest, Default) {
-    FlagResolver fr;
-  EXPECT_EQ(FlagResolver::Options::Help, fr.resolveOption("--help"));
-  EXPECT_EQ(FlagResolver::Options::Help, fr.resolveOption("--h"));
-  EXPECT_EQ(FlagResolver::Options::File, fr.resolveOption("--file"));
-  EXPECT_EQ(FlagResolver::Options::File, fr.resolveOption("--f"));
-  EXPECT_EQ(FlagResolver::Options::Socket, fr.resolveOption("--socket"));
-  EXPECT_EQ(FlagResolver::Options::Socket, fr.resolveOption("--sc"));
-  EXPECT_EQ(FlagResolver::Options::String, fr.resolveOption("--string"));
-  EXPECT_EQ(FlagResolver::Options::String, fr.resolveOption("--s"));
+  EXPECT_EQ(FlagResolver::Options::Help, FlagResolver::resolveOption("--help"));
+  EXPECT_EQ(FlagResolver::Options::Help, FlagResolver::resolveOption("--h"));
+  EXPECT_EQ(FlagResolver::Options::File, FlagResolver::resolveOption("--file"));
+  EXPECT_EQ(FlagResolver::Options::File, FlagResolver::resolveOption("--f"));
+  EXPECT_EQ(FlagResolver::Options::Socket, FlagResolver::resolveOption("--socket"));
+  EXPECT_EQ(FlagResolver::Options::Socket, FlagResolver::resolveOption("--sc"));
+  EXPECT_EQ(FlagResolver::Options::String, FlagResolver::resolveOption("--string"));
+  EXPECT_EQ(FlagResolver::Options::String, FlagResolver::resolveOption("--s"));
 }
 
 TEST(FlagResolverTest, Wrong) {
-    FlagResolver fr;
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--hellp"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--hp"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--ffile"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--fc"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("--soccket"));
-  EXPECT_EQ(FlagResolver::Options::Null, fr.resolveOption("1235435"));
+  EXPECT_EQ(FlagResolver::Options::Null, FlagResolver::resolveOption("--hellp"));
+  EXPECT_EQ(FlagResolver::Options::Null, FlagResolver::resolveOption("--hp"));
+  EXPECT_EQ(FlagResolver::Options::Null, FlagResolver::resolveOption("--ffile"));
+  EXPECT_EQ(FlagResolver::Options::Null, FlagResolver::resolveOption("--fc"));
+  EXPECT_EQ(FlagResolver::Options::Null, FlagResolver::resolveOption("--soccket"));
+  EXPECT_EQ(FlagResolver::Options::Null, FlagResolver::resolveOption("1235435"));
 }

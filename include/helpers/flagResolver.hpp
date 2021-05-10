@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
-#include <memory>
 
-struct FlagResolver
+namespace FlagResolver
 {
     enum class Options
     {
@@ -12,7 +11,7 @@ struct FlagResolver
         Help,
         Null
     };
-    Options resolveOption(const std::string_view option)
+    constexpr Options resolveOption(const std::string_view option)
     {
         if (option == "--help" || option == "--h")
             return Options::Help;
@@ -24,6 +23,4 @@ struct FlagResolver
             return Options::String;
         return Options::Null;
     }
-};
-
-using FlagResolverUptr = std::unique_ptr<FlagResolver>;
+}

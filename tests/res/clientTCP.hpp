@@ -36,11 +36,6 @@ struct ClientTCP
       memcpy((char *)&server.sin_addr, (char *)hp->h_addr,
              hp->h_length);
 
-      {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1000ms);
-      }
-
       if (connect(sendSocket, (struct sockaddr *)&server, sizeof server) == -1)
       {
         throw "Error in connecting to server";

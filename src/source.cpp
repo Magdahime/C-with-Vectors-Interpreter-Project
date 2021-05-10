@@ -7,7 +7,7 @@ void FileSource::open()
 }
 void SocketSource::open()
 {
-    socketSource = socketWrapper->getSocket();
+    socketSource = socketWrapper.getSocket();
     currentCharacter = getChar();
 }
 
@@ -27,28 +27,28 @@ void SocketSource::close()
 
 NextCharacter StringSource::getChar()
 {
-    char letter = stringSource[positioner->getAbsolutePosition()];
-    currentCharacter = NextCharacter(letter, positioner->getAbsolutePosition(),
-                                     positioner->getChar(), positioner->getLine());
-    positioner->nextChar();
+    char letter = stringSource[position.getAbsolutePosition()];
+    currentCharacter = NextCharacter(letter, position.getAbsolutePosition(),
+                                     position.getChar(), position.getLine());
+    position = position.nextChar();
     if (letter == '\n')
     {
-        positioner->nextLine();
+        position = position.nextLine();
     }
     return currentCharacter;
 }
 
-NextCharacter FileSource::getChar()
+NextCharacter FileSource::getChar() 
 {
     char letter = fileSource.get();
     if(fileSource.eof())
         letter = '\0';
-    currentCharacter = NextCharacter(letter, positioner->getAbsolutePosition(),
-                                     positioner->getChar(), positioner->getLine());
-    positioner->nextChar();
+    currentCharacter = NextCharacter(letter, position.getAbsolutePosition(),
+                                     position.getChar(), position.getLine());
+    position = position.nextChar();
     if (letter == '\n')
     {
-        positioner->nextLine();
+        position = position.nextLine();
     }
     return currentCharacter;
 }
@@ -57,17 +57,12 @@ NextCharacter SocketSource::getChar()
 {
     char letter[1];
     read(socketSource, letter, 1);
-    currentCharacter = NextCharacter(*(letter), positioner->getAbsolutePosition(),
-                                     positioner->getChar(), positioner->getLine());
-    positioner->nextChar();
+    currentCharacter = NextCharacter(*(letter), position.getAbsolutePosition(),
+                                     position.getChar(), position.getLine());
+    position = position.nextChar();
     if (letter[0] == '\n')
     {
-        positioner->nextLine();
+        position = position.nextLine();
     }
     return currentCharacter;
-}
-
-void SocketSource::waitForData()
-{
-    socketWrapper->initSocket();
 }
