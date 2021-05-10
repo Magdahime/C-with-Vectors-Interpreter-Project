@@ -77,11 +77,14 @@ public:
     void open() override;
     void close() override {}
     NextCharacter getChar()override;
-    StringSource(const std::string_view codeSource) : stringSource(codeSource), position(Position()){}
+    StringSource(const std::string_view codeSource) : sourceIterator(codeSource.begin()),
+                stringSource(codeSource),
+                position(Position()){}
     ~StringSource(){
         close();
     }
 private:
+    std::string_view::iterator sourceIterator;
     std::string_view stringSource;
     Position position;
 };

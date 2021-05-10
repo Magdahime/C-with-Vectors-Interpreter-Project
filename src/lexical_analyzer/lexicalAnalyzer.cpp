@@ -63,10 +63,10 @@ std::optional<Token> LexicalAnalyzer::buildIdentifierOrKeyword()
         auto type = LexicalTable::keywordTable.find(ss.str());
         if (type != LexicalTable::keywordTable.end())
             return Token(type->second, TokenVariant(ss.str()),
-                        current);
+                         current);
         else
             return Token(Token::TokenType::IdentifierToken, TokenVariant(ss.str()),
-                        current);
+                         current);
     }
     return {};
 }
@@ -221,6 +221,20 @@ std::optional<Token> LexicalAnalyzer::buildOneCharToken()
     return {};
 }
 
+std::string LexicalAnalyzer::checkForEscapedSequence(NextCharacter &current) const
+{
+
+    NextCharacter nextCharacter = source.getChar();
+    std::string seq = std::string(1,current.nextLetter);
+    seq += nextCharacter.nextLetter;
+    auto it = LexicalTable::escapeTable.find(seq);
+    if (it != LexicalTable::escapeTable.end())
+    {
+        return std::string(1,it->second);
+    }
+    return seq;
+}
+
 std::optional<Token> LexicalAnalyzer::buildStringLiteral()
 {
     NextCharacter current = source.getCurrentCharacter();
@@ -232,7 +246,14 @@ std::optional<Token> LexicalAnalyzer::buildStringLiteral()
         uint32_t length = 1;
         while (length < MAXSIZE && isprint(nextCharacter.nextLetter) && nextCharacter.nextLetter != '\n' && nextCharacter.nextLetter != delimiter && nextCharacter.nextLetter != '\0')
         {
-            ss << nextCharacter.nextLetter;
+            if (nextCharacter.nextLetter == '\\')
+            {
+                std::string_view result = checkForEscapedSequence(nextCharacter);
+                length += result.length() - 1;
+                ss << result;
+            }
+            else
+                ss << nextCharacter.nextLetter;
             nextCharacter = source.getChar();
             length++;
         }
@@ -247,7 +268,7 @@ std::optional<Token> LexicalAnalyzer::buildStringLiteral()
             source.getChar();
             return Token(Token::TokenType::StringLiteralToken,
                          TokenVariant(ss.str()),
-                        current);
+                         current);
         }
         else
         {
@@ -280,7 +301,7 @@ std::optional<Token> LexicalAnalyzer::buildNumber()
 }
 
 bool LexicalAnalyzer::checkIfFits(const std::string_view numberToCheck,
-                                const std::string_view limit) const
+                                  const std::string_view limit) const
 {
     if (numberToCheck.length() > limit.length())
         return false;
@@ -319,11 +340,11 @@ int64_t LexicalAnalyzer::buildInteger(NextCharacter &current)
 double LexicalAnalyzer::buildFloatingPointNumber(NextCharacter &current, int64_t integerPart)
 {
     if (!checkIfFits(std::to_string(integerPart), std::to_string(std::numeric_limits<double>::max())))
-        {
-            char message[150];
-            sprintf(message, "Double constant at %s is too big!", current.getLinePosition().c_str());
-            throw IntegerTooBig(message);
-        }
+    {
+        char message[150];
+        sprintf(message, "Double constant at %s is too big!", current.getLinePosition().c_str());
+        throw IntegerTooBig(message);
+    }
     double finalFractionalpart = 0;
     short base = 10;
     NextCharacter nextCharacter = source.getChar();

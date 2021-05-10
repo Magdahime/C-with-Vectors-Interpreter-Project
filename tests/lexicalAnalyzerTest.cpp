@@ -385,7 +385,7 @@ TEST(LexicalAnalyzerTest, stringLiteralsTest)
     LexicalAnalyzer lexicAna(src);
     std::optional<Token> token = lexicAna.getToken();
     EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
-    EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size()-2);
+    EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size()-4);
     token = lexicAna.getToken();
     EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
 }
@@ -422,6 +422,30 @@ TEST(LexicalAnalyzerTest, stringLiterals4Test)
     std::optional<Token> token = lexicAna.getToken();
     EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
     EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size()-2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, stringLiteralsTest5)
+{
+    std::string_view source = "'\\t'";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(src);
+    std::optional<Token> token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token->getValue()).size(), 1);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+}
+
+TEST(LexicalAnalyzerTest, stringLiteralsTest6)
+{
+    std::string_view source = "'\\n'";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(src);
+    std::optional<Token> token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token->getValue()).size(), 1);
     token = lexicAna.getToken();
     EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
 }

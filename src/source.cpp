@@ -27,10 +27,11 @@ void SocketSource::close()
 
 NextCharacter StringSource::getChar()
 {
-    char letter = stringSource[position.getAbsolutePosition()];
+    char letter = *sourceIterator;
     currentCharacter = NextCharacter(letter, position.getAbsolutePosition(),
                                      position.getChar(), position.getLine());
     position = position.nextChar();
+    sourceIterator++;
     if (letter == '\n')
     {
         position = position.nextLine();

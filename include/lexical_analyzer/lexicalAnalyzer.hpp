@@ -31,6 +31,7 @@ private:
     double buildFloatingPointNumber(NextCharacter& current, int64_t integerPart);
     bool checkIfFits(const std::string_view limit,
                                 const std::string_view numberToCheck) const;
+    std::string checkForEscapedSequence(NextCharacter& current) const;
     std::optional<Token> buildIdentifierOrKeyword();
     std::optional<Token> buildDivisionTokenOrComment();
     std::optional<Token> buildStringLiteral();
