@@ -36,6 +36,8 @@ set(SOURCES
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/position.cpp
   ${LEXICAL_ANALYZER_DIRECTORY}lexicalAnalyzer.cpp
+  ${PARSER_DIRECTORY}/parser.cpp
+  ${PARSER_DIRECTORY}/node.cpp
 )
 
 add_executable(tests ${SOURCES})

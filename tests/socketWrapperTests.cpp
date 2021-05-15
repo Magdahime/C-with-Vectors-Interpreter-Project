@@ -1,14 +1,14 @@
 #include <gtest/gtest.h>
-#include <thread>
-#include <chrono>
-#include "helpers/socketWrapper.hpp"
-#include "clientTCP.hpp"
 
+#include <chrono>
+#include <thread>
+
+#include "clientTCP.hpp"
+#include "helpers/socketWrapper.hpp"
 
 const char message[1024] = "Hello world!";
 
-TEST(SocketWrapperTest, IsSendingDataWorks)
-{
+TEST(SocketWrapperTest, IsSendingDataWorks) {
   SocketWrapper sw;
   std::thread thread1([&] { sw.initSocket(); });
   std::thread thread2([&] { ClientTCP::run(message, sw.getPort()); });
