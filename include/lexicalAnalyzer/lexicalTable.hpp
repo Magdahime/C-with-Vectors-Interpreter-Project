@@ -68,7 +68,7 @@ const static std::unordered_map<Token::TokenType, std::string> token2StringTable
     {Token::TokenType::FalseToken, "FalseToken"},
     {Token::TokenType::DefaultToken, "DefaultToken"},
     {Token::TokenType::CommentToken, "CommentToken"},
-    {Token::TokenType::StartOfFileToken, "StartOfFileToken"},
+    {Token::TokenType::RootToken, "RootToken"},
     {Token::TokenType::EndOfFileToken, "EndOfFileToken"},
     {Token::TokenType::UnindentifiedToken, "UnindentifiedToken"},
     {Token::TokenType::NextLineToken, "NextLineToken"},

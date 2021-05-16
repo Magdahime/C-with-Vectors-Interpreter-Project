@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -g1 -lSegFault -Werror -Wpedantic")
+set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Werror -Wpedantic")
 
 project(TKOM VERSION 1.0
         DESCRIPTION "Very nice project"

@@ -37,7 +37,7 @@ class SourceBase {
   SourceBase(const SourceBase& old_obj) = delete;
   SourceBase& operator=(const SourceBase& other) = delete;
   SourceBase() = default;
-  
+
  protected:
   NextCharacter currentCharacter;
 };
@@ -51,9 +51,8 @@ class FileSource : public SourceBase {
   void close() override;
   NextCharacter getChar() override;
   FileSource(const std::string_view filepath)
-      : filepath(std::filesystem::path(filepath)){}
-  ~FileSource() {
-    close(); }
+      : filepath(std::filesystem::path(filepath)) {}
+  ~FileSource() { close(); }
 
  private:
   std::filesystem::path filepath;

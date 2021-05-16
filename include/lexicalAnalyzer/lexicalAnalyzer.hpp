@@ -12,7 +12,7 @@
 class LexicalAnalyzer {
  public:
   LexicalAnalyzer(SourceBase* source)
-      : source(source), isNextLine(true), chosenIndentChar(0) {
+    : source(source), isNextLine(true), chosenIndentChar(0) {
     source->open();
     indentStack.push("");
   };

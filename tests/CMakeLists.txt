@@ -31,6 +31,7 @@ set(SOURCES
   socketWrapperTests.cpp
   sourceTest.cpp
   lexicalAnalyzerTest.cpp
+  parserTests.cpp
   ${SOURCE_DIRECTORY}/program.cpp
   ${SOURCE_DIRECTORY}/source.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp

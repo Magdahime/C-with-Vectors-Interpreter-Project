@@ -45,7 +45,7 @@ class Token {
     FalseToken,
     DefaultToken,
     CommentToken,
-    StartOfFileToken,
+    RootToken,
     EndOfFileToken,
     UnindentifiedToken,
     NextLineToken,
@@ -74,7 +74,6 @@ class Token {
     MultiplicationToken,
   };
 
-
   Token(TokenType type, TokenVariant value, const NextCharacter &firstCharacter)
       : type(type),
         value(value),
@@ -98,8 +97,8 @@ class Token {
   uint64_t getAbsolutePosition() const { return absolutePosition; }
   uint64_t getLinePosition() const { return linePosition; }
   std::string getLinePositionString() const {
-    return std::to_string(characterPosition) + ":" +
-           std::to_string(linePosition);
+    return std::to_string(linePosition+1) + ":" +
+           std::to_string(characterPosition+1);
   }
 
  private:
