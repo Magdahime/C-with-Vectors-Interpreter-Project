@@ -4,8 +4,8 @@
 #include <ranges>
 #include <vector>
 
-#include "lexicalAnalyzer/token.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
+#include "lexicalAnalyzer/token.hpp"
 
 class Node;
 using NodeUptr = std::unique_ptr<Node>;
@@ -17,10 +17,13 @@ class Node {
   Node& operator=(Node&& other) = default;
   Node(const Node& other) = default;
   Node(Node&& other) = default;
-  void printChildren(){
-    std::cout<<"Nodes:"<<"\n";
-    for(auto const& node : children){
-      std::cout<<LexicalTable::token2StringTable.at(node->getToken().getType())<<"\n";
+  void printChildren() {
+    std::cout << "Nodes:"
+              << "\n";
+    for (auto const& node : children) {
+      std::cout << LexicalTable::token2StringTable.at(
+                       node->getToken().getType())
+                << "\n";
     }
   }
   std::vector<NodeUptr>& getChildren() { return children; }
@@ -106,7 +109,13 @@ class LeafNode : public Node {
 class RootNode : public Node {
  public:
   RootNode() : Node(Token(Token::TokenType::RootToken)) {}
-
   void evaluate() override {}
   ~RootNode() override {}
+};
+
+class AssigmentOperatorNode : public Node {
+ public:
+  AssigmentOperatorNode(Token token) : Node(token) {}
+  void evaluate() override {}
+  ~AssigmentOperatorNode() override {}
 };
