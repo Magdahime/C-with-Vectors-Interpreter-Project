@@ -34,7 +34,10 @@ class SourceBase {
   virtual void close() = 0;
   NextCharacter getCurrentCharacter() const { return currentCharacter; }
   virtual ~SourceBase() = default;
-
+  SourceBase(const SourceBase& old_obj) = delete;
+  SourceBase& operator=(const SourceBase& other) = delete;
+  SourceBase() = default;
+  
  protected:
   NextCharacter currentCharacter;
 };
@@ -48,8 +51,9 @@ class FileSource : public SourceBase {
   void close() override;
   NextCharacter getChar() override;
   FileSource(const std::string_view filepath)
-      : filepath(std::filesystem::path(filepath)), position(Position()) {}
-  ~FileSource() { close(); }
+      : filepath(std::filesystem::path(filepath)){}
+  ~FileSource() {
+    close(); }
 
  private:
   std::filesystem::path filepath;
@@ -62,7 +66,7 @@ class SocketSource : public SourceBase {
   void open() override;
   void close() override;
   NextCharacter getChar() override;
-  SocketSource() : position(Position()) { socketWrapper.initSocket(); }
+  SocketSource() { socketWrapper.initSocket(); }
   void waitForData();
   int getPort() const { return socketWrapper.getPort(); }
   ~SocketSource() { close(); }

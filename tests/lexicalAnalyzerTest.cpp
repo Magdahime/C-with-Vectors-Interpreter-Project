@@ -7,7 +7,7 @@
 #include "source.hpp"
 TEST(LexicalAnalyzerTest, matrixKeywordTest) {
   StringSource src("matrix");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::MatrixToken);
   token = lexicAna.getToken();
@@ -16,7 +16,7 @@ TEST(LexicalAnalyzerTest, matrixKeywordTest) {
 
 TEST(LexicalAnalyzerTest, textKeywordTest) {
   StringSource src("text");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::TextToken);
   token = lexicAna.getToken();
@@ -25,7 +25,7 @@ TEST(LexicalAnalyzerTest, textKeywordTest) {
 
 TEST(LexicalAnalyzerTest, doubleKeywordTest) {
   StringSource src("double");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DoubleToken);
   token = lexicAna.getToken();
@@ -34,7 +34,7 @@ TEST(LexicalAnalyzerTest, doubleKeywordTest) {
 
 TEST(LexicalAnalyzerTest, integerKeywordTest) {
   StringSource src("integer");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IntegerToken);
   token = lexicAna.getToken();
@@ -43,7 +43,7 @@ TEST(LexicalAnalyzerTest, integerKeywordTest) {
 
 TEST(LexicalAnalyzerTest, functionKeywordTest) {
   StringSource src("function");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::FunctionToken);
   token = lexicAna.getToken();
@@ -52,7 +52,7 @@ TEST(LexicalAnalyzerTest, functionKeywordTest) {
 
 TEST(LexicalAnalyzerTest, voidKeywordTest) {
   StringSource src("void");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::VoidToken);
   token = lexicAna.getToken();
@@ -61,7 +61,7 @@ TEST(LexicalAnalyzerTest, voidKeywordTest) {
 
 TEST(LexicalAnalyzerTest, conditionKeywordTest) {
   StringSource src("condition");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::ConditionToken);
   token = lexicAna.getToken();
@@ -70,7 +70,7 @@ TEST(LexicalAnalyzerTest, conditionKeywordTest) {
 
 TEST(LexicalAnalyzerTest, caseKeywordTest) {
   StringSource src("case");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::CaseToken);
   token = lexicAna.getToken();
@@ -79,7 +79,7 @@ TEST(LexicalAnalyzerTest, caseKeywordTest) {
 
 TEST(LexicalAnalyzerTest, ifKeywordTest) {
   StringSource src("if");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IfToken);
   token = lexicAna.getToken();
@@ -88,7 +88,7 @@ TEST(LexicalAnalyzerTest, ifKeywordTest) {
 
 TEST(LexicalAnalyzerTest, otherwiseKeywordTest) {
   StringSource src("otherwise");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::OtherwiseToken);
   token = lexicAna.getToken();
@@ -97,7 +97,7 @@ TEST(LexicalAnalyzerTest, otherwiseKeywordTest) {
 
 TEST(LexicalAnalyzerTest, loopKeywordTest) {
   StringSource src("loop");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::LoopToken);
   token = lexicAna.getToken();
@@ -106,7 +106,7 @@ TEST(LexicalAnalyzerTest, loopKeywordTest) {
 
 TEST(LexicalAnalyzerTest, asLongAsKeywordTest) {
   StringSource src("asLongAs");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::AsLongAsToken);
   token = lexicAna.getToken();
@@ -115,7 +115,7 @@ TEST(LexicalAnalyzerTest, asLongAsKeywordTest) {
 
 TEST(LexicalAnalyzerTest, continueKeywordTest) {
   StringSource src("continue");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::ContinueToken);
   token = lexicAna.getToken();
@@ -124,7 +124,7 @@ TEST(LexicalAnalyzerTest, continueKeywordTest) {
 
 TEST(LexicalAnalyzerTest, breakKeywordTest) {
   StringSource src("break");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::BreakToken);
   token = lexicAna.getToken();
@@ -133,7 +133,7 @@ TEST(LexicalAnalyzerTest, breakKeywordTest) {
 
 TEST(LexicalAnalyzerTest, defaultKeywordTest) {
   StringSource src("default");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DefaultToken);
   token = lexicAna.getToken();
@@ -142,7 +142,7 @@ TEST(LexicalAnalyzerTest, defaultKeywordTest) {
 
 TEST(LexicalAnalyzerTest, trueKeywordTest) {
   StringSource src("true");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::TrueToken);
   token = lexicAna.getToken();
@@ -151,7 +151,7 @@ TEST(LexicalAnalyzerTest, trueKeywordTest) {
 
 TEST(LexicalAnalyzerTest, returnKeywordTest) {
   StringSource src("return");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::ReturnToken);
   token = lexicAna.getToken();
@@ -160,7 +160,7 @@ TEST(LexicalAnalyzerTest, returnKeywordTest) {
 
 TEST(LexicalAnalyzerTest, andKeywordTest) {
   StringSource src("and");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::AndToken);
   token = lexicAna.getToken();
@@ -169,7 +169,7 @@ TEST(LexicalAnalyzerTest, andKeywordTest) {
 
 TEST(LexicalAnalyzerTest, orKeywordTest) {
   StringSource src("or");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::OrToken);
   token = lexicAna.getToken();
@@ -178,7 +178,7 @@ TEST(LexicalAnalyzerTest, orKeywordTest) {
 
 TEST(LexicalAnalyzerTest, notKeywordTest) {
   StringSource src("not");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::NotToken);
   token = lexicAna.getToken();
@@ -187,7 +187,7 @@ TEST(LexicalAnalyzerTest, notKeywordTest) {
 
 TEST(LexicalAnalyzerTest, falseKeywordTest) {
   StringSource src("false");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::FalseToken);
   token = lexicAna.getToken();
@@ -196,7 +196,7 @@ TEST(LexicalAnalyzerTest, falseKeywordTest) {
 
 TEST(LexicalAnalyzerTest, detKeywordTest) {
   StringSource src("det");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DetToken);
   token = lexicAna.getToken();
@@ -205,7 +205,7 @@ TEST(LexicalAnalyzerTest, detKeywordTest) {
 
 TEST(LexicalAnalyzerTest, InvKeywordTest) {
   StringSource src("inv");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::InvToken);
   token = lexicAna.getToken();
@@ -214,7 +214,7 @@ TEST(LexicalAnalyzerTest, InvKeywordTest) {
 
 TEST(LexicalAnalyzerTest, TransKeywordTest) {
   StringSource src("trans");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::TransToken);
   token = lexicAna.getToken();
@@ -223,7 +223,7 @@ TEST(LexicalAnalyzerTest, TransKeywordTest) {
 
 TEST(LexicalAnalyzerTest, commentKeywordTest) {
   StringSource src("#To jest komentarz\n");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::CommentToken);
   token = lexicAna.getToken();
@@ -234,7 +234,7 @@ TEST(LexicalAnalyzerTest, commentKeywordTest) {
 
 TEST(LexicalAnalyzerTest, commentKeyword2Test) {
   StringSource src("//To też jest komentarz\n");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::CommentToken);
   token = lexicAna.getToken();
@@ -245,7 +245,7 @@ TEST(LexicalAnalyzerTest, commentKeyword2Test) {
 
 TEST(LexicalAnalyzerTest, commentWithoutNewline1Test) {
   StringSource src("//To też jest komentarz");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::CommentToken);
   token = lexicAna.getToken();
@@ -254,7 +254,7 @@ TEST(LexicalAnalyzerTest, commentWithoutNewline1Test) {
 
 TEST(LexicalAnalyzerTest, commentWithoutNewline2Test) {
   StringSource src("#To też jest komentarz");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::CommentToken);
   token = lexicAna.getToken();
@@ -263,7 +263,7 @@ TEST(LexicalAnalyzerTest, commentWithoutNewline2Test) {
 
 TEST(LexicalAnalyzerTest, identifierKeywordTest) {
   StringSource src("bunny");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IdentifierToken);
   token = lexicAna.getToken();
@@ -272,7 +272,7 @@ TEST(LexicalAnalyzerTest, identifierKeywordTest) {
 
 TEST(LexicalAnalyzerTest, openCloseBracketsTest) {
   StringSource src("()[]");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::OpenRoundBracketToken);
   token = lexicAna.getToken();
@@ -287,7 +287,7 @@ TEST(LexicalAnalyzerTest, openCloseBracketsTest) {
 
 TEST(LexicalAnalyzerTest, someOperatorsTest) {
   StringSource src(".+-:");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::PointToken);
   token = lexicAna.getToken();
@@ -304,7 +304,7 @@ TEST(LexicalAnalyzerTest, someOperatorsTest) {
 
 TEST(LexicalAnalyzerTest, someOperators2Test) {
   StringSource src("==<=>==!!=");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::LogicalOperatorToken);
   EXPECT_EQ(token->getSubtype(), Token::TokenSubtype::EqualToken);
@@ -327,7 +327,7 @@ TEST(LexicalAnalyzerTest, someOperators2Test) {
 
 TEST(LexicalAnalyzerTest, someOperators3Test) {
   StringSource src("<<==>>");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::LogicalOperatorToken);
   EXPECT_EQ(token->getSubtype(), Token::TokenSubtype::LessToken);
@@ -349,7 +349,7 @@ TEST(LexicalAnalyzerTest, someOperators3Test) {
 TEST(LexicalAnalyzerTest, stringLiteralsTest) {
   std::string_view source = "'\\t\\nmamatata..43224\"\".:  '";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
   EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size() - 4);
@@ -360,7 +360,7 @@ TEST(LexicalAnalyzerTest, stringLiteralsTest) {
 TEST(LexicalAnalyzerTest, stringLiterals2Test) {
   std::string_view source = "'                        '";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
   EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size() - 2);
@@ -371,7 +371,7 @@ TEST(LexicalAnalyzerTest, stringLiterals2Test) {
 TEST(LexicalAnalyzerTest, stringLiteralTestFAILURE) {
   std::string_view source = "'  \n";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
   EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size() - 2);
@@ -382,7 +382,7 @@ TEST(LexicalAnalyzerTest, stringLiteralTestFAILURE) {
 TEST(LexicalAnalyzerTest, stringLiterals4Test) {
   std::string_view source = "'                    '";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
   EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size() - 2);
@@ -393,7 +393,7 @@ TEST(LexicalAnalyzerTest, stringLiterals4Test) {
 TEST(LexicalAnalyzerTest, stringLiteralsTest5) {
   std::string_view source = "'\\t'";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
   EXPECT_EQ(std::get<std::string>(token->getValue()).size(), 1);
@@ -404,7 +404,7 @@ TEST(LexicalAnalyzerTest, stringLiteralsTest5) {
 TEST(LexicalAnalyzerTest, stringLiteralsTest6) {
   std::string_view source = "'\\n'";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
   EXPECT_EQ(std::get<std::string>(token->getValue()).size(), 1);
@@ -415,7 +415,7 @@ TEST(LexicalAnalyzerTest, stringLiteralsTest6) {
 TEST(LexicalAnalyzerTest, integerLiteralsTest) {
   std::string_view source = "4";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IntegerLiteralToken);
   EXPECT_EQ(std::get<int64_t>(token->getValue()), 4);
@@ -426,7 +426,7 @@ TEST(LexicalAnalyzerTest, integerLiteralsTest) {
 TEST(LexicalAnalyzerTest, integerLiterals2Test) {
   std::string_view source = "999";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IntegerLiteralToken);
   EXPECT_EQ(std::get<int64_t>(token->getValue()), 999);
@@ -437,7 +437,7 @@ TEST(LexicalAnalyzerTest, integerLiterals2Test) {
 TEST(LexicalAnalyzerTest, integerLiterals3Test) {
   std::string_view source = "27";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IntegerLiteralToken);
   EXPECT_EQ(std::get<int64_t>(token->getValue()), 27);
@@ -448,7 +448,7 @@ TEST(LexicalAnalyzerTest, integerLiterals3Test) {
 TEST(LexicalAnalyzerTest, integerLiterals4Test) {
   std::string_view source = "5555555";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IntegerLiteralToken);
   EXPECT_EQ(std::get<int64_t>(token->getValue()), 5555555);
@@ -461,7 +461,7 @@ TEST(LexicalAnalyzerTest, integerLiterals5TestFAILURE) {
       "999999999999999999999999999999999999999999999999999999999999999999999999"
       "999999999999999999999999";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
@@ -470,7 +470,7 @@ TEST(LexicalAnalyzerTest, integerLiterals5TestFAILURE) {
 TEST(LexicalAnalyzerTest, doubleLiteralsTest) {
   std::string_view source = "4.";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DoubleLiteralToken);
   EXPECT_EQ(std::get<double>(token->getValue()), 4.0);
@@ -481,7 +481,7 @@ TEST(LexicalAnalyzerTest, doubleLiteralsTest) {
 TEST(LexicalAnalyzerTest, doubleLiterals2Test) {
   std::string_view source = "999.";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DoubleLiteralToken);
   EXPECT_EQ(std::get<double>(token->getValue()), 999.0);
@@ -492,7 +492,7 @@ TEST(LexicalAnalyzerTest, doubleLiterals2Test) {
 TEST(LexicalAnalyzerTest, doubleLiterals3Test) {
   std::string_view source = "999.99";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DoubleLiteralToken);
   EXPECT_EQ(std::get<double>(token->getValue()), 999.99);
@@ -503,7 +503,7 @@ TEST(LexicalAnalyzerTest, doubleLiterals3Test) {
 TEST(LexicalAnalyzerTest, doubleLiterals4Test) {
   std::string_view source = "27.99777";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DoubleLiteralToken);
   EXPECT_EQ(std::get<double>(token->getValue()), 27.99777);
@@ -514,7 +514,7 @@ TEST(LexicalAnalyzerTest, doubleLiterals4Test) {
 TEST(LexicalAnalyzerTest, IndentTestFAILURE) {
   std::string_view source = "  \n \n   \n";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::OpenBlockToken);
   token = lexicAna.getToken();
@@ -534,7 +534,7 @@ TEST(LexicalAnalyzerTest, IndentTestFAILURE) {
 TEST(LexicalAnalyzerTest, Indent2Test) {
   std::string_view source = "  \n  \n   \n";
   StringSource src(source);
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::OpenBlockToken);
   token = lexicAna.getToken();
@@ -551,7 +551,7 @@ TEST(LexicalAnalyzerTest, Indent2Test) {
 // Przeparsowane kilka linijek mpp
 TEST(LexicalAnalyzerTest, FINALTEST) {
   FileSource src("../tests/res/sampleCode.mpp");
-  LexicalAnalyzer lexicAna(src);
+  LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::IntegerToken);
   token = lexicAna.getToken();

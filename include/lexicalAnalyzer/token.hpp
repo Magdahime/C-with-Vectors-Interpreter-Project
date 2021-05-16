@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include <unordered_map>
 #include <variant>
+#include <unordered_map>
 
 #include "matrix.hpp"
 #include "source.hpp"
@@ -74,14 +74,15 @@ class Token {
     MultiplicationToken,
   };
 
-  Token(TokenType type, TokenVariant value, NextCharacter &firstCharacter)
+
+  Token(TokenType type, TokenVariant value, const NextCharacter &firstCharacter)
       : type(type),
         value(value),
         characterPosition(firstCharacter.characterPosition),
         absolutePosition(firstCharacter.absolutePosition),
         linePosition(firstCharacter.linePosition) {}
   Token(TokenType type, TokenSubtype subtype, TokenVariant value,
-        NextCharacter &firstCharacter)
+        const NextCharacter &firstCharacter)
       : type(type),
         subtype(subtype),
         value(value),

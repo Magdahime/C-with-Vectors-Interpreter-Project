@@ -21,7 +21,7 @@ void Program::parseFlags(const std::vector<std::string_view> &arguments) {
       case (FlagResolver::Options::String):
         source = SourceFactory::createSource(option, arguments);
         Program::lexicalAnalyzer =
-            std::make_unique<LexicalAnalyzer>(*source.get());
+            std::make_unique<LexicalAnalyzer>(source.get());
         break;
       case (FlagResolver::Options::Help):
         showHelp();

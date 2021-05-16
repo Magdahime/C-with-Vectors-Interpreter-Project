@@ -30,7 +30,6 @@ set(SOURCES
         ${PARSER_DIRECTORY}/parser.cpp
         ${PARSER_DIRECTORY}/node.cpp
         ${LEXICAL_ANALYZER_DIRECTORY}lexicalAnalyzer.cpp
-        ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/position.cpp
 )
 
 add_executable(TKOM ${SOURCES})

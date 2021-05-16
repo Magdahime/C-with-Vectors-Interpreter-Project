@@ -11,14 +11,14 @@
 #include "token.hpp"
 class LexicalAnalyzer {
  public:
-  LexicalAnalyzer(SourceBase& source)
+  LexicalAnalyzer(SourceBase* source)
       : source(source), isNextLine(true), chosenIndentChar(0) {
-    source.open();
+    source->open();
     indentStack.push("");
   };
-  void setSource(SourceBase& source) {
+  void setSource(SourceBase* source) {
     this->source = source;
-    source.open();
+    source->open();
   }
   std::optional<Token> getToken();
 
@@ -40,7 +40,7 @@ class LexicalAnalyzer {
   std::optional<Token> buildEOF();
   std::optional<Token> buildOneCharToken();
   std::optional<Token> buildIndentToken();
-  SourceBase& source;
+  SourceBase* source;
   bool isNextLine;
   char chosenIndentChar;
   std::stack<std::string> indentStack;
