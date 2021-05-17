@@ -1,0 +1,13 @@
+integer age = 60
+double price = 0.0
+condition:
+    case(age < 10):
+        print('Child')
+    case(age >= 10 and age < 20):
+        print('Teenager')
+    case(age >= 20 and age < 60):
+        print('Adult')
+    case(age >= 60):
+        print('Senior')
+    default: // tutaj wpadamy gdy nic nie pasuje
+        print('Error')

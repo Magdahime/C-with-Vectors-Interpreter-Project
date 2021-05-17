@@ -370,3 +370,49 @@ TEST(ParserTest, expressionTest3) {
   EXPECT_EQ(exponentChildren[1]->getToken().getType(),
             Token::TokenType::IntegerLiteralToken);
 }
+
+TEST(ParserTest, aslasTest) {
+  FileSource src("../tests/res/aslas.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  auto programNode = parser.getProgramNode();
+  EXPECT_EQ(programNode->getChildren().front()->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(programNode->getChildren().size(), 1);
+  std::vector<NodeUptr> const& nodes = programNode->getChildren();
+  Node* aslasStatement = nodes[0].get();
+  EXPECT_EQ(aslasStatement->getChildren().size(), 11);
+  std::vector<NodeUptr> const& aslasChildren = aslasStatement->getChildren();
+  EXPECT_EQ(aslasChildren[0]->getToken().getType(), Token::TokenType::AsLongAsToken);
+  EXPECT_EQ(aslasChildren[1]->getToken().getType(),
+            Token::TokenType::OpenRoundBracketToken);
+  EXPECT_EQ(aslasChildren[2]->getToken().getType(),
+            Token::TokenType::LogicalOperatorToken);
+  EXPECT_EQ(aslasChildren[3]->getToken().getType(),
+            Token::TokenType::CloseRoundBracketToken);
+  EXPECT_EQ(aslasChildren[4]->getToken().getType(),
+            Token::TokenType::ColonToken);
+  EXPECT_EQ(aslasChildren[5]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(aslasChildren[6]->getToken().getType(),
+            Token::TokenType::OpenBlockToken);
+  EXPECT_EQ(aslasChildren[7]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(aslasChildren[8]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(aslasChildren[9]->getToken().getType(),
+            Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(aslasChildren[10]->getToken().getType(),
+            Token::TokenType::EndOfFileToken);
+   EXPECT_EQ(aslasChildren[7]->getChildren().size(), 4);
+}
+
+TEST(ParserTest, conditionCaseTest) {
+  FileSource src("../tests/res/condition.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  auto programNode = parser.getProgramNode();
+  EXPECT_EQ(programNode->getChildren().size(), 3);
+}

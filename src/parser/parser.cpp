@@ -73,6 +73,8 @@ NodeUptr Parser::parseStatement() {
   node = parseFunCallOrAssignment();
   if (node) {
     std::cout << "PARSE FUN CALL OR ASSIGNMENT" << std::endl;
+    std::cout<< LexicalTable::token2StringTable.at(currentToken.getType())<<std::endl;
+    std::cout<< LexicalTable::token2StringTable.at(lastToken.getType())<<std::endl;
     return node;
   }
   node = parseFunStatOrAssignment();
@@ -270,9 +272,15 @@ NodeUptr Parser::parseAsLAsStatement() {
   if (accept(Token::TokenType::AsLongAsToken)) {
     NodeUptr asLasNode = std::make_unique<RootNode>();
     asLasNode->add(std::make_unique<StatementNode>(lastToken));
+    expect(Token::TokenType::OpenRoundBracketToken);
+    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr expressionNode = parseMultipleTestExpressions();
     asLasNode->add(std::move(expressionNode));
+    expect(Token::TokenType::CloseRoundBracketToken);
+    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::ColonToken);
+    asLasNode->add(std::make_unique<LeafNode>(lastToken));
+    expect(Token::TokenType::NextLineToken);
     asLasNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
     asLasNode->add(std::make_unique<LeafNode>(lastToken));
@@ -280,8 +288,10 @@ NodeUptr Parser::parseAsLAsStatement() {
     while (asLasStatementsNode = parseStatement()) {
       asLasNode->add(std::move(asLasStatementsNode));
     }
+    std::cout<<"PO"<<std::endl;
     expect(endOfStatementTokens);
     asLasNode->add(std::make_unique<LeafNode>(lastToken));
+    return asLasNode;
   }
   return NodeUptr{};
 }
@@ -425,8 +435,10 @@ NodeUptr Parser::parseFunCallArguments() {
 }
 
 NodeUptr Parser::parseAssignment(NodeUptr root) {
-  expect(assignableTokens);
-  root->add(std::make_unique<LiteralNode>(lastToken));
+  std::cout<<"HELLO"<<std::endl;
+  NodeUptr expressionNode = parseExpression();
+  root->add(std::move(expressionNode));
+  std::cout<<"BYE"<<std::endl;
   return root;
 }
 
@@ -461,8 +473,8 @@ NodeUptr Parser::parseAssignExpression(NodeUptr root) {
     NodeUptr assignmentNode =
         std::make_unique<AssigmentOperatorNode>(lastToken);
     assignmentNode->add(root->getChildren());
-    expect(assignableTokens);
-    assignmentNode->add(std::make_unique<LiteralNode>(lastToken));
+    NodeUptr expressionNode = parseExpression();
+    assignmentNode->add(std::move(expressionNode));
     return assignmentNode;
   }
   std::string message = "Unexpected token at " +
@@ -559,44 +571,50 @@ NodeUptr Parser::parseNewline() {
 }
 // sum ::= term | sum, {(’-’|’+’) sum}
 NodeUptr Parser::parseExpression() {
+  std::cout<< "EXPRESSION" <<std::endl;
   NodeUptr leftSide = parseTerm();
   NodeUptr additiveOperatorNode;
   while (accept(Token::TokenType::AdditiveOperatorToken)) {
+    std::cout<< "EXPRESSION INSIDE" <<std::endl;
     additiveOperatorNode = std::make_unique<AdditiveOperatorNode>(lastToken);
     NodeUptr rightSide = parseTerm();
     additiveOperatorNode->add(std::move(leftSide));
     additiveOperatorNode->add(std::move(rightSide));
   }
-  if(!additiveOperatorNode) return leftSide;
+  if (!additiveOperatorNode) return leftSide;
   return additiveOperatorNode;
 }
 
 // term ::= factor, {(’*’| ’/’), factor}
 NodeUptr Parser::parseTerm() {
+std::cout<< "TERM" <<std::endl;
   NodeUptr leftSide = parseFactor();
   NodeUptr multiplicativeOperatorNode;
   while (accept(Token::TokenType::MultiplicativeOperatorToken)) {
+    std::cout<< "TERM INSIDE" <<std::endl;
     multiplicativeOperatorNode =
         std::make_unique<MultiplicativeOperatorNode>(lastToken);
     NodeUptr rightSide = parseFactor();
     multiplicativeOperatorNode->add(std::move(leftSide));
     multiplicativeOperatorNode->add(std::move(rightSide));
   }
-  if(!multiplicativeOperatorNode) return leftSide;
+  if (!multiplicativeOperatorNode) return leftSide;
   return multiplicativeOperatorNode;
 }
 // factor ::= base { [’ˆ’,exponent] }
 NodeUptr Parser::parseFactor() {
+  std::cout<< "FACTOR" <<std::endl;
   NodeUptr leftSide = parseParenthesesExpression();
   NodeUptr exponentiationOperatorNode;
   while (accept(Token::TokenType::ExponentiationOperatorToken)) {
+    std::cout<< "FACTOR INSIDE" <<std::endl;
     exponentiationOperatorNode =
         std::make_unique<ExponentiationOperatorNode>(lastToken);
     NodeUptr rightSide = parseFactor();
     exponentiationOperatorNode->add(std::move(leftSide));
     exponentiationOperatorNode->add(std::move(rightSide));
   }
-  if(!exponentiationOperatorNode) return leftSide;
+  if (!exponentiationOperatorNode) return leftSide;
   return exponentiationOperatorNode;
 }
 
@@ -639,7 +657,7 @@ NodeUptr Parser::parseTestExpression() {
     testNode->add(std::move(leftHandExpression));
     testNode->add(std::move(rightHandExpression));
   }
-  if(!testNode) return leftHandExpression;
+  if (!testNode) return leftHandExpression;
   return testNode;
 }
 
@@ -652,6 +670,6 @@ NodeUptr Parser::parseMultipleTestExpressions() {
     testNode->add(std::move(leftHandExpression));
     testNode->add(std::move(rightHandExpression));
   }
-  if(!testNode) return leftHandExpression;
+  if (!testNode) return leftHandExpression;
   return testNode;
 }
