@@ -19,6 +19,7 @@ class Token {
     DoubleToken,
     AdditiveOperatorToken,
     MultiplicativeOperatorToken,
+    ExponentiationOperatorToken,
     LogicalOperatorToken,
     AssignmentOperatorToken,
     IfToken,

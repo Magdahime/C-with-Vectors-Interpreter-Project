@@ -171,6 +171,9 @@ std::optional<Token> LexicalAnalyzer::buildOneCharToken() {
     case (','):
       type = Token::TokenType::CommaToken;
       break;
+    case ('^'):
+      type = Token::TokenType::CommaToken;
+      break;
   }
 
   if (subtype) {

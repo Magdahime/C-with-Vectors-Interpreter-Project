@@ -119,3 +119,10 @@ class AssigmentOperatorNode : public Node {
   void evaluate() override {}
   ~AssigmentOperatorNode() override {}
 };
+
+class ExponentiationOperatorNode : public Node {
+ public:
+  ExponentiationOperatorNode(Token token) : Node(token) {}
+  void evaluate() override {}
+  ~ExponentiationOperatorNode() override {}
+};

@@ -18,13 +18,20 @@ class Parser {
   NodeUptr parseCaseStatement();
   NodeUptr parseDefaultStatement();
   NodeUptr parseArguments();
+  NodeUptr parseExpression();
+  NodeUptr parseFactor();
+  NodeUptr parseTerm();
+  NodeUptr parseFunCallArguments();
   NodeUptr parseDefaultArgument();
   NodeUptr parseFunCallOrAssignment();
   NodeUptr parseFunStatOrAssignment();
   NodeUptr parseReturnStatement();
+  NodeUptr parseFunCall(NodeUptr root);
+  NodeUptr parseAssignment(NodeUptr root);
   NodeUptr parseAssignExpression(NodeUptr root);
   NodeUptr parseParenthesesExpression();
   NodeUptr parseTestExpression();
+  NodeUptr parseMultipleTestExpressions();
   NodeUptr parseMatrixAssignment(NodeUptr matrixNode);
   NodeUptr parseMatrixValue();
   NodeUptr parseMatrixSize();
@@ -52,6 +59,9 @@ class Parser {
       Token::TokenType::MatrixToken, Token::TokenType::TextToken};
   const std::vector<Token::TokenType> endOfStatementTokens{
       Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken};
+  const std::vector<Token::TokenType> connectorOfStatementTokens{
+      Token::TokenType::AndToken, Token::TokenType::OrToken,
+      Token::TokenType::NotToken};
   bool accept(const Token::TokenType& token);
   bool accept(const std::vector<Token::TokenType> acceptedTokens);
   bool expect(const std::vector<Token::TokenType> acceptedTokens);
