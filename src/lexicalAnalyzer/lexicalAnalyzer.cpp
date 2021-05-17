@@ -143,7 +143,10 @@ std::optional<Token> LexicalAnalyzer::buildOneCharToken() {
       type = Token::TokenType::AdditiveOperatorToken;
       subtype = Token::TokenSubtype::MinusToken;
       break;
-
+    case ('*'):
+      type = Token::TokenType::MultiplicativeOperatorToken;
+      subtype = Token::TokenSubtype::MultiplicationToken;
+      break;
     case ('('):
       type = Token::TokenType::OpenRoundBracketToken;
       break;
@@ -172,7 +175,7 @@ std::optional<Token> LexicalAnalyzer::buildOneCharToken() {
       type = Token::TokenType::CommaToken;
       break;
     case ('^'):
-      type = Token::TokenType::CommaToken;
+      type = Token::TokenType::ExponentiationOperatorToken;
       break;
   }
 

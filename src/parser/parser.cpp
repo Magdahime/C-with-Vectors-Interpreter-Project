@@ -125,7 +125,6 @@ NodeUptr Parser::parseIfStatement() {
 }
 // other statement ::= ’otherwise’, ’:’, indent, {statement};
 NodeUptr Parser::parseOtherwiseStatement() {
-  std::cout << "OTHERIWSe" << std::endl;
   if (accept(Token::TokenType::OtherwiseToken)) {
     NodeUptr otherwiseNode = std::make_unique<RootNode>();
     otherwiseNode->add(std::make_unique<StatementNode>(lastToken));
@@ -583,7 +582,7 @@ NodeUptr Parser::parseTerm() {
     multiplicativeOperatorNode->add(std::move(leftSide));
     multiplicativeOperatorNode->add(std::move(rightSide));
   }
-  if(! multiplicativeOperatorNode) return leftSide;
+  if(!multiplicativeOperatorNode) return leftSide;
   return multiplicativeOperatorNode;
 }
 // factor ::= base { [’ˆ’,exponent] }

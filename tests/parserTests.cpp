@@ -281,7 +281,7 @@ TEST(ParserTest, ifOtherwiseTest) {
   EXPECT_EQ(otherwiseChildren[4]->getToken().getType(),
             Token::TokenType::RootToken);
   EXPECT_EQ(otherwiseChildren[5]->getToken().getType(),
-            Token::TokenType::EndOfFileToken);      //Tutaj jest wywołanie funkcji
+            Token::TokenType::EndOfFileToken);  // Tutaj jest wywołanie funkcji
   EXPECT_EQ(ifNodeChildren[7]->getChildren().size(), 4);
   std::vector<NodeUptr> const& ifChildren = ifNodeChildren[7]->getChildren();
   EXPECT_EQ(ifChildren[0]->getToken().getType(),
@@ -289,8 +289,84 @@ TEST(ParserTest, ifOtherwiseTest) {
   EXPECT_EQ(ifChildren[1]->getToken().getType(),
             Token::TokenType::OpenRoundBracketToken);
   EXPECT_EQ(ifChildren[2]->getToken().getType(),
-            Token::TokenType::RootToken);           //Tutaj są argumenty
+            Token::TokenType::RootToken);  // Tutaj są argumenty
   EXPECT_EQ(ifChildren[3]->getToken().getType(),
             Token::TokenType::CloseRoundBracketToken);
-   EXPECT_EQ(ifChildren[2]->getChildren().size(), 1);
+  EXPECT_EQ(ifChildren[2]->getChildren().size(), 1);
+}
+
+TEST(ParserTest, expressionTest1) {
+  StringSource src("2+2*2");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  NodeUptr expressionNode = parser.parseExpression();
+  EXPECT_EQ(expressionNode->getChildren().size(), 2);
+  EXPECT_EQ(expressionNode->getToken().getType(),
+            Token::TokenType::AdditiveOperatorToken);
+  std::vector<NodeUptr> const& expressionChildren =
+      expressionNode->getChildren();
+  EXPECT_EQ(expressionChildren[0]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(expressionChildren[1]->getToken().getType(),
+            Token::TokenType::MultiplicativeOperatorToken);
+  EXPECT_EQ(expressionChildren[1]->getChildren().size(), 2);
+  std::vector<NodeUptr> const& multiplicationChildren =
+      expressionChildren[1]->getChildren();
+  EXPECT_EQ(multiplicationChildren[0]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(multiplicationChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+}
+
+TEST(ParserTest, expressionTest2) {
+  StringSource src("(2+2)*2");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  NodeUptr expressionNode = parser.parseExpression();
+  EXPECT_EQ(expressionNode->getChildren().size(), 2);
+  EXPECT_EQ(expressionNode->getToken().getType(),
+            Token::TokenType::MultiplicativeOperatorToken);
+  std::vector<NodeUptr> const& expressionChildren =
+      expressionNode->getChildren();
+  EXPECT_EQ(expressionChildren[0]->getToken().getType(),
+            Token::TokenType::AdditiveOperatorToken);
+  EXPECT_EQ(expressionChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(expressionChildren[0]->getChildren().size(), 2);
+  std::vector<NodeUptr> const& multiplicationChildren =
+      expressionChildren[0]->getChildren();
+  EXPECT_EQ(multiplicationChildren[0]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(multiplicationChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+}
+
+TEST(ParserTest, expressionTest3) {
+  StringSource src("(2+2)*2^2");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  NodeUptr expressionNode = parser.parseExpression();
+  EXPECT_EQ(expressionNode->getChildren().size(), 2);
+  EXPECT_EQ(expressionNode->getToken().getType(),
+            Token::TokenType::MultiplicativeOperatorToken);
+  std::vector<NodeUptr> const& expressionChildren =
+      expressionNode->getChildren();
+  EXPECT_EQ(expressionChildren[0]->getToken().getType(),
+            Token::TokenType::AdditiveOperatorToken);
+  EXPECT_EQ(expressionChildren[1]->getToken().getType(),
+            Token::TokenType::ExponentiationOperatorToken);
+  EXPECT_EQ(expressionChildren[1]->getChildren().size(), 2);
+  EXPECT_EQ(expressionChildren[0]->getChildren().size(), 2);
+  std::vector<NodeUptr> const& addChildren =
+      expressionChildren[0]->getChildren();
+  EXPECT_EQ(addChildren[0]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(addChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  std::vector<NodeUptr> const& exponentChildren =
+      expressionChildren[1]->getChildren();
+  EXPECT_EQ(exponentChildren[0]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(exponentChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
 }
