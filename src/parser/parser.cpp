@@ -49,49 +49,36 @@ void Parser::parseProgram() {
 
 NodeUptr Parser::parseStatement() {
   NodeUptr node;
-  std::cout << "PARSE STATEMENT" << std::endl;
   node = parseIfStatement();
   if (node) {
-    std::cout << "PARSE IF STATEMENT" << std::endl;
     return node;
   }
   node = parseConditionStatement();
   if (node) {
-    std::cout << "PARSE CONDITION STATEMENT" << std::endl;
     return node;
   }
   node = parseLoopStatement();
   if (node) {
-    std::cout << "PARSE LOOP STATEMENT" << std::endl;
     return node;
   }
   node = parseAsLAsStatement();
   if (node) {
-    std::cout << "PARSE AS LONG AS STATEMENT" << std::endl;
     return node;
   }
   node = parseFunCallOrAssignment();
   if (node) {
-    std::cout << "PARSE FUN CALL OR ASSIGNMENT" << std::endl;
-    std::cout << LexicalTable::token2StringTable.at(currentToken.getType())
-              << std::endl;
-    std::cout << LexicalTable::token2StringTable.at(lastToken.getType())
-              << std::endl;
     return node;
   }
   node = parseFunStatOrAssignment();
   if (node) {
-    std::cout << "PARSE FUNCTION STATEMENT" << std::endl;
     return node;
   }
   node = parseComment();
   if (node) {
-    std::cout << "PARSE COMMENT" << std::endl;
     return node;
   }
   node = parseNewline();
   if (node) {
-    std::cout << "NEWLINE" << std::endl;
     return node;
   }
   return NodeUptr{};
@@ -121,6 +108,7 @@ NodeUptr Parser::parseIfStatement() {
     ifNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr otherwiseNode = parseOtherwiseStatement();
     if (otherwiseNode) ifNode->add(std::move(otherwiseNode));
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     ifNode->add(std::make_unique<LeafNode>(lastToken));
     return ifNode;
@@ -142,6 +130,7 @@ NodeUptr Parser::parseOtherwiseStatement() {
     while (otherwiseStatementsNodes = parseStatement()) {
       otherwiseNode->add(std::move(otherwiseStatementsNodes));
     }
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     otherwiseNode->add(std::make_unique<LeafNode>(lastToken));
     return otherwiseNode;
@@ -166,6 +155,7 @@ NodeUptr Parser::parseConditionStatement() {
     }
     NodeUptr defaultStatement = parseDefaultStatement();
     if (defaultStatement) conditionNode->add(std::move(defaultStatement));
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     conditionNode->add(std::make_unique<LeafNode>(lastToken));
     return conditionNode;
@@ -195,6 +185,7 @@ NodeUptr Parser::parseCaseStatement() {
     }
     if (accept(Token::TokenType::NextLineToken))
       caseNode->add(std::make_unique<LeafNode>(lastToken));
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     caseNode->add(std::make_unique<LeafNode>(lastToken));
     return caseNode;
@@ -217,6 +208,7 @@ NodeUptr Parser::parseDefaultStatement() {
     while (defaultStatementsNodes = parseStatement()) {
       defaultNode->add(std::move(defaultStatementsNodes));
     }
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     defaultNode->add(std::make_unique<LeafNode>(lastToken));
     return defaultNode;
@@ -301,7 +293,8 @@ NodeUptr Parser::parseAsLAsStatement() {
     while (asLasStatementsNode = parseStatement()) {
       asLasNode->add(std::move(asLasStatementsNode));
     }
-    std::cout << "PO" << std::endl;
+
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     asLasNode->add(std::make_unique<LeafNode>(lastToken));
     return asLasNode;
@@ -332,6 +325,7 @@ NodeUptr Parser::parseFunctionStatement(NodeUptr root) {
     NodeUptr functionReturnStatementsNode = parseReturnStatement();
     if (functionReturnStatementsNode)
       root->add(functionReturnStatementsNode->getChildren());
+    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
     root->add(std::make_unique<LeafNode>(lastToken));
     return root;
@@ -448,10 +442,8 @@ NodeUptr Parser::parseFunCallArguments() {
 }
 
 NodeUptr Parser::parseAssignment(NodeUptr root) {
-  std::cout << "HELLO" << std::endl;
   NodeUptr expressionNode = parseExpression();
   root->add(std::move(expressionNode));
-  std::cout << "BYE" << std::endl;
   return root;
 }
 
@@ -584,11 +576,9 @@ NodeUptr Parser::parseNewline() {
 }
 // sum ::= term | sum, {(’-’|’+’) sum}
 NodeUptr Parser::parseExpression() {
-  std::cout << "EXPRESSION" << std::endl;
   NodeUptr leftSide = parseTerm();
   NodeUptr additiveOperatorNode;
   while (accept(Token::TokenType::AdditiveOperatorToken)) {
-    std::cout << "EXPRESSION INSIDE" << std::endl;
     additiveOperatorNode = std::make_unique<AdditiveOperatorNode>(lastToken);
     NodeUptr rightSide = parseTerm();
     additiveOperatorNode->add(std::move(leftSide));
@@ -600,11 +590,9 @@ NodeUptr Parser::parseExpression() {
 
 // term ::= factor, {(’*’| ’/’), factor}
 NodeUptr Parser::parseTerm() {
-  std::cout << "TERM" << std::endl;
   NodeUptr leftSide = parseFactor();
   NodeUptr multiplicativeOperatorNode;
   while (accept(Token::TokenType::MultiplicativeOperatorToken)) {
-    std::cout << "TERM INSIDE" << std::endl;
     multiplicativeOperatorNode =
         std::make_unique<MultiplicativeOperatorNode>(lastToken);
     NodeUptr rightSide = parseFactor();
@@ -616,11 +604,9 @@ NodeUptr Parser::parseTerm() {
 }
 // factor ::= base { [’ˆ’,exponent] }
 NodeUptr Parser::parseFactor() {
-  std::cout << "FACTOR" << std::endl;
   NodeUptr leftSide = parseParenthesesExpression();
   NodeUptr exponentiationOperatorNode;
   while (accept(Token::TokenType::ExponentiationOperatorToken)) {
-    std::cout << "FACTOR INSIDE" << std::endl;
     exponentiationOperatorNode =
         std::make_unique<ExponentiationOperatorNode>(lastToken);
     NodeUptr rightSide = parseFactor();

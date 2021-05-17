@@ -478,3 +478,33 @@ TEST(ParserTest, conditionCaseTest) {
   EXPECT_EQ(case1Children[9]->getToken().getType(),
             Token::TokenType::CloseBlockToken);
 }
+//BRAK WCIĘCIA
+TEST(ParserTest, error1FAILURE) {
+  FileSource src("../tests/res/error1.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+}
+
+//Niedomnkięty nawias wywołania funkcji
+TEST(ParserTest, error2FAILURE) {
+  FileSource src("../tests/res/error2.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+}
+//Zły operator
+TEST(ParserTest, error3FAILURE) {
+  FileSource src("../tests/res/error3.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+}
+
+//Zły operator
+TEST(ParserTest, error4FAILURE) {
+  FileSource src("../tests/res/error4.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+}
