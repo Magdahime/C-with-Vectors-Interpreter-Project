@@ -384,7 +384,8 @@ TEST(ParserTest, aslasTest) {
   Node* aslasStatement = nodes[0].get();
   EXPECT_EQ(aslasStatement->getChildren().size(), 11);
   std::vector<NodeUptr> const& aslasChildren = aslasStatement->getChildren();
-  EXPECT_EQ(aslasChildren[0]->getToken().getType(), Token::TokenType::AsLongAsToken);
+  EXPECT_EQ(aslasChildren[0]->getToken().getType(),
+            Token::TokenType::AsLongAsToken);
   EXPECT_EQ(aslasChildren[1]->getToken().getType(),
             Token::TokenType::OpenRoundBracketToken);
   EXPECT_EQ(aslasChildren[2]->getToken().getType(),
@@ -405,7 +406,7 @@ TEST(ParserTest, aslasTest) {
             Token::TokenType::AssignmentOperatorToken);
   EXPECT_EQ(aslasChildren[10]->getToken().getType(),
             Token::TokenType::EndOfFileToken);
-   EXPECT_EQ(aslasChildren[7]->getChildren().size(), 4);
+  EXPECT_EQ(aslasChildren[7]->getChildren().size(), 4);
 }
 
 TEST(ParserTest, conditionCaseTest) {
@@ -414,5 +415,66 @@ TEST(ParserTest, conditionCaseTest) {
   Parser parser(lexicAna);
   parser.parseProgram();
   auto programNode = parser.getProgramNode();
-  EXPECT_EQ(programNode->getChildren().size(), 3);
+  EXPECT_EQ(programNode->getChildren().size(), 5);
+  std::vector<NodeUptr> const& conditionChildren = programNode->getChildren();
+  EXPECT_EQ(conditionChildren[0]->getToken().getType(),
+            Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(conditionChildren[1]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(conditionChildren[2]->getToken().getType(),
+            Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(conditionChildren[3]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(conditionChildren[4]->getToken().getType(),
+            Token::TokenType::RootToken);
+  std::vector<NodeUptr> const& conditionCaseChildren =
+      conditionChildren[4]->getChildren();
+  EXPECT_EQ(conditionCaseChildren.size(), 10);
+  EXPECT_EQ(conditionCaseChildren[0]->getToken().getType(),
+            Token::TokenType::ConditionToken);
+  EXPECT_EQ(conditionCaseChildren[1]->getToken().getType(),
+            Token::TokenType::ColonToken);
+  EXPECT_EQ(conditionCaseChildren[2]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(conditionCaseChildren[3]->getToken().getType(),
+            Token::TokenType::OpenBlockToken);
+  EXPECT_EQ(conditionCaseChildren[4]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(conditionCaseChildren[5]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(conditionCaseChildren[6]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(conditionCaseChildren[7]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(conditionCaseChildren[8]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(conditionCaseChildren[9]->getToken().getType(),
+            Token::TokenType::EndOfFileToken);
+  EXPECT_EQ(conditionCaseChildren[4]->getChildren().size(), 10);
+  EXPECT_EQ(conditionCaseChildren[5]->getChildren().size(), 10);
+  EXPECT_EQ(conditionCaseChildren[6]->getChildren().size(), 10);
+  EXPECT_EQ(conditionCaseChildren[7]->getChildren().size(), 10);
+  EXPECT_EQ(conditionCaseChildren[8]->getChildren().size(), 8);
+  std::vector<NodeUptr> const& case1Children =
+      conditionCaseChildren[4]->getChildren();
+  EXPECT_EQ(case1Children[0]->getToken().getType(),
+            Token::TokenType::CaseToken);
+  EXPECT_EQ(case1Children[1]->getToken().getType(),
+            Token::TokenType::OpenRoundBracketToken);
+  EXPECT_EQ(case1Children[2]->getToken().getType(),
+            Token::TokenType::LogicalOperatorToken);
+  EXPECT_EQ(case1Children[3]->getToken().getType(),
+            Token::TokenType::CloseRoundBracketToken);
+  EXPECT_EQ(case1Children[4]->getToken().getType(),
+            Token::TokenType::ColonToken);
+  EXPECT_EQ(case1Children[5]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(case1Children[6]->getToken().getType(),
+            Token::TokenType::OpenBlockToken);
+  EXPECT_EQ(case1Children[7]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(case1Children[8]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(case1Children[9]->getToken().getType(),
+            Token::TokenType::CloseBlockToken);
 }

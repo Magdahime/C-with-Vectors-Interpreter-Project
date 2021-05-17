@@ -9,5 +9,6 @@ condition:
         print('Adult')
     case(age >= 60):
         print('Senior')
-    default: // tutaj wpadamy gdy nic nie pasuje
+    default:
+        // tutaj wpadamy gdy nic nie pasuje
         print('Error')
