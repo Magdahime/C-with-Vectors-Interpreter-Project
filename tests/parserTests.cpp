@@ -125,16 +125,13 @@ TEST(ParserTest, parseMatrix) {
   EXPECT_EQ(programNode->getChildren().front()->getToken().getType(),
             Token::TokenType::AssignmentOperatorToken);
   EXPECT_EQ(programNode->getChildren().size(), 1);
-  std::vector<NodeUptr> const& nodes = (programNode->getChildren().front()->getChildren());
+  std::vector<NodeUptr> const& nodes =
+      (programNode->getChildren().front()->getChildren());
   EXPECT_EQ(nodes.size(), 4);
-  EXPECT_EQ(nodes[0]->getToken().getType(),
-            Token::TokenType::MatrixToken);
-  EXPECT_EQ(nodes[1]->getToken().getType(),
-            Token::TokenType::RootToken);
-  EXPECT_EQ(nodes[2]->getToken().getType(),
-            Token::TokenType::IdentifierToken);
-  EXPECT_EQ(nodes[3]->getToken().getType(),
-            Token::TokenType::RootToken);
+  EXPECT_EQ(nodes[0]->getToken().getType(), Token::TokenType::MatrixToken);
+  EXPECT_EQ(nodes[1]->getToken().getType(), Token::TokenType::RootToken);
+  EXPECT_EQ(nodes[2]->getToken().getType(), Token::TokenType::IdentifierToken);
+  EXPECT_EQ(nodes[3]->getToken().getType(), Token::TokenType::RootToken);
 }
 
 TEST(ParserTest, parseAssignments) {
@@ -151,7 +148,8 @@ TEST(ParserTest, parseAssignments) {
   Node* secondAssignment = nodes[2].get();
   Node* thirdAssignment = nodes[4].get();
   EXPECT_EQ(firstAssignment->getChildren().size(), 3);
-  EXPECT_EQ(firstAssignment->getToken(), Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(firstAssignment->getToken(),
+            Token::TokenType::AssignmentOperatorToken);
   std::vector<NodeUptr> const& firstAssignmentChildren =
       firstAssignment->getChildren();
   EXPECT_EQ(firstAssignmentChildren[0]->getToken().getType(),
@@ -161,7 +159,8 @@ TEST(ParserTest, parseAssignments) {
   EXPECT_EQ(firstAssignmentChildren[2]->getToken().getType(),
             Token::TokenType::IntegerLiteralToken);
   EXPECT_EQ(secondAssignment->getChildren().size(), 3);
-  EXPECT_EQ(secondAssignment->getToken(), Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(secondAssignment->getToken(),
+            Token::TokenType::AssignmentOperatorToken);
   std::vector<NodeUptr> const& secondAssignmentChildren =
       secondAssignment->getChildren();
   EXPECT_EQ(secondAssignmentChildren[0]->getToken().getType(),
@@ -171,7 +170,8 @@ TEST(ParserTest, parseAssignments) {
   EXPECT_EQ(secondAssignmentChildren[2]->getToken().getType(),
             Token::TokenType::IntegerLiteralToken);
   EXPECT_EQ(thirdAssignment->getChildren().size(), 3);
-  EXPECT_EQ(thirdAssignment->getToken(), Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(thirdAssignment->getToken(),
+            Token::TokenType::AssignmentOperatorToken);
   std::vector<NodeUptr> const& thirdAssignmentChildren =
       thirdAssignment->getChildren();
   EXPECT_EQ(thirdAssignmentChildren[0]->getToken().getType(),
@@ -180,4 +180,44 @@ TEST(ParserTest, parseAssignments) {
             Token::TokenType::IdentifierToken);
   EXPECT_EQ(thirdAssignmentChildren[2]->getToken().getType(),
             Token::TokenType::DoubleLiteralToken);
+}
+TEST(ParserTest, parseFunCallOrAssignment) {
+  FileSource src("../tests/res/funCallOrAssignment.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  auto programNode = parser.getProgramNode();
+  EXPECT_EQ(programNode->getChildren().front()->getToken().getType(),
+            Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(programNode->getChildren().size(), 5);
+  std::vector<NodeUptr> const& nodes = programNode->getChildren();
+  Node* firstAssignment = nodes[0].get();
+  Node* funcall = nodes[2].get();
+  Node* secondAssignment = nodes[4].get();
+  EXPECT_EQ(firstAssignment->getChildren().size(), 3);
+  EXPECT_EQ(secondAssignment->getChildren().size(), 2);
+  EXPECT_EQ(funcall->getChildren().size(), 4);
+  std::vector<NodeUptr> const& funcallChildren = funcall->getChildren();
+  EXPECT_EQ(funcallChildren[0]->getToken().getType(),
+            Token::TokenType::IdentifierToken);
+  EXPECT_EQ(funcallChildren[1]->getToken().getType(),
+            Token::TokenType::OpenRoundBracketToken);
+  EXPECT_EQ(funcallChildren[2]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(funcallChildren[3]->getToken().getType(),
+            Token::TokenType::CloseRoundBracketToken);
+  std::vector<NodeUptr> const& secondAssignmentChildren =
+      secondAssignment->getChildren();
+  EXPECT_EQ(secondAssignmentChildren[0]->getToken().getType(),
+            Token::TokenType::IdentifierToken);
+  EXPECT_EQ(secondAssignmentChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  std::vector<NodeUptr> const& firstAssignmentChildren =
+      firstAssignment->getChildren();
+  EXPECT_EQ(firstAssignmentChildren[0]->getToken().getType(),
+            Token::TokenType::IntegerToken);
+  EXPECT_EQ(firstAssignmentChildren[1]->getToken().getType(),
+            Token::TokenType::IdentifierToken);
+  EXPECT_EQ(firstAssignmentChildren[2]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
 }
