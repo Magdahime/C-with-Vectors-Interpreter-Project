@@ -221,3 +221,76 @@ TEST(ParserTest, parseFunCallOrAssignment) {
   EXPECT_EQ(firstAssignmentChildren[2]->getToken().getType(),
             Token::TokenType::IntegerLiteralToken);
 }
+
+TEST(ParserTest, ifOtherwiseTest) {
+  FileSource src("../tests/res/if.mpp");
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  auto programNode = parser.getProgramNode();
+  EXPECT_EQ(programNode->getChildren().front()->getToken().getType(),
+            Token::TokenType::AssignmentOperatorToken);
+  EXPECT_EQ(programNode->getChildren().size(), 3);
+  std::vector<NodeUptr> const& nodes = programNode->getChildren();
+  Node* assignment = nodes[0].get();
+  Node* ifNode = nodes[2].get();
+  EXPECT_EQ(assignment->getChildren().size(), 3);
+  EXPECT_EQ(ifNode->getChildren().size(), 12);
+  std::vector<NodeUptr> const& ifNodeChildren = ifNode->getChildren();
+  EXPECT_EQ(ifNodeChildren[0]->getToken().getType(), Token::TokenType::IfToken);
+  EXPECT_EQ(ifNodeChildren[1]->getToken().getType(),
+            Token::TokenType::OpenRoundBracketToken);
+  EXPECT_EQ(ifNodeChildren[2]->getToken().getType(),
+            Token::TokenType::LogicalOperatorToken);
+  EXPECT_EQ(ifNodeChildren[3]->getToken().getType(),
+            Token::TokenType::CloseRoundBracketToken);
+  EXPECT_EQ(ifNodeChildren[4]->getToken().getType(),
+            Token::TokenType::ColonToken);
+  EXPECT_EQ(ifNodeChildren[5]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(ifNodeChildren[6]->getToken().getType(),
+            Token::TokenType::OpenBlockToken);
+  EXPECT_EQ(ifNodeChildren[7]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(ifNodeChildren[8]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(ifNodeChildren[9]->getToken().getType(),
+            Token::TokenType::CloseBlockToken);
+  EXPECT_EQ(ifNodeChildren[10]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(ifNodeChildren[11]->getToken().getType(),
+            Token::TokenType::EndOfFileToken);
+  EXPECT_EQ(ifNodeChildren[2]->getChildren().size(), 2);
+  std::vector<NodeUptr> const& conditionChildren =
+      ifNodeChildren[2]->getChildren();
+  EXPECT_EQ(conditionChildren[0]->getToken().getType(),
+            Token::TokenType::IdentifierToken);
+  EXPECT_EQ(conditionChildren[1]->getToken().getType(),
+            Token::TokenType::IntegerLiteralToken);
+  EXPECT_EQ(ifNodeChildren[10]->getChildren().size(), 6);
+  std::vector<NodeUptr> const& otherwiseChildren =
+      ifNodeChildren[10]->getChildren();
+  EXPECT_EQ(otherwiseChildren[0]->getToken().getType(),
+            Token::TokenType::OtherwiseToken);
+  EXPECT_EQ(otherwiseChildren[1]->getToken().getType(),
+            Token::TokenType::ColonToken);
+  EXPECT_EQ(otherwiseChildren[2]->getToken().getType(),
+            Token::TokenType::NextLineToken);
+  EXPECT_EQ(otherwiseChildren[3]->getToken().getType(),
+            Token::TokenType::OpenBlockToken);
+  EXPECT_EQ(otherwiseChildren[4]->getToken().getType(),
+            Token::TokenType::RootToken);
+  EXPECT_EQ(otherwiseChildren[5]->getToken().getType(),
+            Token::TokenType::EndOfFileToken);      //Tutaj jest wywołanie funkcji
+  EXPECT_EQ(ifNodeChildren[7]->getChildren().size(), 4);
+  std::vector<NodeUptr> const& ifChildren = ifNodeChildren[7]->getChildren();
+  EXPECT_EQ(ifChildren[0]->getToken().getType(),
+            Token::TokenType::IdentifierToken);
+  EXPECT_EQ(ifChildren[1]->getToken().getType(),
+            Token::TokenType::OpenRoundBracketToken);
+  EXPECT_EQ(ifChildren[2]->getToken().getType(),
+            Token::TokenType::RootToken);           //Tutaj są argumenty
+  EXPECT_EQ(ifChildren[3]->getToken().getType(),
+            Token::TokenType::CloseRoundBracketToken);
+   EXPECT_EQ(ifChildren[2]->getChildren().size(), 1);
+}
