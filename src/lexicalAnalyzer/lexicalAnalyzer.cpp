@@ -80,7 +80,7 @@ std::optional<Token> LexicalAnalyzer::buildComment() {
     if (length >= MAXSIZE) {
       std::string message =
           "Commentary at " + current.getLinePosition() + " is too long.";
-      throw TooLongStringLiteral(message.c_str());
+      throw TooLongStringLiteral(message);
     }
     return Token(Token::TokenType::CommentToken, TokenVariant(ss.str()),
                  current);
@@ -112,7 +112,7 @@ std::optional<Token> LexicalAnalyzer::buildDivisionTokenOrComment() {
       if (length >= MAXSIZE) {
         std::string message =
             "Commentary at " + current.getLinePosition() + " is too long.";
-        throw TooLongStringLiteral(message.c_str());
+        throw TooLongStringLiteral(message);
       }
 
       return Token(Token::TokenType::CommentToken, TokenVariant(ss.str()),
@@ -224,7 +224,7 @@ std::optional<Token> LexicalAnalyzer::buildStringLiteral() {
     if (length >= MAXSIZE) {
       std::string message =
           "String literal at " + current.getLinePosition() + " is too long.";
-      throw TooLongStringLiteral(message.c_str());
+      throw TooLongStringLiteral(message);
     } else if (nextCharacter.nextLetter == delimiter) {
       source->getChar();
       return Token(Token::TokenType::StringLiteralToken, TokenVariant(ss.str()),
@@ -232,7 +232,7 @@ std::optional<Token> LexicalAnalyzer::buildStringLiteral() {
     } else {
       std::string message =
           "String literal at " + current.getLinePosition() + " is malformed.";
-      throw WronglyDefinedStringLiteral(message.c_str());
+      throw WronglyDefinedStringLiteral(message);
     }
   }
   return {};
@@ -275,7 +275,7 @@ int64_t LexicalAnalyzer::buildInteger(NextCharacter &current) {
                      std::to_string(INT64_MAX))) {
       std::string message =
           "Integer constant " + current.getLinePosition() + " is too big.";
-      throw IntegerTooBig(message.c_str());
+      throw IntegerTooBig(message);
     }
     integerToBe *= base;
     integerToBe += nextCharacter.nextLetter - '0';
@@ -289,7 +289,7 @@ double LexicalAnalyzer::buildFloatingPointNumber(NextCharacter &current,
                    std::to_string(std::numeric_limits<double>::max()))) {
     std::string message =
         "Double constant at " + current.getLinePosition() + " is too big.";
-    throw IntegerTooBig(message.c_str());
+    throw IntegerTooBig(message);
   }
   double finalFractionalpart = 0;
   short base = 10;

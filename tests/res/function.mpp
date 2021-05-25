@@ -1,3 +1,0 @@
-integer function count (integer begin, integer end):
-    //to jest komentarz
-    return end

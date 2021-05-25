@@ -1,3 +1,0 @@
-integer age = 45
-function1( age )
-age = 50

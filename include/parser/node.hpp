@@ -13,7 +13,7 @@ using NodeUptr = std::unique_ptr<Node>;
 class Node {
  public:
   Node() : token(Token(Token::TokenType::RootToken)){};
-  Node(Token token) : token(token){};
+  explicit Node(Token token) : token(token){};
   Node& operator=(Node&& other) = default;
   Node(const Node& other) = default;
   Node(Node&& other) = default;
@@ -26,22 +26,18 @@ class Node {
                 << "\n";
     }
   }
-  std::vector<NodeUptr>& getChildren() { return children; }
+  std::vector<NodeUptr>& getChildren()  { return children; }
   Token getToken() const { return token; }
   void add(NodeUptr newNode) { children.push_back(std::move(newNode)); }
   void add(std::vector<NodeUptr>& newNodes) {
-    while (!newNodes.empty()) {
-      auto newNode = std::move(newNodes.front());
-      newNodes.erase(newNodes.begin());
-      children.push_back(std::move(newNode));
-    }
+    std::ranges::move(newNodes, std::back_inserter(children));
   }
-  void remove(NodeUptr& node) {
-    auto itr = std::ranges::find_if(
-        children, [&node](NodeUptr& p) { return p.get() == node.get(); });
-    children.erase(itr);
+
+  void remove(const Node* node) {
+    children.erase(std::ranges::find(children, node, &NodeUptr::get));
   }
-  bool empty() { return children.empty(); }
+
+  bool empty() const { return children.empty(); }
   virtual void evaluate() = 0;
   virtual ~Node() = default;
 
@@ -52,77 +48,66 @@ class Node {
 
 class CommentNode : public Node {
  public:
-  CommentNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~CommentNode() override {}
 };
 
 class AdditiveOperatorNode : public Node {
  public:
-  AdditiveOperatorNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~AdditiveOperatorNode() override {}
 };
 
 class MultiplicativeOperatorNode : public Node {
  public:
-  MultiplicativeOperatorNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~MultiplicativeOperatorNode() override {}
 };
 
 class LogicalOperatorNode : public Node {
  public:
-  LogicalOperatorNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~LogicalOperatorNode() override {}
 };
 
 class MatrixOperatorNode : public Node {
  public:
-  MatrixOperatorNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~MatrixOperatorNode() override {}
 };
 
 class StatementNode : public Node {
  public:
-  StatementNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~StatementNode() override {}
 };
 
 class LiteralNode : public Node {
  public:
-  LiteralNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~LiteralNode() override {}
 };
 
 class LeafNode : public Node {
  public:
-  LeafNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~LeafNode() override {}
 };
 
 class RootNode : public Node {
  public:
   RootNode() : Node(Token(Token::TokenType::RootToken)) {}
   void evaluate() override {}
-  ~RootNode() override {}
 };
 
 class AssigmentOperatorNode : public Node {
  public:
-  AssigmentOperatorNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~AssigmentOperatorNode() override {}
 };
 
 class ExponentiationOperatorNode : public Node {
  public:
-  ExponentiationOperatorNode(Token token) : Node(token) {}
+  using Node::Node;
   void evaluate() override {}
-  ~ExponentiationOperatorNode() override {}
 };

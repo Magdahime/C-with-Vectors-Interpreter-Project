@@ -1,41 +1,50 @@
 #include "parser/parser.hpp"
 
-bool Parser::accept(const Token::TokenType& token) {
+Token Parser::getToken() {
+  Token token = *lexer.getToken();
+  while (token == Token::TokenType::CommentToken ||
+         token == Token::TokenType::NextLineToken) {
+    token = *lexer.getToken();
+  }
+  return token;
+}
+
+bool Parser::accept(const Token::TokenType token) {
   if (currentToken == token) {
     lastToken = currentToken;
-    currentToken = *lexer.getToken();
+    currentToken = getToken();
     return true;
   }
   return false;
 }
-bool Parser::accept(const std::vector<Token::TokenType> acceptedTokens) {
-  for (auto& token : acceptedTokens) {
+bool Parser::accept(const std::vector<Token::TokenType>& acceptedTokens) {
+  for (const auto& token : acceptedTokens) {
     if (currentToken == token) {
       lastToken = currentToken;
-      currentToken = *lexer.getToken();
+      currentToken = getToken();
       return true;
     }
   }
   return false;
 }
 
-bool Parser::expect(const Token::TokenType& token) {
+bool Parser::expect(const Token::TokenType token) {
   if (accept(token)) return true;
   std::string message =
       "Token at " + currentToken.getLinePositionString() +
       " is unexpected. Expecting: " + LexicalTable::token2StringTable.at(token);
-  throw UnexpectedToken(message.c_str());
+  throw UnexpectedToken(message);
   return false;
 }
 
-bool Parser::expect(const std::vector<Token::TokenType> acceptedTokens) {
+bool Parser::expect(const std::vector<Token::TokenType>& acceptedTokens) {
   if (accept(acceptedTokens)) return true;
   std::string message = "Token at " + currentToken.getLinePositionString() +
                         " is unexpected. Expecting: ";
   for (auto const& token : acceptedTokens) {
     message += LexicalTable::token2StringTable.at(token) + ",";
   }
-  throw UnexpectedToken(message.c_str());
+  throw UnexpectedToken(message);
   return false;
 }
 
@@ -73,14 +82,6 @@ NodeUptr Parser::parseStatement() {
   if (node) {
     return node;
   }
-  node = parseComment();
-  if (node) {
-    return node;
-  }
-  node = parseNewline();
-  if (node) {
-    return node;
-  }
   return NodeUptr{};
 }
 //’if’, parentheses expr , ’:’, indent ,{statement} [other statement];
@@ -89,28 +90,19 @@ NodeUptr Parser::parseIfStatement() {
     NodeUptr ifNode = std::make_unique<RootNode>();
     ifNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::OpenRoundBracketToken);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr expressionNode = parseMultipleTestExpressions();
     ifNode->add(std::move(expressionNode));
     expect(Token::TokenType::CloseRoundBracketToken);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr ifStatementsNodes;
     while (ifStatementsNodes = parseStatement()) {
       ifNode->add(std::move(ifStatementsNodes));
     }
     expect(endOfStatementTokens);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr otherwiseNode = parseOtherwiseStatement();
     if (otherwiseNode) ifNode->add(std::move(otherwiseNode));
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    ifNode->add(std::make_unique<LeafNode>(lastToken));
     return ifNode;
   }
   return NodeUptr{};
@@ -121,18 +113,12 @@ NodeUptr Parser::parseOtherwiseStatement() {
     NodeUptr otherwiseNode = std::make_unique<RootNode>();
     otherwiseNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    otherwiseNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    otherwiseNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    otherwiseNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr otherwiseStatementsNodes;
     while (otherwiseStatementsNodes = parseStatement()) {
       otherwiseNode->add(std::move(otherwiseStatementsNodes));
     }
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    otherwiseNode->add(std::make_unique<LeafNode>(lastToken));
     return otherwiseNode;
   }
   return NodeUptr{};
@@ -144,20 +130,14 @@ NodeUptr Parser::parseConditionStatement() {
     NodeUptr conditionNode = std::make_unique<RootNode>();
     conditionNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    conditionNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    conditionNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    conditionNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr caseStatementsNodes;
     while (caseStatementsNodes = parseCaseStatement()) {
       conditionNode->add(std::move(caseStatementsNodes));
     }
     NodeUptr defaultStatement = parseDefaultStatement();
     if (defaultStatement) conditionNode->add(std::move(defaultStatement));
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    conditionNode->add(std::make_unique<LeafNode>(lastToken));
     return conditionNode;
   }
   return NodeUptr{};
@@ -168,26 +148,16 @@ NodeUptr Parser::parseCaseStatement() {
     NodeUptr caseNode = std::make_unique<RootNode>();
     caseNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::OpenRoundBracketToken);
-    caseNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr expressionNode = parseMultipleTestExpressions();
     caseNode->add(std::move(expressionNode));
     expect(Token::TokenType::CloseRoundBracketToken);
-    caseNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    caseNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    caseNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    caseNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr caseStatementsNodes;
     while (caseStatementsNodes = parseStatement()) {
       caseNode->add(std::move(caseStatementsNodes));
     }
-    if (accept(Token::TokenType::NextLineToken))
-      caseNode->add(std::make_unique<LeafNode>(lastToken));
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    caseNode->add(std::make_unique<LeafNode>(lastToken));
     return caseNode;
   }
   return NodeUptr{};
@@ -199,18 +169,12 @@ NodeUptr Parser::parseDefaultStatement() {
     NodeUptr defaultNode = std::make_unique<RootNode>();
     defaultNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    defaultNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    defaultNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    defaultNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr defaultStatementsNodes;
     while (defaultStatementsNodes = parseStatement()) {
       defaultNode->add(std::move(defaultStatementsNodes));
     }
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    defaultNode->add(std::make_unique<LeafNode>(lastToken));
     return defaultNode;
   }
   return NodeUptr{};
@@ -224,50 +188,41 @@ NodeUptr Parser::parseLoopStatement() {
     NodeUptr loopNode = std::make_unique<RootNode>();
     loopNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::OpenRoundBracketToken);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
     if (!(accept(Token::TokenType::IntegerLiteralToken) ||
           accept(Token::TokenType::IdentifierToken))) {
       std::string message =
           "Token at " + currentToken.getLinePositionString() +
           " is unexpected. Expecting: identifier or integerLiteral token";
-      throw UnexpectedToken(message.c_str());
+      throw UnexpectedToken(message);
     }
     loopNode->add(std::make_unique<LiteralNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
     if (!(accept(Token::TokenType::IntegerLiteralToken) ||
           accept(Token::TokenType::IdentifierToken))) {
       std::string message =
           "Token at " + currentToken.getLinePositionString() +
           " is unexpected. Expecting: identifier or integerLiteral token";
-      throw UnexpectedToken(message.c_str());
+      throw UnexpectedToken(message);
     }
     loopNode->add(std::make_unique<LiteralNode>(lastToken));
     if (accept(Token::TokenType::ColonToken)) {
-      loopNode->add(std::make_unique<LeafNode>(lastToken));
       if (!(accept(Token::TokenType::IntegerLiteralToken) ||
             accept(Token::TokenType::IdentifierToken))) {
         std::string message =
             "Token at " + currentToken.getLinePositionString() +
             " is unexpected. Expecting: identifier or integerLiteral token";
-        throw UnexpectedToken(message.c_str());
+        throw UnexpectedToken(message);
       }
       loopNode->add(std::make_unique<LiteralNode>(lastToken));
     }
     expect(Token::TokenType::CloseRoundBracketToken);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr loopStatementsNode;
     while (loopStatementsNode = parseStatement()) {
       loopNode->add(std::move(loopStatementsNode));
     }
     expect(endOfStatementTokens);
-    loopNode->add(std::make_unique<LeafNode>(lastToken));
     return loopNode;
   }
   return NodeUptr{};
@@ -278,25 +233,17 @@ NodeUptr Parser::parseAsLAsStatement() {
     NodeUptr asLasNode = std::make_unique<RootNode>();
     asLasNode->add(std::make_unique<StatementNode>(lastToken));
     expect(Token::TokenType::OpenRoundBracketToken);
-    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr expressionNode = parseMultipleTestExpressions();
     asLasNode->add(std::move(expressionNode));
     expect(Token::TokenType::CloseRoundBracketToken);
-    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    asLasNode->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr asLasStatementsNode;
     while (asLasStatementsNode = parseStatement()) {
       asLasNode->add(std::move(asLasStatementsNode));
     }
 
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    asLasNode->add(std::make_unique<LeafNode>(lastToken));
     return asLasNode;
   }
   return NodeUptr{};
@@ -307,17 +254,11 @@ NodeUptr Parser::parseFunctionStatement(NodeUptr root) {
   if (accept(Token::TokenType::IdentifierToken)) {
     root->add(std::make_unique<LiteralNode>(lastToken));
     expect(Token::TokenType::OpenRoundBracketToken);
-    root->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr functionArgumentsNode = parseArguments();
     if (functionArgumentsNode) root->add(std::move(functionArgumentsNode));
     expect(Token::TokenType::CloseRoundBracketToken);
-    root->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::ColonToken);
-    root->add(std::make_unique<LeafNode>(lastToken));
-    expect(Token::TokenType::NextLineToken);
-    root->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::OpenBlockToken);
-    root->add(std::make_unique<LeafNode>(lastToken));
     NodeUptr functionStatementsNode;
     while (functionStatementsNode = parseStatement()) {
       root->add(std::move(functionStatementsNode));
@@ -325,14 +266,12 @@ NodeUptr Parser::parseFunctionStatement(NodeUptr root) {
     NodeUptr functionReturnStatementsNode = parseReturnStatement();
     if (functionReturnStatementsNode)
       root->add(functionReturnStatementsNode->getChildren());
-    accept(Token::TokenType::NextLineToken);
     expect(endOfStatementTokens);
-    root->add(std::make_unique<LeafNode>(lastToken));
     return root;
   }
   std::string message = "Token at " + currentToken.getLinePositionString() +
                         " is unexpected. Expecting : Function statement";
-  throw UnexpectedToken(message.c_str());
+  throw UnexpectedToken(message);
   return NodeUptr{};
 }
 //[return statement] ::= 'return', identifier | expression | number | matrix |
@@ -340,7 +279,6 @@ NodeUptr Parser::parseFunctionStatement(NodeUptr root) {
 NodeUptr Parser::parseReturnStatement() {
   NodeUptr returnStatementNode = std::make_unique<RootNode>();
   if (accept(Token::TokenType::ReturnToken)) {
-    returnStatementNode->add(std::make_unique<LeafNode>(lastToken));
     if (!(accept(literalsTokens) ||
           accept(Token::TokenType::IdentifierToken))) {
       NodeUptr node = parseMatrixValue();
@@ -348,7 +286,7 @@ NodeUptr Parser::parseReturnStatement() {
       std::string message = "Unexpected token at " +
                             currentToken.getLinePositionString() +
                             ". Expecting: return value.";
-      throw UnexpectedToken(message.c_str());
+      throw UnexpectedToken(message);
     }
     returnStatementNode->add(std::make_unique<LiteralNode>(lastToken));
     return returnStatementNode;
@@ -361,17 +299,13 @@ NodeUptr Parser::parseReturnStatement() {
 NodeUptr Parser::parseArguments() {
   NodeUptr argumentsNode = std::make_unique<RootNode>();
   while (accept(typeTokens)) {
-    argumentsNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::IdentifierToken);
     argumentsNode->add(std::make_unique<LiteralNode>(lastToken));
     NodeUptr defaultArgument = parseDefaultArgument();
     if (defaultArgument) {
       argumentsNode->add(defaultArgument->getChildren());
     }
-    if (!accept(Token::TokenType::CommaToken))
-      break;
-    else
-      argumentsNode->add(std::make_unique<LeafNode>(lastToken));
+    if (!accept(Token::TokenType::CommaToken)) break;
   }
   if (!argumentsNode->empty()) return argumentsNode;
   return NodeUptr{};
@@ -382,7 +316,6 @@ NodeUptr Parser::parseArguments() {
 NodeUptr Parser::parseDefaultArgument() {
   if (accept(Token::TokenType::AssignmentOperatorToken)) {
     NodeUptr argumentsNode = std::make_unique<RootNode>();
-    argumentsNode->add(std::make_unique<LeafNode>(lastToken));
     if (!accept(literalsTokens)) {
       NodeUptr node = parseMatrixValue();
       if (node)
@@ -391,7 +324,7 @@ NodeUptr Parser::parseDefaultArgument() {
         std::string message = "Unexpected token at " +
                               currentToken.getLinePositionString() +
                               ". Expecting: literal or identifier.";
-        throw UnexpectedToken(message.c_str());
+        throw UnexpectedToken(message);
       }
 
     } else {
@@ -407,7 +340,6 @@ NodeUptr Parser::parseFunCallOrAssignment() {
     NodeUptr rootNode = std::make_unique<RootNode>();
     rootNode->add(std::make_unique<LiteralNode>(lastToken));
     if (accept(Token::TokenType::OpenRoundBracketToken)) {
-      rootNode->add(std::make_unique<LeafNode>(lastToken));
       return parseFunCall(std::move(rootNode));
     } else if (accept(Token::TokenType::AssignmentOperatorToken)) {
       NodeUptr assignmentNode =
@@ -417,7 +349,7 @@ NodeUptr Parser::parseFunCallOrAssignment() {
     } else {
       std::string message =
           "Unexpected token at " + currentToken.getLinePositionString();
-      throw UnexpectedToken(message.c_str());
+      throw UnexpectedToken(message);
     }
   }
   return NodeUptr{};
@@ -427,7 +359,6 @@ NodeUptr Parser::parseFunCall(NodeUptr root) {
   NodeUptr arguments = parseFunCallArguments();
   root->add(std::move(arguments));
   expect(Token::TokenType::CloseRoundBracketToken);
-  root->add(std::make_unique<LeafNode>(lastToken));
   return root;
 }
 
@@ -435,8 +366,7 @@ NodeUptr Parser::parseFunCallArguments() {
   NodeUptr arguments = std::make_unique<RootNode>();
   while (accept(assignableTokens)) {
     arguments->add(std::make_unique<LiteralNode>(lastToken));
-    if (accept(Token::TokenType::CommaToken))
-      arguments->add(std::make_unique<LeafNode>(lastToken));
+    accept(Token::TokenType::CommaToken);
   }
   return arguments;
 }
@@ -485,7 +415,7 @@ NodeUptr Parser::parseAssignExpression(NodeUptr root) {
   std::string message = "Unexpected token at " +
                         currentToken.getLinePositionString() +
                         ". Expecting: Assignment expression";
-  throw UnexpectedToken(message.c_str());
+  throw UnexpectedToken(message);
   return NodeUptr{};
 }
 
@@ -504,7 +434,7 @@ NodeUptr Parser::parseMatrixAssignment(NodeUptr matrixNode) {
       std::string message = "Unexpected token at " +
                             currentToken.getLinePositionString() +
                             ". Matrix values are missing!";
-      throw UnexpectedToken(message.c_str());
+      throw UnexpectedToken(message);
     }
     assignmentNode->add(std::move(matrixValues));
     return assignmentNode;
@@ -512,7 +442,7 @@ NodeUptr Parser::parseMatrixAssignment(NodeUptr matrixNode) {
   std::string message = "Unexpected token at " +
                         currentToken.getLinePositionString() +
                         ". Expecting: Matrix assignment expression";
-  throw UnexpectedToken(message.c_str());
+  throw UnexpectedToken(message);
   return NodeUptr{};
 }
 
@@ -520,20 +450,15 @@ NodeUptr Parser::parseMatrixAssignment(NodeUptr matrixNode) {
 NodeUptr Parser::parseMatrixValue() {
   NodeUptr matrixValues = std::make_unique<RootNode>();
   if (accept(Token::TokenType::OpenSquareBracketToken)) {
-    matrixValues->add(std::make_unique<LeafNode>(lastToken));
     while (accept(Token::TokenType::OpenSquareBracketToken)) {
-      matrixValues->add(std::make_unique<LeafNode>(lastToken));
       while (accept(Token::TokenType::IntegerLiteralToken) ||
              accept(Token::TokenType::DoubleToken)) {
         matrixValues->add(std::make_unique<LiteralNode>(lastToken));
-        if (accept(Token::TokenType::CommaToken))
-          matrixValues->add(std::make_unique<LeafNode>(lastToken));
+        accept(Token::TokenType::CommaToken);
       }
       expect(Token::TokenType::CloseSquareBracketToken);
-      matrixValues->add(std::make_unique<LeafNode>(lastToken));
     }
     expect(Token::TokenType::CloseSquareBracketToken);
-    matrixValues->add(std::make_unique<LeafNode>(lastToken));
     return matrixValues;
   }
   return NodeUptr{};
@@ -542,38 +467,19 @@ NodeUptr Parser::parseMatrixValue() {
 NodeUptr Parser::parseMatrixSize() {
   NodeUptr matrixSizeNode = std::make_unique<RootNode>();
   if (accept(Token::TokenType::OpenSquareBracketToken)) {
-    matrixSizeNode->add(std::make_unique<LeafNode>(lastToken));
     expect(Token::TokenType::IntegerLiteralToken);
     matrixSizeNode->add(std::make_unique<LiteralNode>(lastToken));
     expect(Token::TokenType::CloseSquareBracketToken);
-    matrixSizeNode->add(std::make_unique<LeafNode>(lastToken));
     while (accept(Token::TokenType::OpenSquareBracketToken)) {
-      matrixSizeNode->add(std::make_unique<LeafNode>(lastToken));
       expect(Token::TokenType::IntegerLiteralToken);
       matrixSizeNode->add(std::make_unique<LiteralNode>(lastToken));
       expect(Token::TokenType::CloseSquareBracketToken);
-      matrixSizeNode->add(std::make_unique<LeafNode>(lastToken));
     }
     return matrixSizeNode;
   }
   return NodeUptr{};
 }
 
-//  comment ::= comment delimiter, visible char, newline;
-//  comment delimiter ::= ’\\’ | "#";
-NodeUptr Parser::parseComment() {
-  if (accept(Token::TokenType::CommentToken)) {
-    return std::make_unique<CommentNode>(lastToken);
-  }
-  return NodeUptr{};
-}
-//\n
-NodeUptr Parser::parseNewline() {
-  if (accept(Token::TokenType::NextLineToken)) {
-    return std::make_unique<CommentNode>(lastToken);
-  }
-  return NodeUptr{};
-}
 // sum ::= term | sum, {(’-’|’+’) sum}
 NodeUptr Parser::parseExpression() {
   NodeUptr leftSide = parseTerm();
@@ -642,7 +548,7 @@ NodeUptr Parser::parseParenthesesExpression() {
     std::string message = "Unexpected token at " +
                           currentToken.getLinePositionString() +
                           ". Expecting: Expression";
-    throw UnexpectedToken(message.c_str());
+    throw UnexpectedToken(message);
   }
   return NodeUptr{};
 }

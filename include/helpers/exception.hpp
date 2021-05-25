@@ -3,61 +3,61 @@
 
 class Exception : public std::runtime_error {
  public:
-  Exception(const char *m) : std::runtime_error(m) {}
+  Exception(std::string m) : std::runtime_error(m) {}
 };
 
 class SocketProblemException : public Exception {
  public:
-  SocketProblemException(const char *m) : Exception(m) {}
+  SocketProblemException(std::string m) : Exception(m) {}
 };
 class WrongIndentException : public Exception {
  public:
-  WrongIndentException(const char *m) : Exception(m) {}
+  WrongIndentException(std::string m) : Exception(m) {}
 };
 class WrongKeywordException : public Exception {
  public:
-  WrongKeywordException(const char *m) : Exception(m) {}
+  WrongKeywordException(std::string m) : Exception(m) {}
 };
 class WrongFlagsException : public Exception {
  public:
-  WrongFlagsException(const char *m) : Exception(m) {}
+  WrongFlagsException(std::string m) : Exception(m) {}
 };
 class WrongFilepathException : public Exception {
  public:
-  WrongFilepathException(const char *m) : Exception(m) {}
+  WrongFilepathException(std::string m) : Exception(m) {}
 };
 
 class CannotCreateSourceException : public Exception {
  public:
-  CannotCreateSourceException(const char *m) : Exception(m) {}
+  CannotCreateSourceException(std::string m) : Exception(m) {}
 };
 
 class TooLongStringLiteral : public Exception {
  public:
-  TooLongStringLiteral(const char *m) : Exception(m) {}
+  TooLongStringLiteral(std::string m) : Exception(m) {}
 };
 
 class WronglyDefinedStringLiteral : public Exception {
  public:
-  WronglyDefinedStringLiteral(const char *m) : Exception(m) {}
+  WronglyDefinedStringLiteral(std::string m) : Exception(m) {}
 };
 
 class WronglyDefinedNumberLiteral : public Exception {
  public:
-  WronglyDefinedNumberLiteral(const char *m) : Exception(m) {}
+  WronglyDefinedNumberLiteral(std::string m) : Exception(m) {}
 };
 
 class NotConsistentIndent : public Exception {
  public:
-  NotConsistentIndent(const char *m) : Exception(m) {}
+  NotConsistentIndent(std::string m) : Exception(m) {}
 };
 
 class IntegerTooBig : public Exception {
  public:
-  IntegerTooBig(const char *m) : Exception(m) {}
+  IntegerTooBig(std::string m) : Exception(m) {}
 };
 
 class UnexpectedToken : public Exception {
  public:
-  UnexpectedToken(const char *m) : Exception(m) {}
+  UnexpectedToken(std::string m) : Exception(m) {}
 };

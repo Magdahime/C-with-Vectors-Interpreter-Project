@@ -7,8 +7,18 @@
 class Parser {
  public:
   void parseProgram();
+  NodeUptr parseExpression();
+  Token getToken();  
+  Parser(LexicalAnalyzer& newLexer)
+      : programNode(std::make_unique<RootNode>()),
+        lexer(newLexer),
+        currentToken(*lexer.getToken()),
+        lastToken(currentToken) {}
+
+  Node* getProgramNode() const { return programNode.get(); }
+
+ private:
   NodeUptr parseStatement();
-  NodeUptr parseNewline();
   NodeUptr parseIfStatement();
   NodeUptr parseOtherwiseStatement();
   NodeUptr parseConditionStatement();
@@ -18,7 +28,6 @@ class Parser {
   NodeUptr parseCaseStatement();
   NodeUptr parseDefaultStatement();
   NodeUptr parseArguments();
-  NodeUptr parseExpression();
   NodeUptr parseFactor();
   NodeUptr parseTerm();
   NodeUptr parseFunCallArguments();
@@ -35,17 +44,6 @@ class Parser {
   NodeUptr parseMatrixAssignment(NodeUptr matrixNode);
   NodeUptr parseMatrixValue();
   NodeUptr parseMatrixSize();
-  NodeUptr parseComment();
-
-  Parser(LexicalAnalyzer& newLexer)
-      : programNode(std::make_unique<RootNode>()),
-        lexer(newLexer),
-        currentToken(*lexer.getToken()),
-        lastToken(currentToken) {}
-
-  Node* getProgramNode() { return programNode.get(); }
-
- private:
   const std::vector<Token::TokenType> literalsTokens{
       Token::TokenType::IntegerLiteralToken,
       Token::TokenType::DoubleLiteralToken,
@@ -62,10 +60,10 @@ class Parser {
   const std::vector<Token::TokenType> connectorOfStatementTokens{
       Token::TokenType::AndToken, Token::TokenType::OrToken,
       Token::TokenType::NotToken};
-  bool accept(const Token::TokenType& token);
-  bool accept(const std::vector<Token::TokenType> acceptedTokens);
-  bool expect(const std::vector<Token::TokenType> acceptedTokens);
-  bool expect(const Token::TokenType& token);
+  bool accept(const Token::TokenType token);
+  bool accept(const std::vector<Token::TokenType>& acceptedTokens);
+  bool expect(const std::vector<Token::TokenType>& acceptedTokens);
+  bool expect(const Token::TokenType token);
   NodeUptr programNode;
   LexicalAnalyzer lexer;
   Token currentToken;

@@ -1,5 +1,0 @@
-integer age = 40
-if(age > 18):
-    print("You are an adult")
-otherwise:
-    print("You are a child")

@@ -369,14 +369,19 @@ TEST(LexicalAnalyzerTest, stringLiterals2Test) {
 }
 
 TEST(LexicalAnalyzerTest, stringLiteralTestFAILURE) {
-  std::string_view source = "'  \n";
-  StringSource src(source);
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
-  EXPECT_EQ(std::get<std::string>(token->getValue()).size(), source.size() - 2);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+  try {
+    std::string_view source = "'  \n";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    std::optional<Token> token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::StringLiteralToken);
+    EXPECT_EQ(std::get<std::string>(token->getValue()).size(),
+              source.size() - 2);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+  } catch (WronglyDefinedStringLiteral const& err) {
+    EXPECT_EQ(err.what(), std::string("String literal at 0:0 is malformed."));
+  }
 }
 
 TEST(LexicalAnalyzerTest, stringLiterals4Test) {
@@ -457,14 +462,19 @@ TEST(LexicalAnalyzerTest, integerLiterals4Test) {
 }
 
 TEST(LexicalAnalyzerTest, integerLiterals5TestFAILURE) {
-  std::string_view source =
-      "999999999999999999999999999999999999999999999999999999999999999999999999"
-      "999999999999999999999999";
-  StringSource src(source);
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+  try {
+    std::string_view source =
+        "9999999999999999999999999999999999999999999999999999999999999999999999"
+        "99"
+        "999999999999999999999999";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    std::optional<Token> token = lexicAna.getToken();
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+  } catch (IntegerTooBig const& err) {
+    EXPECT_EQ(err.what(), std::string("Integer constant 0:0 is too big."));
+  }
 }
 
 TEST(LexicalAnalyzerTest, doubleLiteralsTest) {
@@ -512,23 +522,27 @@ TEST(LexicalAnalyzerTest, doubleLiterals4Test) {
 }
 
 TEST(LexicalAnalyzerTest, IndentTestFAILURE) {
-  std::string_view source = "  \n \n   \n";
-  StringSource src(source);
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::OpenBlockToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::NextLineToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::CloseBlockToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::NextLineToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::OpenBlockToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::NextLineToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+  try {
+    std::string_view source = "  \n \n   \n";
+    StringSource src(source);
+    LexicalAnalyzer lexicAna(&src);
+    std::optional<Token> token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::OpenBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::CloseBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::OpenBlockToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::NextLineToken);
+    token = lexicAna.getToken();
+    EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
+  } catch (NotConsistentIndent const& err) {
+    EXPECT_EQ(err.what(), std::string("Inconsistent indentation at 0:1"));
+  }
 }
 
 TEST(LexicalAnalyzerTest, Indent2Test) {

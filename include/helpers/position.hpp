@@ -5,7 +5,7 @@ class Position {
   constexpr Position(uint64_t absolutePosition, uint64_t line,
                      uint64_t character)
       : absolutePosition(absolutePosition), line(line), character(character){};
-  constexpr Position() : absolutePosition(0), line(0), character(0){};
+  constexpr Position() = default;
   constexpr Position nextChar() const {
     return Position(this->absolutePosition + 1, this->line,
                     this->character + 1);
@@ -18,7 +18,7 @@ class Position {
   constexpr uint64_t getAbsolutePosition() const { return absolutePosition; }
 
  private:
-  uint64_t absolutePosition;
-  uint64_t line;
-  uint64_t character;
+  uint64_t absolutePosition = 0;
+  uint64_t line = 0;
+  uint64_t character = 0;
 };
