@@ -93,7 +93,12 @@ class Token {
   Token(TokenType type, TokenVariant value) : type(type), value(value) {}
   TokenType getType() const { return type; }
   TokenSubtype getSubtype() const { return subtype; }
+
   TokenVariant getValue() const { return value; }
+  int64_t getInt() const { return std::get<int64_t>(value); }
+  double  getDouble() const { return std::get<double>(value); }
+  std::string getString() const {return std::get<std::string>(value); }
+
   uint64_t getCharacterPosition() const { return characterPosition; }
   uint64_t getAbsolutePosition() const { return absolutePosition; }
   uint64_t getLinePosition() const { return linePosition; }

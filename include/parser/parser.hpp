@@ -1,4 +1,6 @@
 #pragma once
+#include <initializer_list>
+
 #include "helpers/exception.hpp"
 #include "lexicalAnalyzer/lexicalAnalyzer.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
@@ -8,16 +10,20 @@ class Parser {
  public:
   void parseProgram();
   NodeUptr parseExpression();
-  Token getToken();  
+  void shiftToken();
   Parser(LexicalAnalyzer& newLexer)
-      : programNode(std::make_unique<RootNode>()),
+      : programNode(std::make_unique<StatementNode>()),
         lexer(newLexer),
-        currentToken(*lexer.getToken()),
-        lastToken(currentToken) {}
+        currentToken(*lexer.getToken()) {}
 
-  Node* getProgramNode() const { return programNode.get(); }
+  const StatementNode* getProgramNode() const {
+    return static_cast<StatementNode*>(programNode.get());
+  }
+
+  std::string getProgramString();
 
  private:
+  Token getToken();
   NodeUptr parseStatement();
   NodeUptr parseIfStatement();
   NodeUptr parseOtherwiseStatement();
@@ -44,28 +50,12 @@ class Parser {
   NodeUptr parseMatrixAssignment(NodeUptr matrixNode);
   NodeUptr parseMatrixValue();
   NodeUptr parseMatrixSize();
-  const std::vector<Token::TokenType> literalsTokens{
-      Token::TokenType::IntegerLiteralToken,
-      Token::TokenType::DoubleLiteralToken,
-      Token::TokenType::StringLiteralToken};
-  const std::vector<Token::TokenType> assignableTokens{
-      Token::TokenType::IntegerLiteralToken,
-      Token::TokenType::DoubleLiteralToken,
-      Token::TokenType::StringLiteralToken, Token::TokenType::IdentifierToken};
-  const std::vector<Token::TokenType> typeTokens{
-      Token::TokenType::IntegerToken, Token::TokenType::DoubleToken,
-      Token::TokenType::MatrixToken, Token::TokenType::TextToken};
-  const std::vector<Token::TokenType> endOfStatementTokens{
-      Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken};
-  const std::vector<Token::TokenType> connectorOfStatementTokens{
-      Token::TokenType::AndToken, Token::TokenType::OrToken,
-      Token::TokenType::NotToken};
+  bool parseEndOfFile();
   bool accept(const Token::TokenType token);
-  bool accept(const std::vector<Token::TokenType>& acceptedTokens);
-  bool expect(const std::vector<Token::TokenType>& acceptedTokens);
+  bool accept(std::initializer_list<Token::TokenType> list);
+  bool expect(std::initializer_list<Token::TokenType> list);
   bool expect(const Token::TokenType token);
   NodeUptr programNode;
   LexicalAnalyzer lexer;
   Token currentToken;
-  Token lastToken;
 };
