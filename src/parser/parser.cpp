@@ -287,115 +287,119 @@ NodeUptr Parser::parseLoopStatement() {
 //   }
 //   return NodeUptr{};
 // }
-// // fun statement ::= type, ’function’, identifier, ’(’,arguments,’)’,’:’,
-// // indent, {statement};
-// NodeUptr Parser::parseFunctionStatement(NodeUptr root) {
-//   if (accept(Token::TokenType::IdentifierToken)) {
-//     root->add(std::make_unique<LiteralNode>(currentToken));
-//     shiftToken();
-//     expect(Token::TokenType::OpenRoundBracketToken);
-//     shiftToken();
-//     NodeUptr functionArgumentsNode = parseArguments();
-//     if (functionArgumentsNode) root->add(std::move(functionArgumentsNode));
-//     expect(Token::TokenType::CloseRoundBracketToken);
-//     shiftToken();
-//     expect(Token::TokenType::ColonToken);
-//     shiftToken();
-//     expect(Token::TokenType::OpenBlockToken);
-//     shiftToken();
-//     NodeUptr functionStatementsNode;
-//     while (functionStatementsNode = parseStatement()) {
-//       root->add(std::move(functionStatementsNode));
-//     }
-//     NodeUptr functionReturnStatementsNode = parseReturnStatement();
-//     if (functionReturnStatementsNode)
-//       root->add(functionReturnStatementsNode->getChildren());
-//     expect(
-//         {Token::TokenType::EndOfFileToken,
-//         Token::TokenType::CloseBlockToken});
-//     shiftToken();
-//     return root;
-//   }
-//   std::string message = "Token at " + currentToken.getLinePositionString() +
-//                         " is unexpected. Expecting : Function statement";
-//   throw UnexpectedToken(message);
-//   return NodeUptr{};
-// }
-// //[return statement] ::= 'return', identifier | expression | number | matrix
-// |
-// // string;
-// NodeUptr Parser::parseReturnStatement() {
-//   NodeUptr returnStatementNode = std::make_unique<RootNode>();
-//   if (accept(Token::TokenType::ReturnToken)) {
-//     shiftToken();
-//     if (!(accept({Token::TokenType::IntegerLiteralToken,
-//                   Token::TokenType::DoubleLiteralToken,
-//                   Token::TokenType::StringLiteralToken}) ||
-//           accept(Token::TokenType::IdentifierToken))) {
-//       NodeUptr node = parseMatrixValue();
-//       if (node) return node;
-//       std::string message = "Unexpected token at " +
-//                             currentToken.getLinePositionString() +
-//                             ". Expecting: return value.";
-//       throw UnexpectedToken(message);
-//     }
-//     returnStatementNode->add(std::make_unique<LiteralNode>(currentToken));
-//     shiftToken();
-//     return returnStatementNode;
-//   }
-//   return NodeUptr{};
-// }
+// fun statement ::= type, ’function’, identifier, ’(’,arguments,’)’,’:’,
+// indent, {statement};
 
-// // arguments ::= type, identifier [’=’, ’value’] {’,’, type, identifier [’=’,
-// // ’value’]};
-// NodeUptr Parser::parseArguments() {
-//   NodeUptr argumentsNode = std::make_unique<RootNode>();
-//   while (accept({Token::TokenType::IntegerToken,
-//   Token::TokenType::DoubleToken,
-//                  Token::TokenType::MatrixToken,
-//                  Token::TokenType::TextToken})) {
-//     shiftToken();
-//     expect(Token::TokenType::IdentifierToken);
-//     argumentsNode->add(std::make_unique<LiteralNode>(currentToken));
-//     shiftToken();
-//     NodeUptr defaultArgument = parseDefaultArgument();
-//     if (defaultArgument) {
-//       argumentsNode->add(defaultArgument->getChildren());
-//     }
-//     if (!accept(Token::TokenType::CommaToken)) break;
-//   }
-//   if (!argumentsNode->empty()) return argumentsNode;
-//   return NodeUptr{};
-// }
+NodeUptr Parser::parseFunctionStatement(NodeUptr root) {
+  if (accept(Token::TokenType::IdentifierToken)) {
+    static_cast<FunctionStatementNode*>(root.get())
+        ->setIdentifier(currentToken.getString());
+    shiftToken();
+    expect(Token::TokenType::OpenRoundBracketToken);
+    shiftToken();
+    std::vector<ArgumentNode> arguments = parseArguments();
+    if (arguments.size() != 0)
+      static_cast<FunctionStatementNode*>(root.get())
+          ->setArgumentsNodes(arguments);
+    expect(Token::TokenType::CloseRoundBracketToken);
+    shiftToken();
+    expect(Token::TokenType::ColonToken);
+    shiftToken();
+    expect(Token::TokenType::OpenBlockToken);
+    shiftToken();
+    NodeUptr functionStatementsNode;
+    while (functionStatementsNode = parseStatement()) {
+      root->add(std::move(functionStatementsNode));
+    }
+    NodeUptr functionReturnStatementsNode = parseReturnStatement();
+    if (functionReturnStatementsNode)
+      static_cast<FunctionStatementNode*>(root.get())
+          ->setReturnNode(functionReturnStatementsNode);
+    expect(
+        {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
+    shiftToken();
+    return root;
+  }
+  std::string message = "Token at " + currentToken.getLinePositionString() +
+                        " is unexpected. Expecting : Function statement";
+  throw UnexpectedToken(message);
+  return NodeUptr{};
+}
+//[return statement] ::= 'return', identifier | expression | number | matrix
+//|string;
+NodeUptr Parser::parseReturnStatement() {
+  NodeUptr returnStatementNode = std::make_unique<RootNode>();
+  if (accept(Token::TokenType::ReturnToken)) {
+    shiftToken();
+    if (!(accept({Token::TokenType::IntegerLiteralToken,
+                  Token::TokenType::DoubleLiteralToken,
+                  Token::TokenType::StringLiteralToken}) ||
+          accept(Token::TokenType::IdentifierToken))) {
+      Matrix matrix = parseMatrixValue();
+      if (!matrix.empty())
+        return std::make_unique<LiteralNode>(
+            Token(Token::TokenType::MatrixLiteralToken), matrix);
+      NodeUptr expression = parseExpression();
+      if (expression) return std::move(expression);
+      std::string message = "Unexpected token at " +
+                            currentToken.getLinePositionString() +
+                            ". Expecting: return value.";
+      throw UnexpectedToken(message);
+    }
+    returnStatementNode->add(std::make_unique<LiteralNode>(currentToken));
+    shiftToken();
+    return returnStatementNode;
+  }
+  return NodeUptr{};
+}
 
-// //[arguments] ::= type, identifier ['=', 'value'] \{',', type, identifier
-// ['=',
-// //'value']\};
-// NodeUptr Parser::parseDefaultArgument() {
-//   if (accept(Token::TokenType::AssignmentOperatorToken)) {
-//     shiftToken();
-//     NodeUptr argumentsNode = std::make_unique<RootNode>();
-//     if (!accept({Token::TokenType::IntegerLiteralToken,
-//                  Token::TokenType::DoubleLiteralToken,
-//                  Token::TokenType::StringLiteralToken})) {
-//       NodeUptr node = parseMatrixValue();
-//       if (node)
-//         argumentsNode->add(std::move(node));
-//       else {
-//         std::string message = "Unexpected token at " +
-//                               currentToken.getLinePositionString() +
-//                               ". Expecting: literal or identifier.";
-//         throw UnexpectedToken(message);
-//       }
+// arguments ::= type, identifier [’=’, ’value’] {’,’, type, identifier [’=’,
+// ’value’]};
+std::vector<ArgumentNode> Parser::parseArguments() {
+  std::vector<ArgumentNode> arguments;
+  while (accept({Token::TokenType::IntegerToken, Token::TokenType::DoubleToken,
+                 Token::TokenType::MatrixToken, Token::TokenType::TextToken})) {
+    std::unique_ptr<ArgumentNode> argument =
+        std::make_unique<ArgumentNode>(currentToken);
+    shiftToken();
+    expect(Token::TokenType::IdentifierToken);
+    argument->setIdentifier(currentToken.getString());
+    shiftToken();
+    TokenVariant value = parseDefaultArgument();
+    if (!std::holds_alternative<std::monostate>(value))
+      argument->setDefaultValue(value);
+    arguments.push_back(std::move(argument));
+    if (!accept(Token::TokenType::CommaToken)) break;
+  }
+  if (!arguments.empty()) return arguments;
+  return {}
+};
+}
 
-//     } else {
-//       argumentsNode->add(std::make_unique<LiteralNode>(currentToken));
-//       shiftToken();
-//     }
-//     return argumentsNode;
-//   }
-//   return NodeUptr{};
-// }
+//[arguments] ::= type, identifier ['=', 'value'] \{',', type, identifier
+//['=','value']\};
+TokenVariant Parser::parseDefaultArgument() {
+  if (accept(Token::TokenType::AssignmentOperatorToken)) {
+    shiftToken();
+    if (!accept({Token::TokenType::IntegerLiteralToken,
+                 Token::TokenType::DoubleLiteralToken,
+                 Token::TokenType::StringLiteralToken})) {
+      Matrix matrix = parseMatrixValue();
+      if (!matrix.empty()) {
+        return matrix;
+      } else {
+        throw UnexpectedToken("Unexpected token at " +
+                              currentToken.getLinePositionString() +
+                              ". Expecting: literal or identifier.");
+      }
+    } else {
+      auto returnToken = currentToken.getValue();
+      shiftToken();
+      return returnToken;
+    }
+  }
+  return {};
+}
 
 // NodeUptr Parser::parseFunCallOrAssignment() {
 //   if (accept(Token::TokenType::IdentifierToken)) {
@@ -448,53 +452,53 @@ NodeUptr Parser::parseLoopStatement() {
 //   return root;
 // }
 
-// // Sfaktoryzowane
-// //[fun statement] ::= type, 'function', identifier, '(',arguments,')',':',
-// // indent, \{statement\},[return statement] ; [assign expression] ::=
-// // identifier,
-// //'=' , expression; [matrix] ::= 'matrix',\{'[', non zero integer ,']'\},
-// // identifier, '=', matrix value;
-// NodeUptr Parser::parseFunStatOrAssignment() {
-//   NodeUptr funOrAs = std::make_unique<RootNode>();
-//   if (accept({Token::TokenType::IntegerToken, Token::TokenType::DoubleToken,
-//               Token::TokenType::MatrixToken, Token::TokenType::TextToken})) {
-//     funOrAs->add(std::make_unique<LiteralNode>(currentToken));
-//     shiftToken();
-//     if (accept(Token::TokenType::FunctionToken)) {
-//       funOrAs->add(std::make_unique<StatementNode>(currentToken));
-//       shiftToken();
-//       return parseFunctionStatement(std::move(funOrAs));
-//     } else if (NodeUptr matrixSize = parseMatrixSize()) {
-//       funOrAs->add(std::move(matrixSize));
-//       shiftToken();
-//       return parseMatrixAssignment(std::move(funOrAs));
-//     } else {
-//       return parseAssignExpression(std::move(funOrAs));
-//     }
-//   }
-//   return NodeUptr{};
-// }
+// Sfaktoryzowane
+//[fun statement] ::= type, 'function', identifier, '(',arguments,')',':',
+// indent, \{statement\},[return statement] ;
+// [assign expression] ::= identifier,'=' , expression; 
+//[matrix] ::= 'matrix',\{'[', non zero integer ,']'\},
+// identifier, '=', matrix value;
+NodeUptr Parser::parseFunStatOrAssignment() {
+  if (accept({Token::TokenType::IntegerToken, Token::TokenType::DoubleToken,
+              Token::TokenType::MatrixToken, Token::TokenType::TextToken})) {
+    Token typeToken = currentToken;
+    shiftToken();
+    if (accept(Token::TokenType::FunctionToken)) {
+      std::unique_ptr<FunctionStatementNode> functionStat =
+          std::make_unique<FunctionStatementNode>(currentToken);
+      functionStat->setReturnType(typeToken);
+      shiftToken();
+      return parseFunctionStatement(std::move(functionStat));
+    } else if (NodeUptr matrixSize = parseMatrixSize()) {
+      funOrAs->add(std::move(matrixSize));
+      shiftToken();
+      // return parseMatrixAssignment(std::move(funOrAs));
+    } else {
+      std::unique_ptr<VariableNode> variable =
+          std::make_unique<VariableNode>(typeToken);
+      return parseAssignExpression(std::move(variable));
+    }
+  }
+  return NodeUptr{};
+}
 
-// //[assign expression] ::= identifier, '=' , expression;
-// NodeUptr Parser::parseAssignExpression(NodeUptr root) {
-//   if (expect(Token::TokenType::IdentifierToken)) {
-//     root->add(std::make_unique<LiteralNode>(currentToken));
-//     shiftToken();
-//     expect(Token::TokenType::AssignmentOperatorToken);
-//     shiftToken();
-//     NodeUptr assignmentNode =
-//         std::make_unique<AssigmentOperatorNode>(currentToken);
-//     assignmentNode->add(root->getChildren());
-//     NodeUptr expressionNode = parseExpression();
-//     assignmentNode->add(std::move(expressionNode));
-//     return assignmentNode;
-//   }
-//   std::string message = "Unexpected token at " +
-//                         currentToken.getLinePositionString() +
-//                         ". Expecting: Assignment expression";
-//   throw UnexpectedToken(message);
-//   return NodeUptr{};
-// }
+//[assign expression] ::= identifier, '=' , expression;
+NodeUptr Parser::parseAssignExpression(NodeUptr root) {
+  if (expect(Token::TokenType::IdentifierToken)) {
+    static_cast<VariableNode*>(root.get())->setIdentifier(currentToken.getString());
+    shiftToken();
+    expect(Token::TokenType::AssignmentOperatorToken);
+    shiftToken();
+    NodeUptr expressionNode = parseExpression();
+    assignmentNode->add(std::move(expressionNode));
+    return assignmentNode;
+  }
+  std::string message = "Unexpected token at " +
+                        currentToken.getLinePositionString() +
+                        ". Expecting: Assignment expression";
+  throw UnexpectedToken(message);
+  return NodeUptr{};
+}
 
 // // matrix ::= ’matrix’,{’[’, non zero integer ,’]’}, identifier, ’=’,
 // // matrixvalue;
@@ -525,29 +529,43 @@ NodeUptr Parser::parseLoopStatement() {
 //   return NodeUptr{};
 // }
 
-// // matrix value ::= [,{’[’,{number},’]’},]
-// NodeUptr Parser::parseMatrixValue() {
-//   NodeUptr matrixValues = std::make_unique<RootNode>();
-//   if (accept(Token::TokenType::OpenSquareBracketToken)) {
-//     shiftToken();
-//     while (accept(Token::TokenType::OpenSquareBracketToken)) {
-//       shiftToken();
-//       while (accept(Token::TokenType::IntegerLiteralToken) ||
-//              accept(Token::TokenType::DoubleToken)) {
-//         matrixValues->add(std::make_unique<LiteralNode>(currentToken));
-//         shiftToken();
-//         accept(Token::TokenType::CommaToken);
-//         shiftToken();
-//       }
-//       expect(Token::TokenType::CloseSquareBracketToken);
-//       shiftToken();
-//     }
-//     expect(Token::TokenType::CloseSquareBracketToken);
-//     shiftToken();
-//     return matrixValues;
-//   }
-//   return NodeUptr{};
-// }
+// matrix value ::= [,{’[’,{number},’]’},]
+Matrix Parser::parseMatrixValue() {
+  NodeUptr matrixValues = std::make_unique<RootNode>();
+  if (accept(Token::TokenType::OpenSquareBracketToken)) {
+    int rows = 0;
+    int columns = 0;
+    std::vector<std::variant<double, int>> matrixValues;
+    shiftToken();
+    while (accept(Token::TokenType::OpenSquareBracketToken)) {
+      rows += 1;
+      shiftToken();
+      while (accept(Token::TokenType::IntegerLiteralToken) ||
+             accept(Token::TokenType::DoubleToken)) {
+        columns += 1;
+        matrixValues = getMatrixValue(currentToken);
+        shiftToken();
+        accept(Token::TokenType::CommaToken);
+        shiftToken();
+      }
+      expect(Token::TokenType::CloseSquareBracketToken);
+      shiftToken();
+    }
+    expect(Token::TokenType::CloseSquareBracketToken);
+    Matrix matrix(rows, columns, matrixValues);
+    shiftToken();
+    return matrix;
+  }
+  return {};
+}
+
+std::variant<int, double> Parser::getMatrixValue(Token valueToken) {
+  if (std::holds_alternative<int64_t>(value))
+    return std::get<int64_t>(value);
+  else if (std::holds_alternative<int64_t>(value))
+    return std::get<std::double>(value);
+}
+
 // //,{’[’, non zero integer ,’]’},
 // NodeUptr Parser::parseMatrixSize() {
 //   NodeUptr matrixSizeNode = std::make_unique<RootNode>();

@@ -33,11 +33,11 @@ class Parser {
   NodeUptr parseFunctionStatement(NodeUptr root);
   NodeUptr parseCaseStatement();
   NodeUptr parseDefaultStatement();
-  NodeUptr parseArguments();
+  std::vector<ArgumentNode> parseArguments();
   NodeUptr parseFactor();
   NodeUptr parseTerm();
   NodeUptr parseFunCallArguments();
-  NodeUptr parseDefaultArgument();
+  TokenVariant parseDefaultArgument();
   NodeUptr parseFunCallOrAssignment();
   NodeUptr parseFunStatOrAssignment();
   NodeUptr parseReturnStatement();
@@ -48,8 +48,9 @@ class Parser {
   NodeUptr parseTestExpression();
   NodeUptr parseMultipleTestExpressions();
   NodeUptr parseMatrixAssignment(NodeUptr matrixNode);
-  NodeUptr parseMatrixValue();
+  Matrix parseMatrixValue();
   NodeUptr parseMatrixSize();
+  std::variant<int,double> getMatrixValue(Token valueToken);
   bool parseEndOfFile();
   bool accept(const Token::TokenType token);
   bool accept(std::initializer_list<Token::TokenType> list);

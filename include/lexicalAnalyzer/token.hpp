@@ -14,6 +14,7 @@ class Token {
  public:
   enum class TokenType {
     MatrixToken,
+    MatrixLiteralToken,
     IntegerToken,
     TextToken,
     DoubleToken,

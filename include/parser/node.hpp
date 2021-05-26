@@ -30,7 +30,7 @@ class Node {
   virtual void evaluate() = 0;
   virtual void buildTreeStringStream(int64_t depth,
                                      std::stringstream& tree) const {
-    std::string indent(depth,  ' ');
+    std::string indent(depth, ' ');
     tree << indent << LexicalTable::token2StringTable.at(token.getType())
          << '\n';
   }
@@ -53,7 +53,8 @@ class StatementNode : public Node {
   void add(NodeUptr newNode);
   void add(std::vector<NodeUptr>& newNodes);
   const std::vector<NodeUptr>& getChildren() const { return children; }
-  void buildTreeStringStream(int64_t depth, std::stringstream& tree) const override;
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
   void remove(const Node* node);
 
  protected:
@@ -66,7 +67,8 @@ class BinaryOperatorNode : public Node {
       : Node(token), left(std::move(left)), right(std::move(right)) {}
   BinaryOperatorNode(Token token) : Node(token){};
   void evaluate() override {}
-  void buildTreeStringStream(int64_t depth, std::stringstream& tree) const override;
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
   void setLeft(NodeUptr left) { this->left = std::move(left); }
   void setRight(NodeUptr right) { this->right = std::move(right); }
 
@@ -138,14 +140,18 @@ class MatrixOperatorNode : public Node {
 
 class VariableNode : public Node {
  public:
+ VariableNode(Token token):Node(token){}
+ void setIdentifier(std::string& identifier) { this->identifier = identifier; }
+ void setValue(NodeUptr value) { this->variableValue = std::move(value); }
  private:
-  Token typeToken;
   std::string identifier;
+  NodeUptr variableValue;
 };
 
 class LiteralNode : public Node {
  public:
   using Node::Node;
+  LiteralNode(Token token, Matrix& matrix) : Node(token), matrix(matrix){};
   void evaluate() override {}
   bool isLeaf() const override { return true; }
 
@@ -200,20 +206,33 @@ class AslasStatementNode : public StatementNode {
 
 class ArgumentNode : public Node {
  public:
+  ArgumentNode(Token token) : Node(token){};
+  void setIdentifier(std::string& identifier) { this->identifier = identifier; }
+  void setDefaultValue(TokenVariant value) { this->defaultValue = value; }
+
  private:
-  Token typeToken;
   std::string identifier;
   std::optional<TokenVariant> defaultValue;
 };
 
 class FunctionStatementNode : public StatementNode {
  public:
+  FunctionStatementNode(Token functionToken) : StatementNode(functionToken){};
   void evaluate() override {}
+  void setReturnType(Token& returnType) { this->returnType = returnType }
+  void setIdentifier(std::string& identifier) { this->identifier = identifier; }
+  void setArgumentsNodes(std::vector<ArgumentNode>& arguments) {
+    std::ranges::move(arguments, std::back_inserter(this->arguments));
+  }
+  void setReturnNode(NodeUptr retrunNode) {
+    this->returnNode = std::move(returnNode);
+  }
 
  private:
   Token returnType;
   std::string identifier;
   std::vector<ArgumentNode> arguments;
+  NodeUptr returnNode;
 };
 
 class FunctionCallNode : public StatementNode {
