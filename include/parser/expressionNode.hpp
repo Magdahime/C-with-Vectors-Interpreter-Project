@@ -141,7 +141,8 @@ class MatrixSizeNode : public ValueNode {
       : ValueNode(Token(Token::TokenType::MatrixLiteralToken)) {
     std::ranges::move(sizes, std::back_inserter(values));
   };
-
+void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
  private:
   std::vector<ExpressionNodeUptr> values;
 };

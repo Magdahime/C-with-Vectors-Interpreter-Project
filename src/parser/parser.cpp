@@ -52,7 +52,7 @@ void Parser::parseProgram() {
 StatementNodeUptr Parser::parseStatement() {
   StatementNodeUptr node;
   if ((node = parseLoopStatement()) || (node = parseReturnStatement()) ||
-      (node = parseFunStatOrAssignment())) {
+      (node = parseFunStatOrAssignment()) || (node = parseAsLAsStatement())) {
     return node;
   }
   if (!parseEndOfFile()) {
@@ -259,35 +259,37 @@ StatementNodeUptr Parser::parseLoopStatement() {
   return StatementNodeUptr{};
 }
 
-// // aslas statement ::= ’asLongAs’, parentheses expr, ’:’, indent,
-// {statement}; NodeUptr Parser::parseAsLAsStatement() {
-//   if (accept(Token::TokenType::AsLongAsToken)) {
-//     NodeUptr asLasNode = std::make_unique<RootNode>();
-//     asLasNode->add(std::make_unique<StatementNode>(currentToken));
-//     shiftToken();
-//     expect(Token::TokenType::OpenRoundBracketToken);
-//     shiftToken();
-//     NodeUptr expressionNode = parseMultipleTestExpressions();
-//     asLasNode->add(std::move(expressionNode));
-//     expect(Token::TokenType::CloseRoundBracketToken);
-//     shiftToken();
-//     expect(Token::TokenType::ColonToken);
-//     shiftToken();
-//     expect(Token::TokenType::OpenBlockToken);
-//     shiftToken();
-//     NodeUptr asLasStatementsNode;
-//     while (asLasStatementsNode = parseStatement()) {
-//       asLasNode->add(std::move(asLasStatementsNode));
-//     }
+// aslas statement ::= ’asLongAs’, parentheses expr, ’:’, indent,
+//{statement}; 
+StatementNodeUptr Parser::parseAsLAsStatement() {
+  if (accept(Token::TokenType::AsLongAsToken)) {
+    AslasStatementNode asLasNode = std::make_unique<RootNode>();
+    asLasNode->add(std::make_unique<StatementNode>(currentToken));
+    shiftToken();
+    expect(Token::TokenType::OpenRoundBracketToken);
+    shiftToken();
+    ExpressionNodeUptr expressionNode = parseMultipleTestExpressions();
+    asLasNode->setAsLAsExpression(std::move(expressionNode));
+    expect(Token::TokenType::CloseRoundBracketToken);
+    shiftToken();
+    expect(Token::TokenType::ColonToken);
+    shiftToken();
+    expect(Token::TokenType::OpenBlockToken);
+    shiftToken();
+    NodeUptr asLasStatementsNode;
+    while (asLasStatementsNode = parseStatement()) {
+      asLasNode->add(std::move(asLasStatementsNode));
+    }
 
-//     expect(
-//         {Token::TokenType::EndOfFileToken,
-//         Token::TokenType::CloseBlockToken});
-//     shiftToken();
-//     return asLasNode;
-//   }
-//   return NodeUptr{};
-// }
+    expect(
+        {Token::TokenType::EndOfFileToken,
+        Token::TokenType::CloseBlockToken});
+    shiftToken();
+    return asLasNode;
+  }
+  return StatementNodeUptr{};
+}
+
 // fun statement ::= type, ’function’, identifier, ’(’,arguments,’)’,’:’,
 // indent, {statement};
 
@@ -507,7 +509,6 @@ ExpressionNodeUptr Parser::parseMatrixAssignment(
     ExpressionValueNodeUptr assignmentNode =
         std::make_unique<AssigmentNode>(currentToken);
     shiftToken();
-    assignmentNode->add(std::move(matrixNode));
     MatrixValueNodeUptr matrixValues = parseMatrixValue();
     if (!matrixValues) {
       std::string message = "Unexpected token at " +
@@ -515,6 +516,7 @@ ExpressionNodeUptr Parser::parseMatrixAssignment(
                             ". Matrix values are missing!";
       throw UnexpectedToken(message);
     }
+    assignmentNode->add(std::move(matrixNode));
     assignmentNode->add(std::move(matrixValues));
     return assignmentNode;
   }

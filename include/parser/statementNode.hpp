@@ -8,12 +8,11 @@ using StatementNodeUptr = std::unique_ptr<StatementNode>;
 using ChildrenStatementNodeUptr = std::unique_ptr<ChildrenStatementNode>;
 using FunctionStatementNodeUptr = std::unique_ptr<FunctionStatementNode>;
 
-
 class ChildrenStatementNode : public StatementNode {
  public:
   ChildrenStatementNode(Token token) : StatementNode(token){};
   ChildrenStatementNode() : StatementNode(Token(Token::TokenType::RootToken)){};
-  
+
   void add(StatementNodeUptr newNode);
   void add(std::vector<StatementNodeUptr>& newNodes);
   const std::vector<StatementNodeUptr>& getChildren() const { return children; }
@@ -53,6 +52,10 @@ class LoopStatementNode : public ChildrenStatementNode {
 
 class AslasStatementNode : public ChildrenStatementNode {
  public:
+  void setAsLAsExpression(ExpressionNodeUptr expression) {
+    this->aslasExpression = std::move(aslasExpression);
+  }
+
  private:
   ExpressionNodeUptr aslasExpression;
 };

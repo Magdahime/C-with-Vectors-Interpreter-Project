@@ -69,13 +69,21 @@ void MatrixVariable::buildTreeStringStream(int64_t depth,
   std::string indent(depth, ' ');
   tree << indent << LexicalTable::token2StringTable.at(token.getType()) << " "
        << identifier << "\n";
-  variableValue->buildTreeStringStream(depth + 1, tree);
+  matrixSize->buildTreeStringStream(depth + 1, tree);
 }
 
 void MatrixValueNode::buildTreeStringStream(int64_t depth,
                                             std::stringstream& tree) const {
-  std::cout << "MATRIX VALUES" << std::endl;
   for (const auto& value : values) {
     value->buildTreeStringStream(depth, tree);
+  }
+}
+
+void MatrixSizeNode::buildTreeStringStream(int64_t depth,
+                                           std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) <<"\n";
+  for(const auto& value: values){
+    value->buildTreeStringStream(depth+1, tree);
   }
 }
