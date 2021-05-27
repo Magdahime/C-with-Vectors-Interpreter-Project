@@ -37,6 +37,8 @@ set(SOURCES
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
   ${LEXICAL_ANALYZER_DIRECTORY}lexicalAnalyzer.cpp
   ${PARSER_DIRECTORY}/parser.cpp
+  ${PARSER_DIRECTORY}/statementNode.cpp
+  ${PARSER_DIRECTORY}/expressionNode.cpp
   ${PARSER_DIRECTORY}/node.cpp
 )
 

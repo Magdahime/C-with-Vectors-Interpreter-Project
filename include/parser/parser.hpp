@@ -5,58 +5,66 @@
 #include "lexicalAnalyzer/lexicalAnalyzer.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
 #include "parser/node.hpp"
+#include "parser/statementNode.hpp"
+#include "parser/expressionNode.hpp"
+
 
 class Parser {
  public:
   void parseProgram();
-  NodeUptr parseExpression();
+  ExpressionNodeUptr parseExpression();
   void shiftToken();
   Parser(LexicalAnalyzer& newLexer)
-      : programNode(std::make_unique<StatementNode>()),
+      : programNode(std::make_unique<ChildrenStatementNode>()),
         lexer(newLexer),
         currentToken(*lexer.getToken()) {}
 
-  const StatementNode* getProgramNode() const {
-    return static_cast<StatementNode*>(programNode.get());
+  const ChildrenStatementNode* getProgramNode() const {
+    return programNode.get();
   }
 
   std::string getProgramString();
 
  private:
   Token getToken();
-  NodeUptr parseStatement();
-  NodeUptr parseIfStatement();
-  NodeUptr parseOtherwiseStatement();
-  NodeUptr parseConditionStatement();
-  NodeUptr parseLoopStatement();
-  NodeUptr parseAsLAsStatement();
-  NodeUptr parseFunctionStatement(NodeUptr root);
-  NodeUptr parseCaseStatement();
-  NodeUptr parseDefaultStatement();
-  std::vector<ArgumentNode> parseArguments();
-  NodeUptr parseFactor();
-  NodeUptr parseTerm();
-  NodeUptr parseFunCallArguments();
-  TokenVariant parseDefaultArgument();
-  NodeUptr parseFunCallOrAssignment();
-  NodeUptr parseFunStatOrAssignment();
-  NodeUptr parseReturnStatement();
-  NodeUptr parseFunCall(NodeUptr root);
-  NodeUptr parseAssignment(NodeUptr root);
-  NodeUptr parseAssignExpression(NodeUptr root);
-  NodeUptr parseParenthesesExpression();
-  NodeUptr parseTestExpression();
-  NodeUptr parseMultipleTestExpressions();
-  NodeUptr parseMatrixAssignment(NodeUptr matrixNode);
-  Matrix parseMatrixValue();
-  NodeUptr parseMatrixSize();
-  std::variant<int,double> getMatrixValue(Token valueToken);
+  StatementNodeUptr parseStatement();
+  StatementNodeUptr parseIfStatement();
+  StatementNodeUptr parseOtherwiseStatement();
+  StatementNodeUptr parseConditionStatement();
+  StatementNodeUptr parseLoopStatement();
+  StatementNodeUptr parseAsLAsStatement();
+  StatementNodeUptr parseFunctionStatement(FunctionStatementNodeUptr root);
+  StatementNodeUptr parseCaseStatement();
+  StatementNodeUptr parseDefaultStatement();
+  StatementNodeUptr parseReturnStatement();
+  StatementNodeUptr parseFunCall(NodeUptr root);
+
+  std::vector<ArgumentNodeUptr> parseArguments();
+  std::vector<ArgumentNodeUptr> parseFunCallArguments();
+  ExpressionNodeUptr parseDefaultArgument();
+
+  StatementNodeUptr parseFunCallOrAssignment();
+  StatementNodeUptr parseFunStatOrAssignment();
+
+  ExpressionNodeUptr parseFactor();
+  ExpressionNodeUptr parseTerm();
+  ExpressionNodeUptr parseAssignment(ExpressionNodeUptr root);
+  ExpressionNodeUptr parseAssignExpression(ExpressionNodeUptr root);
+  ExpressionNodeUptr parseParenthesesExpression();
+  ExpressionNodeUptr parseTestExpression();
+  ExpressionNodeUptr parseMultipleTestExpressions();
+  ExpressionNodeUptr parseMatrixAssignment(MatrixVariableUptr matrixNode);
+
+  MatrixValueNodeUptr parseMatrixValue();
+  MatrixSizeNodeUptr parseMatrixSize();
+  
   bool parseEndOfFile();
   bool accept(const Token::TokenType token);
   bool accept(std::initializer_list<Token::TokenType> list);
   bool expect(std::initializer_list<Token::TokenType> list);
   bool expect(const Token::TokenType token);
-  NodeUptr programNode;
+
+  ChildrenStatementNodeUptr programNode;
   LexicalAnalyzer lexer;
   Token currentToken;
 };
