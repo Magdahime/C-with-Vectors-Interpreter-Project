@@ -27,6 +27,7 @@ class ExpressionValueNode : public ExpressionNode {
   void remove(const ExpressionNode* node);
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+  const std::vector<ExpressionNodeUptr>& getChildren() const { return expressions; }
 
  private:
   std::vector<ExpressionNodeUptr> expressions;
@@ -35,14 +36,14 @@ class ExpressionValueNode : public ExpressionNode {
 class ExpressionLeafNode : public ExpressionNode {
  public:
   ExpressionLeafNode(Token token) : ExpressionNode(token) {}
-
- private:
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override {
     std::string indent(depth, ' ');
     tree << indent << LexicalTable::token2StringTable.at(token.getType())
          << '\n';
   }
+
+ private:
 };
 
 class AdditiveOperatorNode : public ExpressionValueNode {
@@ -127,6 +128,9 @@ class MatrixValueNode : public ValueNode {
     std::ranges::move(newValues, std::back_inserter(values));
   };
 
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
+
  private:
   std::vector<ExpressionNodeUptr> values;
 };
@@ -163,6 +167,9 @@ class MatrixVariable : public VariableNode {
     this->variableValue = std::move(value);
   }
 
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
+
  private:
   MatrixSizeNodeUptr matrixSize;
 };
@@ -175,6 +182,7 @@ class ArgumentNode : public ExpressionLeafNode {
     this->defaultValue = std::move(value);
   }
   void buildTreeStringStream(std::stringstream& tree) const;
+
  private:
   std::string identifier;
   ExpressionNodeUptr defaultValue;

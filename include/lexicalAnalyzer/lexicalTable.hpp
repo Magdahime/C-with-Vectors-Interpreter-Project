@@ -81,6 +81,7 @@ const static std::unordered_map<Token::TokenType, std::string>
         {Token::TokenType::StringLiteralToken, "StringLiteralToken"},
         {Token::TokenType::IntegerLiteralToken, "IntegerLiteralToken"},
         {Token::TokenType::DoubleLiteralToken, "DoubleLiteralToken"},
+        {Token::TokenType::MatrixLiteralToken, "MatrixLiteralToken"},
         {Token::TokenType::DetToken, "DetToken"},
         {Token::TokenType::TransToken, "TransToken"},
         {Token::TokenType::InvToken, "InvToken"},

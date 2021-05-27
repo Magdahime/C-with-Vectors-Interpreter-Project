@@ -13,6 +13,7 @@ class ChildrenStatementNode : public StatementNode {
  public:
   ChildrenStatementNode(Token token) : StatementNode(token){};
   ChildrenStatementNode() : StatementNode(Token(Token::TokenType::RootToken)){};
+  
   void add(StatementNodeUptr newNode);
   void add(std::vector<StatementNodeUptr>& newNodes);
   const std::vector<StatementNodeUptr>& getChildren() const { return children; }

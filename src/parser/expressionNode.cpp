@@ -60,6 +60,22 @@ void ExpressionValueNode::remove(const ExpressionNode* node) {
 }
 
 void ArgumentNode::buildTreeStringStream(std::stringstream& tree) const {
-  tree << " " << LexicalTable::token2StringTable.at(token.getType()) << " "
+  tree << LexicalTable::token2StringTable.at(token.getType()) << " "
        << identifier;
+}
+
+void MatrixVariable::buildTreeStringStream(int64_t depth,
+                                           std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << " "
+       << identifier << "\n";
+  variableValue->buildTreeStringStream(depth + 1, tree);
+}
+
+void MatrixValueNode::buildTreeStringStream(int64_t depth,
+                                            std::stringstream& tree) const {
+  std::cout << "MATRIX VALUES" << std::endl;
+  for (const auto& value : values) {
+    value->buildTreeStringStream(depth, tree);
+  }
 }

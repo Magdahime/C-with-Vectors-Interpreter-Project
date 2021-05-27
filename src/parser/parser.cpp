@@ -51,7 +51,8 @@ void Parser::parseProgram() {
 
 StatementNodeUptr Parser::parseStatement() {
   StatementNodeUptr node;
-  if ((node = parseLoopStatement()) || (node = parseReturnStatement())) {
+  if ((node = parseLoopStatement()) || (node = parseReturnStatement()) ||
+      (node = parseFunStatOrAssignment())) {
     return node;
   }
   if (!parseEndOfFile()) {
@@ -360,6 +361,7 @@ std::vector<ArgumentNodeUptr> Parser::parseArguments() {
     if (value) argument->setDefaultValue(std::move(value));
     arguments.push_back(std::move(argument));
     if (!accept(Token::TokenType::CommaToken)) break;
+    shiftToken();
   }
   if (!arguments.empty()) return arguments;
   return {};
@@ -463,7 +465,6 @@ StatementNodeUptr Parser::parseFunStatOrAssignment() {
       MatrixVariableUptr matrixVariable =
           std::make_unique<MatrixVariable>(typeToken);
       matrixVariable->setMatrixSize(std::move(matrixSize));
-      shiftToken();
       return parseMatrixAssignment(std::move(matrixVariable));
     } else {
       VariableNodeUptr variable = std::make_unique<VariableNode>(typeToken);
@@ -534,8 +535,7 @@ MatrixValueNodeUptr Parser::parseMatrixValue() {
       ExpressionNodeUptr expression;
       while (expression = parseExpression()) {
         matrixValues.push_back(std::move(expression));
-        shiftToken();
-        accept(Token::TokenType::CommaToken);
+        if (!accept(Token::TokenType::CommaToken)) break;
         shiftToken();
       }
       expect(Token::TokenType::CloseSquareBracketToken);
@@ -556,14 +556,12 @@ MatrixSizeNodeUptr Parser::parseMatrixSize() {
     ExpressionNodeUptr expression;
     expression = parseExpression();
     sizes.push_back(std::move(expression));
-    shiftToken();
     expect(Token::TokenType::CloseSquareBracketToken);
     shiftToken();
     while (accept(Token::TokenType::OpenSquareBracketToken)) {
       shiftToken();
       expression = parseExpression();
       sizes.push_back(std::move(expression));
-      shiftToken();
       expect(Token::TokenType::CloseSquareBracketToken);
       shiftToken();
     }
@@ -576,46 +574,47 @@ MatrixSizeNodeUptr Parser::parseMatrixSize() {
 // sum ::= term | sum, {(’-’|’+’) sum}
 ExpressionNodeUptr Parser::parseExpression() {
   ExpressionNodeUptr leftSide = parseTerm();
-  ExpressionValueNodeUptr additiveOperatorNode;
+  ExpressionValueNodeUptr additiveOperatorNode =
+      std::make_unique<AdditiveOperatorNode>(currentToken);
   while (accept(Token::TokenType::AdditiveOperatorToken)) {
-    additiveOperatorNode = std::make_unique<AdditiveOperatorNode>(currentToken);
+    if (additiveOperatorNode->getChildren().size() == 0)
+      additiveOperatorNode->add(std::move(leftSide));
     shiftToken();
-    ExpressionNodeUptr rightSide = parseTerm();
-    additiveOperatorNode->add(std::move(leftSide));
+    ExpressionNodeUptr rightSide = parseExpression();
     additiveOperatorNode->add(std::move(rightSide));
   }
-  if (!additiveOperatorNode) return leftSide;
+  if (additiveOperatorNode->getChildren().empty()) return leftSide;
   return additiveOperatorNode;
 }
 
 // term ::= factor, {(’*’| ’/’), factor}
 ExpressionNodeUptr Parser::parseTerm() {
   ExpressionNodeUptr leftSide = parseFactor();
-  ExpressionValueNodeUptr multiplicativeOperatorNode;
+  ExpressionValueNodeUptr multiplicativeOperatorNode =
+      std::make_unique<MultiplicativeOperatorNode>(currentToken);
   while (accept(Token::TokenType::MultiplicativeOperatorToken)) {
-    multiplicativeOperatorNode =
-        std::make_unique<MultiplicativeOperatorNode>(currentToken);
+    if (multiplicativeOperatorNode->getChildren().size() == 0)
+      multiplicativeOperatorNode->add(std::move(leftSide));
     shiftToken();
-    ExpressionNodeUptr rightSide = parseFactor();
-    multiplicativeOperatorNode->add(std::move(leftSide));
+    ExpressionNodeUptr rightSide = parseTerm();
     multiplicativeOperatorNode->add(std::move(rightSide));
   }
-  if (!multiplicativeOperatorNode) return leftSide;
+  if (multiplicativeOperatorNode->getChildren().empty()) return leftSide;
   return multiplicativeOperatorNode;
 }
 // factor ::= base { [’ˆ’,exponent] }
 ExpressionNodeUptr Parser::parseFactor() {
   ExpressionNodeUptr leftSide = parseParenthesesExpression();
-  ExpressionValueNodeUptr exponentiationOperatorNode;
+  ExpressionValueNodeUptr exponentiationOperatorNode =
+      std::make_unique<ExponentiationOperatorNode>(currentToken);
   while (accept(Token::TokenType::ExponentiationOperatorToken)) {
-    exponentiationOperatorNode =
-        std::make_unique<ExponentiationOperatorNode>(currentToken);
+    if (exponentiationOperatorNode->getChildren().size() == 0)
+      exponentiationOperatorNode->add(std::move(leftSide));
     shiftToken();
     ExpressionNodeUptr rightSide = parseFactor();
-    exponentiationOperatorNode->add(std::move(leftSide));
     exponentiationOperatorNode->add(std::move(rightSide));
   }
-  if (!exponentiationOperatorNode) return leftSide;
+  if (exponentiationOperatorNode->getChildren().empty()) return leftSide;
   return exponentiationOperatorNode;
 }
 
@@ -657,28 +656,31 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
 
 ExpressionNodeUptr Parser::parseTestExpression() {
   ExpressionNodeUptr leftHandExpression = parseExpression();
-  ExpressionValueNodeUptr testNode;
+  ExpressionValueNodeUptr testNode =
+      std::make_unique<LogicalOperatorNode>(currentToken);
   while (accept(Token::TokenType::LogicalOperatorToken)) {
-    testNode = std::make_unique<LogicalOperatorNode>(currentToken);
+    if (testNode->getChildren().size() == 0)
+      testNode->add(std::move(leftHandExpression));
     shiftToken();
-    ExpressionNodeUptr rightHandExpression = parseExpression();
-    testNode->add(std::move(leftHandExpression));
+    ExpressionNodeUptr rightHandExpression = parseTestExpression();
+
     testNode->add(std::move(rightHandExpression));
   }
-  if (!testNode) return leftHandExpression;
+  if (testNode->getChildren().empty()) return leftHandExpression;
   return testNode;
 }
 
 ExpressionNodeUptr Parser::parseMultipleTestExpressions() {
   ExpressionNodeUptr leftHandExpression = parseTestExpression();
-  ExpressionValueNodeUptr testNode;
+  ExpressionValueNodeUptr testNode =
+      std::make_unique<LogicalOperatorNode>(currentToken);
   while (accept({Token::TokenType::AndToken, Token::TokenType::OrToken,
                  Token::TokenType::NotToken})) {
-    testNode = std::make_unique<LogicalOperatorNode>(currentToken);
-    ExpressionNodeUptr rightHandExpression = parseTestExpression();
-    testNode->add(std::move(leftHandExpression));
+    if (testNode->getChildren().size() == 0)
+      testNode->add(std::move(leftHandExpression));
+    ExpressionNodeUptr rightHandExpression = parseMultipleTestExpressions();
     testNode->add(std::move(rightHandExpression));
   }
-  if (!testNode) return leftHandExpression;
+  if (testNode->getChildren().empty()) return leftHandExpression;
   return testNode;
 }

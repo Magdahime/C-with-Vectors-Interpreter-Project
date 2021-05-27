@@ -42,12 +42,13 @@ void LoopStatementNode::setStep(TokenVariant newStep) {
 void FunctionStatementNode::buildTreeStringStream(
     int64_t depth, std::stringstream& tree) const {
   std::string indent(depth, ' ');
-  tree << indent << "function " << identifier << "( ";
+  tree << indent << LexicalTable::token2StringTable.at(returnType.getType())
+       << " function " << identifier << "(";
   for (const auto& argument : arguments) {
     argument->buildTreeStringStream(tree);
-    tree << ",";
+    tree << ", ";
   }
-  tree << " )" << '\n';
+  tree << ")" << '\n';
 
   for (const auto& child : children) {
     child->buildTreeStringStream(depth + 1, tree);
