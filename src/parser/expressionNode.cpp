@@ -2,29 +2,37 @@
 
 LogicalOperatorNode::LogicalOperatorNode(Token token)
     : ExpressionValueNode(token) {
-  switch (token.getSubtype()) {
-    case Token::TokenSubtype::GreaterToken:
-      this->type = NodeType::Greater;
-      break;
-    case Token::TokenSubtype::GreaterOrEqualToken:
-      this->type = NodeType::GreaterEqual;
-      break;
-    case Token::TokenSubtype::LessToken:
-      this->type = NodeType::Less;
-      break;
-    case Token::TokenSubtype::LessOrEqualToken:
-      this->type = NodeType::LessEqual;
-      break;
-    case Token::TokenSubtype::NotEqualToken:
-      this->type = NodeType::NotEqual;
-      break;
-    case Token::TokenSubtype::EqualToken:
-      this->type = NodeType::Equal;
-      break;
-    default:
-      std::string message = "Token at " + token.getLinePositionString() +
-                            " is unexpected. Expecting: LogicalOperatorToken";
-      throw UnexpectedToken(message);
+  if (token == Token::TokenType::AndToken) {
+    this->type = NodeType::And;
+  } else if (token == Token::TokenType::OrToken) {
+    this->type = NodeType::Or;
+  } else if (token == Token::TokenType::NotToken) {
+    this->type = NodeType::Not;
+  } else {
+    switch (token.getSubtype()) {
+      case Token::TokenSubtype::GreaterToken:
+        this->type = NodeType::Greater;
+        break;
+      case Token::TokenSubtype::GreaterOrEqualToken:
+        this->type = NodeType::GreaterEqual;
+        break;
+      case Token::TokenSubtype::LessToken:
+        this->type = NodeType::Less;
+        break;
+      case Token::TokenSubtype::LessOrEqualToken:
+        this->type = NodeType::LessEqual;
+        break;
+      case Token::TokenSubtype::NotEqualToken:
+        this->type = NodeType::NotEqual;
+        break;
+      case Token::TokenSubtype::EqualToken:
+        this->type = NodeType::Equal;
+        break;
+      default:
+        std::string message = "Token at " + token.getLinePositionString() +
+                              " is unexpected. Expecting: LogicalOperatorToken";
+        throw UnexpectedToken(message);
+    }
   }
 }
 
@@ -60,8 +68,8 @@ void ExpressionValueNode::remove(const ExpressionNode* node) {
 }
 
 void ArgumentNode::buildTreeStringStream(std::stringstream& tree) const {
-  tree << LexicalTable::token2StringTable.at(token.getType()) << " "
-       << identifier;
+  tree << LexicalTable::token2StringTable.at(token.getType()) << " ";
+  if (!identifier.empty()) tree << identifier;
 }
 
 void MatrixVariable::buildTreeStringStream(int64_t depth,
@@ -82,8 +90,8 @@ void MatrixValueNode::buildTreeStringStream(int64_t depth,
 void MatrixSizeNode::buildTreeStringStream(int64_t depth,
                                            std::stringstream& tree) const {
   std::string indent(depth, ' ');
-  tree << indent << LexicalTable::token2StringTable.at(token.getType()) <<"\n";
-  for(const auto& value: values){
-    value->buildTreeStringStream(depth+1, tree);
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << "\n";
+  for (const auto& value : values) {
+    value->buildTreeStringStream(depth + 1, tree);
   }
 }

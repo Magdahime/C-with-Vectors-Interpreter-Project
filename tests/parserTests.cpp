@@ -225,3 +225,100 @@ TEST(ParserTest, assignmentMatrix2Test) {
   EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
 }
 
+TEST(ParserTest, aslasTest) {
+  std::string test = R"(asLongAs(counter > 0):
+  )";
+  std::string answer =
+      R"(RootToken
+ AsLongAsToken
+  LogicalOperatorToken
+   IdentifierToken
+   IntegerLiteralToken
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}
+
+TEST(ParserTest, aslas2Test) {
+  std::string test = R"(asLongAs(counter > 0 and counter < 10):
+  )";
+  std::string answer =
+      R"(RootToken
+ AsLongAsToken
+  AndToken
+   LogicalOperatorToken
+    IdentifierToken
+    IntegerLiteralToken
+   LogicalOperatorToken
+    IdentifierToken
+    IntegerLiteralToken
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}
+
+TEST(ParserTest, ifTest) {
+  std::string test = R"(if(age < 10 or age > 10):
+  price = 25.50
+)";
+  std::string answer =
+      R"(RootToken
+ IfToken
+  OrToken
+   LogicalOperatorToken
+    IdentifierToken
+    IntegerLiteralToken
+   LogicalOperatorToken
+    IdentifierToken
+    IntegerLiteralToken
+   AssignmentOperatorToken
+    IdentifierToken
+    DoubleLiteralToken
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}
+
+TEST(ParserTest, ifOtherwiseTest) {
+  std::string test = R"(if(age < 10 or age > 10):
+  price = 25.50
+otherwise:
+  price = 30.0
+)";
+  std::string answer =
+      R"(RootToken
+ IfToken
+  OrToken
+   LogicalOperatorToken
+    IdentifierToken
+    IntegerLiteralToken
+   LogicalOperatorToken
+    IdentifierToken
+    IntegerLiteralToken
+   AssignmentOperatorToken
+    IdentifierToken
+    DoubleLiteralToken
+   OtherwiseToken
+    AssignmentOperatorToken
+     IdentifierToken
+     DoubleLiteralToken
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}

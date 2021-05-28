@@ -8,6 +8,8 @@ class ArgumentNode;
 class MatrixSizeNode;
 class VariableNode;
 class MatrixVariable;
+class AssignmentNode;
+
 
 using ExpressionNodeUptr = std::unique_ptr<ExpressionNode>;
 using ValueNodeUptr = std::unique_ptr<ValueNode>;
@@ -17,6 +19,7 @@ using ArgumentNodeUptr = std::unique_ptr<ArgumentNode>;
 using MatrixSizeNodeUptr = std::unique_ptr<MatrixSizeNode>;
 using VariableNodeUptr = std::unique_ptr<VariableNode>;
 using MatrixVariableUptr = std::unique_ptr<MatrixVariable>;
+using AssignmentNodeUptr = std::unique_ptr<AssignmentNode>;
 
 class ExpressionValueNode : public ExpressionNode {
  public:
@@ -84,7 +87,10 @@ class LogicalOperatorNode : public ExpressionValueNode {
     Less,
     LessEqual,
     NotEqual,
-    Equal
+    Equal,
+    And,
+    Or,
+    Not
   };
 
  private:
@@ -100,10 +106,9 @@ class MatrixOperatorNode : public ExpressionValueNode {
   NodeType type;
 };
 
-class AssigmentNode : public ExpressionValueNode {
+class AssignmentNode : public ExpressionValueNode {
  public:
-  AssigmentNode(Token token) : ExpressionValueNode(token){};
-
+  AssignmentNode(Token token) : ExpressionValueNode(token){};
  private:
 };
 

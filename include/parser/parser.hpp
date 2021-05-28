@@ -4,10 +4,9 @@
 #include "helpers/exception.hpp"
 #include "lexicalAnalyzer/lexicalAnalyzer.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
+#include "parser/expressionNode.hpp"
 #include "parser/node.hpp"
 #include "parser/statementNode.hpp"
-#include "parser/expressionNode.hpp"
-
 
 class Parser {
  public:
@@ -37,10 +36,10 @@ class Parser {
   StatementNodeUptr parseCaseStatement();
   StatementNodeUptr parseDefaultStatement();
   StatementNodeUptr parseReturnStatement();
-  StatementNodeUptr parseFunCall(NodeUptr root);
+  StatementNodeUptr parseFunCall(FunctionCallNodeUptr root);
 
   std::vector<ArgumentNodeUptr> parseArguments();
-  std::vector<ArgumentNodeUptr> parseFunCallArguments();
+  std::vector<ExpressionNodeUptr> parseFunCallArguments();
   ExpressionNodeUptr parseDefaultArgument();
 
   StatementNodeUptr parseFunCallOrAssignment();
@@ -48,7 +47,7 @@ class Parser {
 
   ExpressionNodeUptr parseFactor();
   ExpressionNodeUptr parseTerm();
-  ExpressionNodeUptr parseAssignment(ExpressionNodeUptr root);
+  ExpressionNodeUptr parseAssignment(AssignmentNodeUptr root);
   ExpressionNodeUptr parseAssignExpression(ExpressionNodeUptr root);
   ExpressionNodeUptr parseParenthesesExpression();
   ExpressionNodeUptr parseTestExpression();
@@ -57,7 +56,7 @@ class Parser {
 
   MatrixValueNodeUptr parseMatrixValue();
   MatrixSizeNodeUptr parseMatrixSize();
-  
+
   bool parseEndOfFile();
   bool accept(const Token::TokenType token);
   bool accept(std::initializer_list<Token::TokenType> list);

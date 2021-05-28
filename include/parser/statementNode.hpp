@@ -4,9 +4,18 @@
 
 class ChildrenStatementNode;
 class FunctionStatementNode;
+class AslasStatementNode;
+class IfStatementNode;
+class OtherwiseStatementNode;
+class FunctionCallNode;
+
 using StatementNodeUptr = std::unique_ptr<StatementNode>;
 using ChildrenStatementNodeUptr = std::unique_ptr<ChildrenStatementNode>;
 using FunctionStatementNodeUptr = std::unique_ptr<FunctionStatementNode>;
+using AslasStatementNodeUptr = std::unique_ptr<AslasStatementNode>;
+using IfStatementNodeUptr = std::unique_ptr<IfStatementNode>;
+using OtherwiseStatementNodeUptr = std::unique_ptr<OtherwiseStatementNode>;
+using FunctionCallNodeUptr = std::unique_ptr<FunctionCallNode>;
 
 class ChildrenStatementNode : public StatementNode {
  public:
@@ -26,14 +35,22 @@ class ChildrenStatementNode : public StatementNode {
 
 class IfStatementNode : public ChildrenStatementNode {
  public:
+  IfStatementNode(Token token) : ChildrenStatementNode(token){};
+  void setIfExpression(ExpressionNodeUptr expression) {
+    this->ifExpression = std::move(expression);
+  }
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
+
  private:
   ExpressionNodeUptr ifExpression;
 };
 
-class OtherwiseStatemnentNode : public ChildrenStatementNode {
+class OtherwiseStatementNode : public ChildrenStatementNode {
  public:
+  OtherwiseStatementNode(Token token) : ChildrenStatementNode(token){};
+
  private:
-  ExpressionNodeUptr otherwiseExpression;
 };
 
 class LoopStatementNode : public ChildrenStatementNode {
@@ -52,9 +69,12 @@ class LoopStatementNode : public ChildrenStatementNode {
 
 class AslasStatementNode : public ChildrenStatementNode {
  public:
+  AslasStatementNode(Token token) : ChildrenStatementNode(token){};
   void setAsLAsExpression(ExpressionNodeUptr expression) {
-    this->aslasExpression = std::move(aslasExpression);
+    this->aslasExpression = std::move(expression);
   }
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
 
  private:
   ExpressionNodeUptr aslasExpression;
@@ -73,7 +93,7 @@ class FunctionStatementNode : public ChildrenStatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
- private:
+ protected:
   Token returnType;
   std::string identifier;
   std::vector<ArgumentNodeUptr> arguments;
@@ -82,8 +102,14 @@ class FunctionStatementNode : public ChildrenStatementNode {
 class FunctionCallNode : public ChildrenStatementNode {
  public:
   FunctionCallNode(Token token) : ChildrenStatementNode(token){};
+  void setIdentifier(std::string identifier) { this->identifier = identifier; }
+  void setArgumentsNodes(std::vector<ExpressionNodeUptr>& arguments) {
+    std::ranges::move(arguments, std::back_inserter(this->arguments));
+  }
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
 
  private:
   std::string identifier;
-  std::vector<ArgumentNode> arguments;
+  std::vector<ExpressionNodeUptr> arguments;
 };

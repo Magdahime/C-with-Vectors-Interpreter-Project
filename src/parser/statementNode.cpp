@@ -54,3 +54,35 @@ void FunctionStatementNode::buildTreeStringStream(
     child->buildTreeStringStream(depth + 1, tree);
   }
 }
+
+void FunctionCallNode::buildTreeStringStream(int64_t depth,
+                                             std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType())
+       << identifier << "(";
+  for (const auto& argument : arguments) {
+    argument->buildTreeStringStream(depth + 1, tree);
+    tree << ", ";
+  }
+  tree << ")" << '\n';
+}
+
+void AslasStatementNode::buildTreeStringStream(int64_t depth,
+                                               std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << "\n";
+  aslasExpression->buildTreeStringStream(depth + 1, tree);
+  for (const auto& child : children) {
+    child->buildTreeStringStream(depth + 2, tree);
+  }
+}
+
+void IfStatementNode::buildTreeStringStream(int64_t depth,
+                                            std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << "\n";
+  ifExpression->buildTreeStringStream(depth + 1, tree);
+  for (const auto& child : children) {
+    child->buildTreeStringStream(depth + 2, tree);
+  }
+}
