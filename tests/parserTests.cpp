@@ -23,8 +23,7 @@ TEST(ParserTest, parseFunctionTest) {
     //tralalal
 )";
   std::string answer =
-      "RootToken\n IntegerToken function count(IntegerToken int1, IntegerToken "
-      "int2, )\n";
+      "RootToken\n IntegerToken function count\nIntegerToken int1 IntegerToken int2 ";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
@@ -39,8 +38,8 @@ TEST(ParserTest, parseFunctionDefaultArgumentsTest) {
     //tralalal
 )";
   std::string answer =
-      "RootToken\n IntegerToken function count(IntegerToken int1, IntegerToken "
-      "int2, )\n";
+      "RootToken\n IntegerToken function count\nIntegerToken int1 IntegerToken "
+      "int2 ";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
@@ -315,6 +314,62 @@ otherwise:
      IdentifierToken
      DoubleLiteralToken
 )";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}
+
+TEST(ParserTest, conditionCaseTest1) {
+  std::string test = R"(condition:
+  case(age < 10):
+    print('Child')
+)";
+  std::string answer =
+      "RootToken\n ConditionToken\n  CaseToken\n   FunctionToken print\n    "
+      "StringLiteralToken\n ";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}
+
+TEST(ParserTest, condsitionCaseTest2) {
+  std::string test = R"(condition:
+    case(age < 10):
+        print('Child')
+    case(age >= 10 and age < 20):
+        print('Teenager')
+    case(age >= 20 and age < 60):
+        print('Adult')
+    case(age >= 60):
+        print('Senior')
+    default: // tutaj wpadamy gdy nic nie pasuje
+        print('Error')
+)";
+  std::string answer =
+      R"(RootToken
+ ConditionToken
+  CaseToken
+   FunctionToken print
+    StringLiteralToken
+   CaseToken
+   FunctionToken print
+    StringLiteralToken
+   CaseToken
+   FunctionToken print
+    StringLiteralToken
+   CaseToken
+   FunctionToken print
+    StringLiteralToken
+   DefaultToken
+   FunctionToken print
+    StringLiteralToken
+ )";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);

@@ -47,11 +47,10 @@ void Parser::parseProgram() {
   while (node = parseStatement()) {
     programNode->add(std::move(node));
   }
-  if(!parseEndOfFile()){
-    std::string message =
-          "Token at " + currentToken.getLinePositionString() +
-          " is unexpected. Expecting: EOF.";
-      throw UnexpectedToken(message);
+  if (!parseEndOfFile()) {
+    std::string message = "Token at " + currentToken.getLinePositionString() +
+                          " is unexpected. Expecting: EOF.";
+    throw UnexpectedToken(message);
   }
 }
 
@@ -59,7 +58,8 @@ StatementNodeUptr Parser::parseStatement() {
   StatementNodeUptr node;
   if ((node = parseLoopStatement()) || (node = parseReturnStatement()) ||
       (node = parseFunStatOrAssignment()) || (node = parseAsLAsStatement()) ||
-      (node = parseIfStatement()) || (node = parseFunCallOrAssignment())) {
+      (node = parseIfStatement()) || (node = parseFunCallOrAssignment()) ||
+      (node = parseConditionStatement())) {
     return node;
   }
   return StatementNodeUptr{};
@@ -126,80 +126,77 @@ StatementNodeUptr Parser::parseOtherwiseStatement() {
 
 // // cond statement ::= ’condition’, ’:’, indent, {case statement},[default
 // // statement];
-// NodeUptr Parser::parseConditionStatement() {
-//   if (accept(Token::TokenType::ConditionToken)) {
-//     NodeUptr conditionNode = std::make_unique<RootNode>();
-//     conditionNode->add(std::make_unique<StatementNode>(currentToken));
-//     shiftToken();
-//     expect(Token::TokenType::ColonToken);
-//     shiftToken();
-//     expect(Token::TokenType::OpenBlockToken);
-//     shiftToken();
-//     NodeUptr caseStatementsNodes;
-//     while (caseStatementsNodes = parseCaseStatement()) {
-//       conditionNode->add(std::move(caseStatementsNodes));
-//     }
-//     NodeUptr defaultStatement = parseDefaultStatement();
-//     if (defaultStatement) conditionNode->add(std::move(defaultStatement));
-//     expect(
-//         {Token::TokenType::EndOfFileToken,
-//         Token::TokenType::CloseBlockToken});
-//     shiftToken();
-//     return conditionNode;
-//   }
-//   return NodeUptr{};
-// }
-// // case statement ::= ’case’, parentheses expr, ’:’, indent, {statement};
-// NodeUptr Parser::parseCaseStatement() {
-//   if (accept(Token::TokenType::CaseToken)) {
-//     NodeUptr caseNode = std::make_unique<RootNode>();
-//     caseNode->add(std::make_unique<StatementNode>(currentToken));
-//     shiftToken();
-//     expect(Token::TokenType::OpenRoundBracketToken);
-//     shiftToken();
-//     NodeUptr expressionNode = parseMultipleTestExpressions();
-//     caseNode->add(std::move(expressionNode));
-//     expect(Token::TokenType::CloseRoundBracketToken);
-//     shiftToken();
-//     expect(Token::TokenType::ColonToken);
-//     shiftToken();
-//     expect(Token::TokenType::OpenBlockToken);
-//     shiftToken();
-//     NodeUptr caseStatementsNodes;
-//     while (caseStatementsNodes = parseStatement()) {
-//       caseNode->add(std::move(caseStatementsNodes));
-//     }
-//     expect(
-//         {Token::TokenType::EndOfFileToken,
-//         Token::TokenType::CloseBlockToken});
-//     shiftToken();
-//     return caseNode;
-//   }
-//   return NodeUptr{};
-// }
+StatementNodeUptr Parser::parseConditionStatement() {
+  if (accept(Token::TokenType::ConditionToken)) {
+    ConditionStatementNodeUptr conditionNode =
+        std::make_unique<ConditionStatementNode>(currentToken);
+    shiftToken();
+    expect(Token::TokenType::ColonToken);
+    shiftToken();
+    expect(Token::TokenType::OpenBlockToken);
+    shiftToken();
+    StatementNodeUptr caseStatementsNodes;
+    while (caseStatementsNodes = parseCaseStatement()) {
+      conditionNode->add(std::move(caseStatementsNodes));
+    }
+    StatementNodeUptr defaultStatement = parseDefaultStatement();
+    if (defaultStatement) conditionNode->add(std::move(defaultStatement));
+    expect(
+        {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
+    shiftToken();
+    return conditionNode;
+  }
+  return StatementNodeUptr{};
+}
+// case statement ::= ’case’, parentheses expr, ’:’, indent, {statement};
+StatementNodeUptr Parser::parseCaseStatement() {
+  if (accept(Token::TokenType::CaseToken)) {
+    CaseStatementNodeUptr caseNode =
+        std::make_unique<CaseStatementNode>(currentToken);
+    shiftToken();
+    expect(Token::TokenType::OpenRoundBracketToken);
+    shiftToken();
+    ExpressionNodeUptr expressionNode = parseMultipleTestExpressions();
+    caseNode->setCaseExpression(std::move(expressionNode));
+    expect(Token::TokenType::CloseRoundBracketToken);
+    shiftToken();
+    expect(Token::TokenType::ColonToken);
+    shiftToken();
+    expect(Token::TokenType::OpenBlockToken);
+    shiftToken();
+    StatementNodeUptr caseStatementsNodes;
+    while (caseStatementsNodes = parseStatement()) {
+      caseNode->add(std::move(caseStatementsNodes));
+    }
+    expect(
+        {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
+    shiftToken();
+    return caseNode;
+  }
+  return StatementNodeUptr{};
+}
 
-// // default statement ::= ’default’, ’:’, indent, { statement };
-// NodeUptr Parser::parseDefaultStatement() {
-//   if (accept(Token::TokenType::DefaultToken)) {
-//     NodeUptr defaultNode = std::make_unique<RootNode>();
-//     defaultNode->add(std::make_unique<StatementNode>(currentToken));
-//     shiftToken();
-//     expect(Token::TokenType::ColonToken);
-//     shiftToken();
-//     expect(Token::TokenType::OpenBlockToken);
-//     shiftToken();
-//     NodeUptr defaultStatementsNodes;
-//     while (defaultStatementsNodes = parseStatement()) {
-//       defaultNode->add(std::move(defaultStatementsNodes));
-//     }
-//     expect(
-//         {Token::TokenType::EndOfFileToken,
-//         Token::TokenType::CloseBlockToken});
-//     shiftToken();
-//     return defaultNode;
-//   }
-//   return NodeUptr{};
-// }
+// default statement ::= ’default’, ’:’, indent, { statement };
+StatementNodeUptr Parser::parseDefaultStatement() {
+  if (accept(Token::TokenType::DefaultToken)) {
+    DefaultStatementNodeUptr defaultNode =
+        std::make_unique<DefaultStatementNode>(currentToken);
+    shiftToken();
+    expect(Token::TokenType::ColonToken);
+    shiftToken();
+    expect(Token::TokenType::OpenBlockToken);
+    shiftToken();
+    StatementNodeUptr defaultStatementsNodes;
+    while (defaultStatementsNodes = parseStatement()) {
+      defaultNode->add(std::move(defaultStatementsNodes));
+    }
+    expect(
+        {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
+    shiftToken();
+    return defaultNode;
+  }
+  return StatementNodeUptr{};
+}
 
 // loop statement ::= ’loop’, ’(’, digit | identifier, ’:’, digit |
 // identifier,
@@ -435,7 +432,6 @@ std::vector<ExpressionNodeUptr> Parser::parseFunCallArguments() {
   ExpressionNodeUptr argument;
   while (argument = parseExpression()) {
     arguments.push_back(std::move(argument));
-    shiftToken();
     if (accept(Token::TokenType::CommaToken)) shiftToken();
   }
   return arguments;
@@ -642,6 +638,10 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
     ExpressionNodeUptr doubleNode = std::make_unique<ValueNode>(currentToken);
     shiftToken();
     return doubleNode;
+  } else if (accept(Token::TokenType::StringLiteralToken)) {
+    ExpressionNodeUptr stringNode = std::make_unique<ValueNode>(currentToken);
+    shiftToken();
+    return stringNode;
   } else if (accept(Token::TokenType::OpenRoundBracketToken)) {
     ExpressionNodeUptr expressionNode = parseExpression();
     expect(Token::TokenType::CloseRoundBracketToken);
@@ -655,12 +655,8 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
     additiveOperatorNode->add(std::move(parseFactor()));
     return additiveOperatorNode;
   } else {
-    std::string message = "Unexpected token at " +
-                          currentToken.getLinePositionString() +
-                          ". Expecting: Expression";
-    throw UnexpectedToken(message);
+    return ExpressionNodeUptr{};
   }
-  return ExpressionNodeUptr{};
 }
 
 ExpressionNodeUptr Parser::parseTestExpression() {

@@ -8,6 +8,9 @@ class AslasStatementNode;
 class IfStatementNode;
 class OtherwiseStatementNode;
 class FunctionCallNode;
+class ConditionStatementNode;
+class CaseStatementNode;
+class DefaultStatementNode;
 
 using StatementNodeUptr = std::unique_ptr<StatementNode>;
 using ChildrenStatementNodeUptr = std::unique_ptr<ChildrenStatementNode>;
@@ -16,6 +19,9 @@ using AslasStatementNodeUptr = std::unique_ptr<AslasStatementNode>;
 using IfStatementNodeUptr = std::unique_ptr<IfStatementNode>;
 using OtherwiseStatementNodeUptr = std::unique_ptr<OtherwiseStatementNode>;
 using FunctionCallNodeUptr = std::unique_ptr<FunctionCallNode>;
+using ConditionStatementNodeUptr = std::unique_ptr<ConditionStatementNode>;
+using CaseStatementNodeUptr = std::unique_ptr<CaseStatementNode>;
+using DefaultStatementNodeUptr = std::unique_ptr<DefaultStatementNode>;
 
 class ChildrenStatementNode : public StatementNode {
  public:
@@ -112,4 +118,29 @@ class FunctionCallNode : public ChildrenStatementNode {
  private:
   std::string identifier;
   std::vector<ExpressionNodeUptr> arguments;
+};
+
+class ConditionStatementNode : public ChildrenStatementNode {
+ public:
+  ConditionStatementNode(Token token) : ChildrenStatementNode(token){};
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
+ private:
+};
+
+class CaseStatementNode : public ChildrenStatementNode {
+ public:
+  CaseStatementNode(Token token) : ChildrenStatementNode(token){};
+  void setCaseExpression(ExpressionNodeUptr expression) {
+    this->caseExpression = std::move(expression);
+  }
+
+ private:
+  ExpressionNodeUptr caseExpression;
+};
+
+class DefaultStatementNode : public ChildrenStatementNode {
+ public:
+  DefaultStatementNode(Token token) : ChildrenStatementNode(token){};
+ private:
 };

@@ -43,12 +43,11 @@ void FunctionStatementNode::buildTreeStringStream(
     int64_t depth, std::stringstream& tree) const {
   std::string indent(depth, ' ');
   tree << indent << LexicalTable::token2StringTable.at(returnType.getType())
-       << " function " << identifier << "(";
+       << " function " << identifier << "\n";
   for (const auto& argument : arguments) {
     argument->buildTreeStringStream(tree);
-    tree << ", ";
+    tree << " ";
   }
-  tree << ")" << '\n';
 
   for (const auto& child : children) {
     child->buildTreeStringStream(depth + 1, tree);
@@ -58,13 +57,12 @@ void FunctionStatementNode::buildTreeStringStream(
 void FunctionCallNode::buildTreeStringStream(int64_t depth,
                                              std::stringstream& tree) const {
   std::string indent(depth, ' ');
-  tree << indent << LexicalTable::token2StringTable.at(token.getType())
-       << identifier << "(";
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << " "
+       << identifier << "\n";
   for (const auto& argument : arguments) {
     argument->buildTreeStringStream(depth + 1, tree);
-    tree << ", ";
+    tree << " ";
   }
-  tree << ")" << '\n';
 }
 
 void AslasStatementNode::buildTreeStringStream(int64_t depth,
@@ -84,5 +82,14 @@ void IfStatementNode::buildTreeStringStream(int64_t depth,
   ifExpression->buildTreeStringStream(depth + 1, tree);
   for (const auto& child : children) {
     child->buildTreeStringStream(depth + 2, tree);
+  }
+}
+
+void ConditionStatementNode::buildTreeStringStream(
+    int64_t depth, std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << "\n";
+  for (const auto& child : children) {
+    child->buildTreeStringStream(depth + 1, tree);
   }
 }
