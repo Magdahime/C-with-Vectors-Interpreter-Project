@@ -6,6 +6,8 @@
 
 #include "lexicalAnalyzer/lexicalTable.hpp"
 #include "lexicalAnalyzer/token.hpp"
+#include "semanticAnalyzer/semanticAnalyzer.hpp"
+
 
 class Node;
 using NodeUptr = std::unique_ptr<Node>;
@@ -33,6 +35,8 @@ class Node {
          << '\n';
   }
   virtual ~Node() = default;
+  
+  virtual void accept(SemanticAnalyzer& semAnalyzer){};
 
   const std::string getPrintTree() const {
     std::stringstream ss;
@@ -51,6 +55,7 @@ class RootNode : public Node {
 
 class StatementNode : public Node {
  public:
+
   using Node::Node;
 };
 

@@ -61,3 +61,8 @@ class UnexpectedToken : public Exception {
  public:
   UnexpectedToken(std::string m) : Exception(m) {}
 };
+
+class SemanticError : public Exception{
+ public:
+  UnexpectedToken(std::string m) : Exception(m) {}
+};

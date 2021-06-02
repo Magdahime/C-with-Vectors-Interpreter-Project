@@ -34,6 +34,11 @@ class ChildrenStatementNode : public StatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   void remove(const StatementNode* node);
+  void accept(SemanticAnalyzer& semAnalyzer) override{
+    for(const auto& child : children){
+      child.accept(semAnalyzer);
+    }
+  }
 
  protected:
   std::vector<StatementNodeUptr> children;
@@ -48,6 +53,10 @@ class IfStatementNode : public ChildrenStatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
+
  private:
   ExpressionNodeUptr ifExpression;
 };
@@ -55,6 +64,9 @@ class IfStatementNode : public ChildrenStatementNode {
 class OtherwiseStatementNode : public ChildrenStatementNode {
  public:
   OtherwiseStatementNode(Token token) : ChildrenStatementNode(token){};
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
 
  private:
 };
@@ -66,6 +78,9 @@ class LoopStatementNode : public ChildrenStatementNode {
   void setStep(TokenVariant newStep);
   void setEnd(TokenVariant newEnd);
   void setStart(TokenVariant newStart);
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
 
  private:
   std::variant<std::string, int64_t> start = 0;
@@ -81,6 +96,9 @@ class AslasStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
 
  private:
   ExpressionNodeUptr aslasExpression;
@@ -98,6 +116,9 @@ class FunctionStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
 
  protected:
   Token returnType;
@@ -114,6 +135,9 @@ class FunctionCallNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
 
  private:
   std::string identifier;
@@ -125,6 +149,10 @@ class ConditionStatementNode : public ChildrenStatementNode {
   ConditionStatementNode(Token token) : ChildrenStatementNode(token){};
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
+
  private:
 };
 
@@ -134,7 +162,9 @@ class CaseStatementNode : public ChildrenStatementNode {
   void setCaseExpression(ExpressionNodeUptr expression) {
     this->caseExpression = std::move(expression);
   }
-
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
  private:
   ExpressionNodeUptr caseExpression;
 };
@@ -142,5 +172,8 @@ class CaseStatementNode : public ChildrenStatementNode {
 class DefaultStatementNode : public ChildrenStatementNode {
  public:
   DefaultStatementNode(Token token) : ChildrenStatementNode(token){};
+  void accept(SemanticAnalyzer& semAnalyzer) override {
+    semAnalyzer.visit(this);
+  }
  private:
 };
