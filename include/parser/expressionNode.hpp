@@ -1,6 +1,7 @@
 #pragma once
 #include "parser/node.hpp"
 
+class ExpressionNode;
 class ValueNode;
 class MatrixValueNode;
 class ExpressionValueNode;
@@ -19,6 +20,8 @@ using MatrixSizeNodeUptr = std::unique_ptr<MatrixSizeNode>;
 using VariableNodeUptr = std::unique_ptr<VariableNode>;
 using MatrixVariableUptr = std::unique_ptr<MatrixVariable>;
 using AssignmentNodeUptr = std::unique_ptr<AssignmentNode>;
+
+
 
 class ExpressionValueNode : public ExpressionNode {
  public:

@@ -64,5 +64,5 @@ class UnexpectedToken : public Exception {
 
 class SemanticError : public Exception{
  public:
-  UnexpectedToken(std::string m) : Exception(m) {}
+  SemanticError(std::string m) : Exception(m) {}
 };

@@ -1,7 +1,8 @@
 #pragma once
-#include "parser/expressionNode.hpp"
 #include "parser/node.hpp"
+#include "parser/expressionNode.hpp"
 
+class StatementNode;
 class ChildrenStatementNode;
 class FunctionStatementNode;
 class AslasStatementNode;
@@ -23,6 +24,7 @@ using ConditionStatementNodeUptr = std::unique_ptr<ConditionStatementNode>;
 using CaseStatementNodeUptr = std::unique_ptr<CaseStatementNode>;
 using DefaultStatementNodeUptr = std::unique_ptr<DefaultStatementNode>;
 
+
 class ChildrenStatementNode : public StatementNode {
  public:
   ChildrenStatementNode(Token token) : StatementNode(token){};
@@ -36,7 +38,7 @@ class ChildrenStatementNode : public StatementNode {
   void remove(const StatementNode* node);
   void accept(SemanticAnalyzer& semAnalyzer) override{
     for(const auto& child : children){
-      child.accept(semAnalyzer);
+      child->accept(semAnalyzer);
     }
   }
 
