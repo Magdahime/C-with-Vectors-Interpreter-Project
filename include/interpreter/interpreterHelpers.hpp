@@ -3,6 +3,7 @@
 #include <set>
 #include <stack>
 #include <string>
+
 #include "matrix.hpp"
 
 class StatementNode;
@@ -35,23 +36,23 @@ using Value = std::variant<int64_t, double, std::string, Matrix>;
 
 enum class Type { Integer, Double, String, Matrix };
 
-enum class OperatorSignatures{
-    INTEGER_INTEGER,
-    INTEGER_DOUBLE,
-    INTEGER_STRING,
-    INTEGER_MATRIX,
-    DOUBLE_INTEGER,
-    DOUBLE_DOUBLE,
-    DOUBLE_STRING,
-    DOUBLE_MATRIX,
-    STRING_INTEGER,
-    STRING_DOUBLE,
-    STRING_STRING,
-    STRING_MATRIX,
-    MATRIX_INTEGER,
-    MATRIX_DOUBLE,
-    MATRIX_STRING,
-    MATRIX_MATRIX,
+enum class OperatorSignatures {
+  INTEGER_INTEGER,
+  INTEGER_DOUBLE,
+  INTEGER_STRING,
+  INTEGER_MATRIX,
+  DOUBLE_INTEGER,
+  DOUBLE_DOUBLE,
+  DOUBLE_STRING,
+  DOUBLE_MATRIX,
+  STRING_INTEGER,
+  STRING_DOUBLE,
+  STRING_STRING,
+  STRING_MATRIX,
+  MATRIX_INTEGER,
+  MATRIX_DOUBLE,
+  MATRIX_STRING,
+  MATRIX_MATRIX,
 };
 
 struct VariableInfo {
@@ -64,15 +65,8 @@ using FunctionMap = std::map<std::string, const FunctionStatementNode*>;
 using ScopeStack = std::stack<std::pair<uint64_t, std::set<std::string>>>;
 
 std::optional<VariableInfo> searchVariable(const VariableMap& variableMap,
-                                           std::string identifier, int currentDepth) {
-  auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
-  if (iter != variableMap.end()) return iter->second;
-  return {};
-}
+                                           std::string identifier,
+                                           int currentDepth);
 
 std::optional<const FunctionStatementNode*> searchFunction(
-    const FunctionMap& functionMap, std::string identifier) {
-  auto iter = functionMap.find(identifier);
-  if (iter != functionMap.end()) return iter->second;
-  return {};
-}
+    const FunctionMap& functionMap, std::string identifier);

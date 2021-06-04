@@ -11,7 +11,6 @@ class VariableNode;
 class MatrixVariable;
 class AssignmentNode;
 
-using Value = std::variant<int64_t, double, std::string, Matrix>;
 using ExpressionNodeUptr = std::unique_ptr<ExpressionNode>;
 using ValueNodeUptr = std::unique_ptr<ValueNode>;
 using MatrixValueNodeUptr = std::unique_ptr<MatrixValueNode>;
@@ -34,14 +33,16 @@ class ExpressionValueNode : public ExpressionNode {
     return expressions;
   }
 
-  const ExpressionNode* getLeft() { return expressions[0].get(); }
-  const ExpressionNode* getRight() {
+  const ExpressionNode* getLeft() const { return expressions[0].get(); }
+  const ExpressionNode* getRight() const {
     if (expressions.size() == 2) {
       return expressions[1].get();
     }
     return nullptr;
   }
-  void accept(Interpreter& interpreter) override;
+  void accept(Interpreter& interpreter) override{
+    interpreter.visit(this);
+  }
 
  private:
   std::vector<ExpressionNodeUptr> expressions;
@@ -71,7 +72,10 @@ class AdditiveOperatorNode : public ExpressionValueNode {
   }
 
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
-  NodeType getType() { return type; }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+  NodeType getType() const { return type; }
 
  private:
   NodeType type;
@@ -86,8 +90,11 @@ class MultiplicativeOperatorNode : public ExpressionValueNode {
       this->type = NodeType::Division;
   }
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
-   enum class NodeType { Multiplication, Division };
-  NodeType getType() { return type; }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+  enum class NodeType { Multiplication, Division };
+  NodeType getType() const { return type; }
 
  private:
   NodeType type;
@@ -109,7 +116,10 @@ class LogicalOperatorNode : public ExpressionValueNode {
     Not
   };
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
-  NodeType getType() { return type; }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+  NodeType getType() const { return type; }
 
  private:
   NodeType type;
@@ -118,9 +128,12 @@ class LogicalOperatorNode : public ExpressionValueNode {
 class MatrixOperatorNode : public ExpressionValueNode {
  public:
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
   MatrixOperatorNode(Token token);
   enum class NodeType { Det, Transpose, Inverse };
-  NodeType getType() { return type; }
+  NodeType getType() const { return type; }
 
  private:
   NodeType type;
@@ -130,6 +143,9 @@ class AssignmentNode : public ExpressionValueNode {
  public:
   AssignmentNode(Token token) : ExpressionValueNode(token){};
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
 
  private:
 };
@@ -138,14 +154,23 @@ class ExponentiationOperatorNode : public ExpressionValueNode {
  public:
   ExponentiationOperatorNode(Token token) : ExpressionValueNode(token) {}
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
 };
 
 class ValueNode : public ExpressionLeafNode {
  public:
   using ExpressionLeafNode::ExpressionLeafNode;
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+
+  virtual void accept(Interpreter& interpreter) { interpreter.visit(this); }
+
   ValueNode(Token token) : ExpressionLeafNode(token){};
   bool isLeaf() const override { return true; }
-  virtual Value getValue() {
+  virtual const Value getValue() const {
     switch (token.getValue().index()) {
       case 1:
         return token.getInt();
@@ -162,8 +187,12 @@ class ValueNode : public ExpressionLeafNode {
 };
 
 class IdentifierNode : public ValueNode {
+ public:
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
   IdentifierNode(Token token) : ValueNode(token){};
-  Value getValue() override { return token.getString(); }
+  const Value getValue() const override { return token.getString(); }
 };
 
 class MatrixValueNode : public ValueNode {
@@ -172,7 +201,6 @@ class MatrixValueNode : public ValueNode {
       : ValueNode(Token(Token::TokenType::MatrixLiteralToken)) {
     std::ranges::move(newValues, std::back_inserter(values));
   };
-
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
@@ -198,8 +226,11 @@ class VariableNode : public ExpressionLeafNode {
   VariableNode(Token token) : ExpressionLeafNode(token) {}
   void setIdentifier(std::string identifier) { this->identifier = identifier; }
   void setValue(ValueNodeUptr value) { this->variableValue = std::move(value); }
-  const ValueNode* getValue() { return variableValue.get(); }
+  const ValueNode* getValue() const { return variableValue.get(); }
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
 
  protected:
   std::string identifier;
@@ -219,6 +250,9 @@ class MatrixVariable : public VariableNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
 
  private:
   MatrixSizeNodeUptr matrixSize;
@@ -233,6 +267,9 @@ class ArgumentNode : public ExpressionLeafNode {
   }
   void buildTreeStringStream(std::stringstream& tree) const;
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
 
  private:
   std::string identifier;

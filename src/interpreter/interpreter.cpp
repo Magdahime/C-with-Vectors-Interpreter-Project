@@ -61,21 +61,33 @@ void Interpreter::enterVariable(std::string identifier, TokenVariant value) {
   else if (std::holds_alternative<std::string>(value))
     enterVariable(identifier, std::get<std::string>(value));
 }
-void Interpreter::visit(AdditiveOperatorNode* node) {}
-void Interpreter::visit(MultiplicativeOperatorNode* node) {}
-void Interpreter::visit(LogicalOperatorNode* node) {}
-void Interpreter::visit(MatrixOperatorNode* node) {}
-void Interpreter::visit(AssignmentNode* node) {}
-void Interpreter::visit(ExponentiationOperatorNode* node) {}
-void Interpreter::visit(VariableNode* node) {}
-void Interpreter::visit(MatrixVariable* node) {}
-void Interpreter::visit(ArgumentNode* node) {}
-void Interpreter::visit(IfStatementNode* node) {}
-void Interpreter::visit(OtherwiseStatementNode* node) {}
+void Interpreter::visit(AdditiveOperatorNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(MultiplicativeOperatorNode* node) {
+  semAnalyzer.check(node);
+}
+void Interpreter::visit(LogicalOperatorNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(MatrixOperatorNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(AssignmentNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(ExponentiationOperatorNode* node) {
+  semAnalyzer.check(node);
+}
+void Interpreter::visit(VariableNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(MatrixVariable* node) { semAnalyzer.check(node); }
+void Interpreter::visit(ArgumentNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(IfStatementNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(OtherwiseStatementNode* node) {
+  semAnalyzer.check(node);
+}
 void Interpreter::visit(LoopStatementNode* node) { semAnalyzer.check(node); }
-void Interpreter::visit(AslasStatementNode* node) {}
-void Interpreter::visit(FunctionStatementNode* node) {}
-void Interpreter::visit(FunctionCallNode* node) {}
-void Interpreter::visit(ConditionStatementNode* node) {}
-void Interpreter::visit(CaseStatementNode* node) {}
-void Interpreter::visit(DefaultStatementNode* node) {}
+void Interpreter::visit(AslasStatementNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(FunctionStatementNode* node) {
+  semAnalyzer.check(node);
+}
+void Interpreter::visit(FunctionCallNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(ConditionStatementNode* node) {
+  semAnalyzer.check(node);
+}
+void Interpreter::visit(CaseStatementNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(DefaultStatementNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(ValueNode* node) { semAnalyzer.check(node); }
+void Interpreter::visit(ExpressionValueNode* node){semAnalyzer.check(node);}

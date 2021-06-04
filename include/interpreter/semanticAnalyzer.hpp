@@ -31,15 +31,11 @@ class SemanticAnalyzer {
   void check(const ConditionStatementNode* node) const;
   void check(const CaseStatementNode* node) const;
   void check(const DefaultStatementNode* node) const;
-
+  void check(const ValueNode* node) const;
+  void check(const ExpressionValueNode* node) const;
  private:
 
   VariableMap& variableMap;
   FunctionMap& functionMap;
   const int& currentDepth;
-
-  int64_t checkStart(const std::variant<std::string, int64_t> start) const;
-  int64_t checkStop(const std::variant<std::string, const int64_t> stop,
-                    int64_t startInt) const;
-  int64_t checkStep(const std::variant<std::string, const int64_t> stop) const;
 };

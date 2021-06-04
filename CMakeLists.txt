@@ -38,6 +38,7 @@ set(SOURCES
         ${INTERPRETER_DIRECTORY}/interpreter.cpp
         ${INTERPRETER_DIRECTORY}/evaluator.cpp
         ${INTERPRETER_DIRECTORY}/semanticAnalyzer.cpp
+        ${INTERPRETER_DIRECTORY}/interpreterHelpers.cpp
 
 )
 

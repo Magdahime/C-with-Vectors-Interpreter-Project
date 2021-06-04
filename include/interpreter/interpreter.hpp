@@ -27,6 +27,8 @@ class Interpreter {
   void visit(ConditionStatementNode* node);
   void visit(CaseStatementNode* node);
   void visit(DefaultStatementNode* node);
+  void visit(ValueNode* node);
+  void visit(ExpressionValueNode* node);
 
  private:
   uint64_t currentDepth = 0;

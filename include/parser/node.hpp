@@ -4,12 +4,15 @@
 #include <ranges>
 #include <vector>
 
+#include "interpreter/evaluator.hpp"
+#include "interpreter/interpreter.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
 #include "lexicalAnalyzer/token.hpp"
-#include "interpreter/interpreter.hpp"
 
 class Node;
 using NodeUptr = std::unique_ptr<Node>;
+using Value = std::variant<int64_t, double, std::string, Matrix>;
+
 class Node {
  public:
   Node() : token(Token(Token::TokenType::RootToken)){};
@@ -35,7 +38,6 @@ class Node {
   }
   virtual ~Node() = default;
 
-
   const std::string getPrintTree() const {
     std::stringstream ss;
     buildTreeStringStream(0, ss);
@@ -53,11 +55,12 @@ class RootNode : public Node {
 
 class StatementNode : public Node {
  public:
-  virtual void accept(Interpreter& interpreter);
+  virtual void accept(Interpreter& interpreter) = 0;
   using Node::Node;
 };
 
 class ExpressionNode : public StatementNode {
-  public:
+ public:
   ExpressionNode(Token token) : StatementNode(token) {}
+  virtual Value accept(const Evaluator& evaluator) const  = 0;
 };
