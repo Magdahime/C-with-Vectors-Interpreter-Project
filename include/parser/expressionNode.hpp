@@ -10,6 +10,11 @@ class MatrixSizeNode;
 class VariableNode;
 class MatrixVariable;
 class AssignmentNode;
+class AdditiveOperatorNode;
+class MultiplicativeOperatorNode;
+class LogicalOperatorNode;
+class MatrixOperatorNode;
+class ExponentiationOperatorNode;
 
 using ExpressionNodeUptr = std::unique_ptr<ExpressionNode>;
 using ValueNodeUptr = std::unique_ptr<ValueNode>;
@@ -20,6 +25,13 @@ using MatrixSizeNodeUptr = std::unique_ptr<MatrixSizeNode>;
 using VariableNodeUptr = std::unique_ptr<VariableNode>;
 using MatrixVariableUptr = std::unique_ptr<MatrixVariable>;
 using AssignmentNodeUptr = std::unique_ptr<AssignmentNode>;
+using AdditiveOperatorNodeUptr = std::unique_ptr<AdditiveOperatorNode>;
+using MultiplicativeOperatorNodeUptr =
+    std::unique_ptr<MultiplicativeOperatorNode>;
+using LogicalOperatorNodeUptr = std::unique_ptr<LogicalOperatorNode>;
+using MatrixOperatorNodeUptr = std::unique_ptr<MatrixOperatorNode>;
+using ExponentiationOperatorNodeUptr =
+    std::unique_ptr<ExponentiationOperatorNode>;
 
 class ExpressionValueNode : public ExpressionNode {
  public:
@@ -33,16 +45,16 @@ class ExpressionValueNode : public ExpressionNode {
     return expressions;
   }
 
-  const ExpressionNode* getLeft() const { return expressions[0].get(); }
+  const ExpressionNode* getLeft() const {
+    return expressions[0].get();
+  }
   const ExpressionNode* getRight() const {
     if (expressions.size() == 2) {
       return expressions[1].get();
     }
     return nullptr;
   }
-  void accept(Interpreter& interpreter) override{
-    interpreter.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
 
  private:
   std::vector<ExpressionNodeUptr> expressions;

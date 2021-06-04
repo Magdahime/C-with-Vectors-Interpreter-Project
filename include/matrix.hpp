@@ -18,17 +18,33 @@ class Matrix {
   std::vector<double> values;
 
   friend bool operator==(Matrix const& lhs, Matrix const& rhs) {
-    return lhs.values == rhs.values;
+    return lhs.values == rhs.values && lhs.rows == rhs.rows &&
+           lhs.columns == rhs.columns;
   };
+
+  //Additive
   friend Matrix operator+(const Matrix& lhs, const Matrix& rhs);
   friend Matrix operator+(const Matrix& lhs, const int64_t number);
   friend Matrix operator+(const int64_t number, const Matrix& lhs);
+  friend Matrix operator+(const Matrix& lhs, const int number);
+  friend Matrix operator+(const int number, const Matrix& lhs);
   friend Matrix operator+(const Matrix& lhs, const double number);
   friend Matrix operator+(const double number, const Matrix& lhs);
   friend Matrix operator-(const Matrix& lhs, const Matrix& rhs);
   friend Matrix operator-(const Matrix& lhs, const int64_t number);
   friend Matrix operator-(const int64_t number, const Matrix& lhs);
+  friend Matrix operator-(const Matrix& lhs, const int number);
+  friend Matrix operator-(const int number, const Matrix& lhs);
   friend Matrix operator-(const Matrix& lhs, const double number);
   friend Matrix operator-(const double number, const Matrix& lhs);
   friend Matrix operator-(const Matrix& lhs);
+  //Multiplicative
+  friend Matrix operator*(const Matrix& lhs, const Matrix& rhs);
+  friend Matrix operator*(const Matrix& lhs, const int64_t number);
+  friend Matrix operator*(const int64_t number, const Matrix& lhs);
+  friend Matrix operator*(const Matrix& lhs, const int number);
+  friend Matrix operator*(const int number, const Matrix& lhs);
+  friend Matrix operator*(const Matrix& lhs, const double number);
+  friend Matrix operator*(const double number, const Matrix& lhs);
+  friend Matrix operator/(const Matrix& lhs, const Matrix& rhs);
 };

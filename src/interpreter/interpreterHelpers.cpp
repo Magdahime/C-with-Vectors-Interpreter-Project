@@ -1,9 +1,10 @@
 #include "interpreter/interpreterHelpers.hpp"
 
 std::optional<VariableInfo> searchVariable(const VariableMap& variableMap,
-                                           std::string identifier, int currentDepth) {
+                                           std::string identifier,
+                                           int currentDepth) {
   auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
-  if (iter != variableMap.end()) return iter->second;
+  if (iter != variableMap.end())return iter->second;
   return {};
 }
 

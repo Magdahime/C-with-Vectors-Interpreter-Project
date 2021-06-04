@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include <variant>
 #include <unordered_map>
+#include <variant>
 
 #include "matrix.hpp"
 #include "source.hpp"
@@ -97,24 +97,24 @@ class Token {
 
   TokenVariant getValue() const { return value; }
   int64_t getInt() const { return std::get<int64_t>(value); }
-  double  getDouble() const { return std::get<double>(value); }
-  std::string getString() const {return std::get<std::string>(value); }
+  double getDouble() const { return std::get<double>(value); }
+  std::string getString() const { return std::get<std::string>(value); }
 
   uint64_t getCharacterPosition() const { return characterPosition; }
   uint64_t getAbsolutePosition() const { return absolutePosition; }
   uint64_t getLinePosition() const { return linePosition; }
   std::string getLinePositionString() const {
-    return std::to_string(linePosition+1) + ":" +
-           std::to_string(characterPosition+1);
+    return std::to_string(linePosition + 1) + ":" +
+           std::to_string(characterPosition + 1);
   }
 
  private:
   TokenType type;
   TokenSubtype subtype;
   TokenVariant value;
-  uint64_t characterPosition;
-  uint64_t absolutePosition;
-  uint64_t linePosition;
+  uint64_t characterPosition = 0;
+  uint64_t absolutePosition = 0;
+  uint64_t linePosition = 0;
 
   friend bool operator==(Token const &lhs, Token const &rhs) {
     return lhs.type == rhs.type && lhs.value == rhs.value;

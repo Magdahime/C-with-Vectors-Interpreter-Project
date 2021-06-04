@@ -10,8 +10,8 @@
 
 class SemanticAnalyzer {
  public:
-  SemanticAnalyzer(VariableMap& varMap, FunctionMap& funMap, const int& currDepth)
-      : variableMap(varMap), functionMap(funMap), currentDepth(currDepth) {}
+  SemanticAnalyzer(VariableMap& varMap, FunctionMap& funMap)
+      : variableMap(varMap), functionMap(funMap){}
 
   void check(const AdditiveOperatorNode* node) const;
   void check(const MultiplicativeOperatorNode* node) const;
@@ -33,9 +33,10 @@ class SemanticAnalyzer {
   void check(const DefaultStatementNode* node) const;
   void check(const ValueNode* node) const;
   void check(const ExpressionValueNode* node) const;
- private:
+  void setCurrentDepth(const uint64_t* currDepth) { this->currentDepth = currDepth; }
 
+ private:
   VariableMap& variableMap;
   FunctionMap& functionMap;
-  const int& currentDepth;
+  const uint64_t* currentDepth;
 };

@@ -32,7 +32,7 @@ set(SOURCES
   sourceTest.cpp
   lexicalAnalyzerTest.cpp
   parserTests.cpp
-  interpreterTest.cpp
+  evaluatorTest.cpp
   ${SOURCE_DIRECTORY}/program.cpp
   ${SOURCE_DIRECTORY}/source.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp

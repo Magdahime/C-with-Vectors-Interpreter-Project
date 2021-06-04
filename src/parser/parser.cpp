@@ -245,7 +245,7 @@ StatementNodeUptr Parser::parseLoopStatement() {
     expect(Token::TokenType::ColonToken);
     shiftToken();
     expect(Token::TokenType::OpenBlockToken);
-    interpreter.enterBlock();
+    //interpreter.enterBlock();
     shiftToken();
     StatementNodeUptr loopStatementsNode;
     while (loopStatementsNode = parseStatement()) {
@@ -254,8 +254,8 @@ StatementNodeUptr Parser::parseLoopStatement() {
     expect(
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
-    loopNode->accept(interpreter);
-    interpreter.closeBlock();
+    //loopNode->accept(interpreter);
+    //interpreter.closeBlock();
     return loopNode;
   }
   return StatementNodeUptr{};
@@ -574,7 +574,7 @@ MatrixSizeNodeUptr Parser::parseMatrixSize() {
 // sum ::= term | sum, {(’-’|’+’) sum}
 ExpressionNodeUptr Parser::parseExpression() {
   ExpressionNodeUptr leftSide = parseTerm();
-  ExpressionValueNodeUptr additiveOperatorNode;
+  AdditiveOperatorNodeUptr additiveOperatorNode;
   while (accept(Token::TokenType::AdditiveOperatorToken)) {
     if (!additiveOperatorNode) {
       additiveOperatorNode =
@@ -592,7 +592,7 @@ ExpressionNodeUptr Parser::parseExpression() {
 // term ::= factor, {(’*’| ’/’), factor}
 ExpressionNodeUptr Parser::parseTerm() {
   ExpressionNodeUptr leftSide = parseFactor();
-  ExpressionValueNodeUptr multiplicativeOperatorNode;
+  MultiplicativeOperatorNodeUptr multiplicativeOperatorNode;
   while (accept(Token::TokenType::MultiplicativeOperatorToken)) {
     if (!multiplicativeOperatorNode) {
       multiplicativeOperatorNode =
@@ -609,7 +609,7 @@ ExpressionNodeUptr Parser::parseTerm() {
 // factor ::= base { [’ˆ’,exponent] }
 ExpressionNodeUptr Parser::parseFactor() {
   ExpressionNodeUptr leftSide = parseParenthesesExpression();
-  ExpressionValueNodeUptr exponentiationOperatorNode;
+  ExponentiationOperatorNodeUptr exponentiationOperatorNode;
   while (accept(Token::TokenType::ExponentiationOperatorToken)) {
     if (!exponentiationOperatorNode) {
       exponentiationOperatorNode =
@@ -629,7 +629,7 @@ ExpressionNodeUptr Parser::parseFactor() {
 ExpressionNodeUptr Parser::parseParenthesesExpression() {
   if (accept(Token::TokenType::IdentifierToken)) {
     ExpressionNodeUptr identifierNode =
-        std::make_unique<ValueNode>(currentToken);
+        std::make_unique<IdentifierNode>(currentToken);
     shiftToken();
     return identifierNode;
   } else if (accept(Token::TokenType::IntegerLiteralToken)) {
@@ -650,7 +650,7 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
     shiftToken();
     return expressionNode;
   } else if (accept(Token::TokenType::AdditiveOperatorToken)) {
-    ExpressionValueNodeUptr additiveOperatorNode =
+    AdditiveOperatorNodeUptr additiveOperatorNode =
         std::make_unique<AdditiveOperatorNode>(currentToken);
     shiftToken();
     ExpressionNodeUptr factorNode = parseFactor();
@@ -663,7 +663,7 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
 
 ExpressionNodeUptr Parser::parseTestExpression() {
   ExpressionNodeUptr leftHandExpression = parseExpression();
-  ExpressionValueNodeUptr testNode;
+  LogicalOperatorNodeUptr testNode;
   while (accept(Token::TokenType::LogicalOperatorToken)) {
     if (!testNode) {
       testNode = std::make_unique<LogicalOperatorNode>(currentToken);
@@ -679,7 +679,7 @@ ExpressionNodeUptr Parser::parseTestExpression() {
 
 ExpressionNodeUptr Parser::parseMultipleTestExpressions() {
   ExpressionNodeUptr leftHandExpression = parseTestExpression();
-  ExpressionValueNodeUptr testNode;
+  LogicalOperatorNodeUptr testNode;
   while (accept({Token::TokenType::AndToken, Token::TokenType::OrToken,
                  Token::TokenType::NotToken})) {
     if (!testNode) {

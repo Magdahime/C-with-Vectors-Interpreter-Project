@@ -9,6 +9,10 @@ class Interpreter {
   void enterBlock();
   void closeBlock();
   void enterVariable(std::string identifier, TokenVariant value);
+  void enterVariable(std::string identifier, std::string value);
+  void enterVariable(std::string identifier, double value);
+  void enterVariable(std::string identifier, Matrix value);
+  void enterVariable(std::string identifier, int64_t value);
   void visit(AdditiveOperatorNode* node);
   void visit(MultiplicativeOperatorNode* node);
   void visit(LogicalOperatorNode* node);
@@ -29,6 +33,8 @@ class Interpreter {
   void visit(DefaultStatementNode* node);
   void visit(ValueNode* node);
   void visit(ExpressionValueNode* node);
+  const Evaluator& getEvaluator() { return evaluator; }
+  const VariableMap& getVariableMap() { return variablesMap; }
 
  private:
   uint64_t currentDepth = 0;
@@ -39,10 +45,5 @@ class Interpreter {
 
   SemanticAnalyzer semAnalyzer;
   Evaluator evaluator;
-
-  void enterVariable(std::string identifier, std::string value);
-  void enterVariable(std::string identifier, double value);
-  void enterVariable(std::string identifier, Matrix value);
-  void enterVariable(std::string identifier, int64_t value);
   void enterFunction(std::string identifier, FunctionStatementNode* node);
 };

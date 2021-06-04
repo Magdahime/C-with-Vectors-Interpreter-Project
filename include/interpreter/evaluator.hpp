@@ -3,8 +3,7 @@
 
 class Evaluator {
  public:
-  Evaluator(const VariableMap& varMap, const int& currDepth)
-      : variableMap(varMap), currentDepth(currDepth) {}
+  Evaluator(const VariableMap& varMap) : variableMap(varMap) {}
   Value evaluate(const AdditiveOperatorNode* node) const;
 
   Value evaluate(const MultiplicativeOperatorNode* node) const;
@@ -27,8 +26,12 @@ class Evaluator {
   Value evaluate(const ConditionStatementNode* node) const;
   Value evaluate(const CaseStatementNode* node) const;
   Value evaluate(const DefaultStatementNode* node) const;
+  void setCurrentDepth(const uint64_t* currDepth) {
+    this->currentDepth = currDepth;
+  }
+  bool checkZeroDivision(const Value value) const;
 
  private:
   const VariableMap& variableMap;
-  const int& currentDepth;
+  const uint64_t* currentDepth;
 };

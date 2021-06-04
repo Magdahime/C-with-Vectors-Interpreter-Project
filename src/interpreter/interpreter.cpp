@@ -3,8 +3,11 @@
 #include "parser/statementNode.hpp"
 
 Interpreter::Interpreter()
-    : semAnalyzer(variablesMap, functionsMap, currentDepth),
-      evaluator(variablesMap, currentDepth) {
+    : currentDepth(0),
+      semAnalyzer(variablesMap, functionsMap),
+      evaluator(variablesMap) {
+  semAnalyzer.setCurrentDepth(&currentDepth);
+  evaluator.setCurrentDepth(&currentDepth);
   scopeStack.emplace(currentDepth, std::set<std::string>());
 }
 
@@ -90,4 +93,4 @@ void Interpreter::visit(ConditionStatementNode* node) {
 void Interpreter::visit(CaseStatementNode* node) { semAnalyzer.check(node); }
 void Interpreter::visit(DefaultStatementNode* node) { semAnalyzer.check(node); }
 void Interpreter::visit(ValueNode* node) { semAnalyzer.check(node); }
-void Interpreter::visit(ExpressionValueNode* node){semAnalyzer.check(node);}
+void Interpreter::visit(ExpressionValueNode* node) { semAnalyzer.check(node); }

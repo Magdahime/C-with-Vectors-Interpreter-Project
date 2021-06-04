@@ -213,7 +213,7 @@ std::optional<Token> LexicalAnalyzer::buildStringLiteral() {
            nextCharacter.nextLetter != delimiter &&
            nextCharacter.nextLetter != '\0') {
       if (nextCharacter.nextLetter == '\\') {
-        std::string_view result = checkForEscapedSequence(nextCharacter);
+        auto result = checkForEscapedSequence(nextCharacter);
         length += result.length() - 1;
         ss << result;
       } else
