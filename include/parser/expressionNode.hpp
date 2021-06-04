@@ -11,6 +11,7 @@ class VariableNode;
 class MatrixVariable;
 class AssignmentNode;
 
+using Value = std::variant<int64_t, double, std::string, Matrix>;
 using ExpressionNodeUptr = std::unique_ptr<ExpressionNode>;
 using ValueNodeUptr = std::unique_ptr<ValueNode>;
 using MatrixValueNodeUptr = std::unique_ptr<MatrixValueNode>;
@@ -21,12 +22,9 @@ using VariableNodeUptr = std::unique_ptr<VariableNode>;
 using MatrixVariableUptr = std::unique_ptr<MatrixVariable>;
 using AssignmentNodeUptr = std::unique_ptr<AssignmentNode>;
 
-
-
 class ExpressionValueNode : public ExpressionNode {
  public:
   ExpressionValueNode(Token token) : ExpressionNode(token) {}
-
   void add(ExpressionNodeUptr newNode);
   void add(std::vector<ExpressionNodeUptr>& newNodes);
   void remove(const ExpressionNode* node);
@@ -35,7 +33,15 @@ class ExpressionValueNode : public ExpressionNode {
   const std::vector<ExpressionNodeUptr>& getChildren() const {
     return expressions;
   }
-  void accept(SemanticAnalyzer& semAnalyzer) override;
+
+  const ExpressionNode* getLeft() { return expressions[0].get(); }
+  const ExpressionNode* getRight() {
+    if (expressions.size() == 2) {
+      return expressions[1].get();
+    }
+    return nullptr;
+  }
+  void accept(Interpreter& interpreter) override;
 
  private:
   std::vector<ExpressionNodeUptr> expressions;
@@ -63,9 +69,9 @@ class AdditiveOperatorNode : public ExpressionValueNode {
     else
       this->type = NodeType::Minus;
   }
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  NodeType getType() { return type; }
 
  private:
   NodeType type;
@@ -79,12 +85,11 @@ class MultiplicativeOperatorNode : public ExpressionValueNode {
     else
       this->type = NodeType::Division;
   }
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+   enum class NodeType { Multiplication, Division };
+  NodeType getType() { return type; }
 
  private:
-  enum class NodeType { Multiplication, Division };
   NodeType type;
 };
 
@@ -103,9 +108,8 @@ class LogicalOperatorNode : public ExpressionValueNode {
     Or,
     Not
   };
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+  NodeType getType() { return type; }
 
  private:
   NodeType type;
@@ -113,22 +117,19 @@ class LogicalOperatorNode : public ExpressionValueNode {
 
 class MatrixOperatorNode : public ExpressionValueNode {
  public:
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
   MatrixOperatorNode(Token token);
+  enum class NodeType { Det, Transpose, Inverse };
+  NodeType getType() { return type; }
 
  private:
-  enum class NodeType { Det, Transpose, Inverse };
   NodeType type;
 };
 
 class AssignmentNode : public ExpressionValueNode {
  public:
   AssignmentNode(Token token) : ExpressionValueNode(token){};
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
 
  private:
 };
@@ -136,9 +137,7 @@ class AssignmentNode : public ExpressionValueNode {
 class ExponentiationOperatorNode : public ExpressionValueNode {
  public:
   ExponentiationOperatorNode(Token token) : ExpressionValueNode(token) {}
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
 };
 
 class ValueNode : public ExpressionLeafNode {
@@ -146,8 +145,25 @@ class ValueNode : public ExpressionLeafNode {
   using ExpressionLeafNode::ExpressionLeafNode;
   ValueNode(Token token) : ExpressionLeafNode(token){};
   bool isLeaf() const override { return true; }
+  virtual Value getValue() {
+    switch (token.getValue().index()) {
+      case 1:
+        return token.getInt();
+      case 2:
+        return token.getDouble();
+      case 3:
+        return token.getString();
+      default:
+        return {};
+    }
+  }
 
  private:
+};
+
+class IdentifierNode : public ValueNode {
+  IdentifierNode(Token token) : ValueNode(token){};
+  Value getValue() override { return token.getString(); }
 };
 
 class MatrixValueNode : public ValueNode {
@@ -159,6 +175,7 @@ class MatrixValueNode : public ValueNode {
 
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+
  private:
   std::vector<ExpressionNodeUptr> values;
 };
@@ -171,6 +188,7 @@ class MatrixSizeNode : public ValueNode {
   };
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+
  private:
   std::vector<ExpressionNodeUptr> values;
 };
@@ -180,9 +198,9 @@ class VariableNode : public ExpressionLeafNode {
   VariableNode(Token token) : ExpressionLeafNode(token) {}
   void setIdentifier(std::string identifier) { this->identifier = identifier; }
   void setValue(ValueNodeUptr value) { this->variableValue = std::move(value); }
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  const ValueNode* getValue() { return variableValue.get(); }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+
  protected:
   std::string identifier;
   ValueNodeUptr variableValue;
@@ -200,9 +218,8 @@ class MatrixVariable : public VariableNode {
 
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+
  private:
   MatrixSizeNodeUptr matrixSize;
 };
@@ -215,9 +232,8 @@ class ArgumentNode : public ExpressionLeafNode {
     this->defaultValue = std::move(value);
   }
   void buildTreeStringStream(std::stringstream& tree) const;
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
-  }
+  void accept(Interpreter& interpreter) override { interpreter.visit(this); }
+
  private:
   std::string identifier;
   ExpressionNodeUptr defaultValue;

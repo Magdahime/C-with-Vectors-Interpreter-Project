@@ -245,6 +245,7 @@ StatementNodeUptr Parser::parseLoopStatement() {
     expect(Token::TokenType::ColonToken);
     shiftToken();
     expect(Token::TokenType::OpenBlockToken);
+    interpreter.enterBlock();
     shiftToken();
     StatementNodeUptr loopStatementsNode;
     while (loopStatementsNode = parseStatement()) {
@@ -253,6 +254,8 @@ StatementNodeUptr Parser::parseLoopStatement() {
     expect(
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
+    loopNode->accept(interpreter);
+    interpreter.closeBlock();
     return loopNode;
   }
   return StatementNodeUptr{};
@@ -338,7 +341,6 @@ StatementNodeUptr Parser::parseReturnStatement() {
                             ". Expecting: return value.";
       throw UnexpectedToken(message);
     }
-    returnStatementNode->add(std::make_unique<ValueNode>(currentToken));
     shiftToken();
     return returnStatementNode;
   }

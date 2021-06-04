@@ -7,7 +7,7 @@
 #include "parser/expressionNode.hpp"
 #include "parser/node.hpp"
 #include "parser/statementNode.hpp"
-#include "semanticAnalyzer/semanticAnalyzer.hpp"
+#include "interpreter/interpreter.hpp"
 
 class Parser {
  public:
@@ -66,6 +66,6 @@ class Parser {
 
   ChildrenStatementNodeUptr programNode;
   LexicalAnalyzer lexer;
-  SemanticAnalyzer semanticAnalyzer;
+  Interpreter interpreter;
   Token currentToken;
 };

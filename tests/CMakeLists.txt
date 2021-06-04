@@ -32,6 +32,7 @@ set(SOURCES
   sourceTest.cpp
   lexicalAnalyzerTest.cpp
   parserTests.cpp
+  interpreterTest.cpp
   ${SOURCE_DIRECTORY}/program.cpp
   ${SOURCE_DIRECTORY}/source.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
@@ -40,6 +41,7 @@ set(SOURCES
   ${PARSER_DIRECTORY}/statementNode.cpp
   ${PARSER_DIRECTORY}/expressionNode.cpp
   ${PARSER_DIRECTORY}/node.cpp
+  ${INTERPRETER_DIRECTORY}/interpreter.cpp
 )
 
 add_executable(tests ${SOURCES})

@@ -36,9 +36,9 @@ class ChildrenStatementNode : public StatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   void remove(const StatementNode* node);
-  void accept(SemanticAnalyzer& semAnalyzer) override{
+  void accept(Interpreter& interpreter) override{
     for(const auto& child : children){
-      child->accept(semAnalyzer);
+      child->accept(interpreter);
     }
   }
 
@@ -55,8 +55,8 @@ class IfStatementNode : public ChildrenStatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  private:
@@ -66,8 +66,8 @@ class IfStatementNode : public ChildrenStatementNode {
 class OtherwiseStatementNode : public ChildrenStatementNode {
  public:
   OtherwiseStatementNode(Token token) : ChildrenStatementNode(token){};
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  private:
@@ -80,8 +80,12 @@ class LoopStatementNode : public ChildrenStatementNode {
   void setStep(TokenVariant newStep);
   void setEnd(TokenVariant newEnd);
   void setStart(TokenVariant newStart);
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  std::variant<std::string, int64_t> getStart(){return start;}
+  std::variant<std::string, int64_t> getEnd(){return end;}
+  std::variant<std::string, int64_t> getStep(){return step;}
+
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  private:
@@ -98,8 +102,8 @@ class AslasStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  private:
@@ -118,8 +122,8 @@ class FunctionStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  protected:
@@ -137,8 +141,8 @@ class FunctionCallNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  private:
@@ -151,8 +155,8 @@ class ConditionStatementNode : public ChildrenStatementNode {
   ConditionStatementNode(Token token) : ChildrenStatementNode(token){};
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
 
  private:
@@ -164,8 +168,8 @@ class CaseStatementNode : public ChildrenStatementNode {
   void setCaseExpression(ExpressionNodeUptr expression) {
     this->caseExpression = std::move(expression);
   }
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
  private:
   ExpressionNodeUptr caseExpression;
@@ -174,8 +178,8 @@ class CaseStatementNode : public ChildrenStatementNode {
 class DefaultStatementNode : public ChildrenStatementNode {
  public:
   DefaultStatementNode(Token token) : ChildrenStatementNode(token){};
-  void accept(SemanticAnalyzer& semAnalyzer) override {
-    semAnalyzer.visit(this);
+  void accept(Interpreter& interpreter) override {
+    interpreter.visit(this);
   }
  private:
 };
