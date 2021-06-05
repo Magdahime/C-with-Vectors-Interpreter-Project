@@ -42,10 +42,7 @@ set(SOURCES
   ${PARSER_DIRECTORY}/statementNode.cpp
   ${PARSER_DIRECTORY}/expressionNode.cpp
   ${PARSER_DIRECTORY}/node.cpp
-  ${INTERPRETER_DIRECTORY}/interpreter.cpp
   ${INTERPRETER_DIRECTORY}/evaluator.cpp
-  ${INTERPRETER_DIRECTORY}/semanticAnalyzer.cpp
-  ${INTERPRETER_DIRECTORY}/interpreterHelpers.cpp
   ${SOURCE_DIRECTORY}/matrixOperators.cpp
   ${SOURCE_DIRECTORY}/matrix.cpp
   ${SOURCE_DIRECTORY}/matrixHelpers.cpp

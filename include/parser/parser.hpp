@@ -2,7 +2,7 @@
 #include <initializer_list>
 
 #include "helpers/exception.hpp"
-#include "interpreter/interpreter.hpp"
+#include "interpreter/evaluator.hpp"
 #include "lexicalAnalyzer/lexicalAnalyzer.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
 #include "parser/expressionNode.hpp"
@@ -66,6 +66,6 @@ class Parser {
 
   ChildrenStatementNodeUptr programNode;
   LexicalAnalyzer lexer;
-  Interpreter interpreter;
+  Evaluator evaluator;
   Token currentToken;
 };

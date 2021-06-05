@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "interpreter/evaluator.hpp"
-#include "interpreter/interpreter.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
 #include "lexicalAnalyzer/token.hpp"
 
@@ -48,19 +47,14 @@ class Node {
   Token token;
 };
 
-class RootNode : public Node {
- public:
-  RootNode() : Node(Token(Token::TokenType::RootToken)) {}
-};
-
 class StatementNode : public Node {
  public:
-  virtual void accept(Interpreter& interpreter) = 0;
   using Node::Node;
+  virtual Value accept(const Evaluator& evaluator) const = 0;
 };
 
 class ExpressionNode : public StatementNode {
  public:
   ExpressionNode(Token token) : StatementNode(token) {}
-  virtual Value accept(const Evaluator& evaluator) const  = 0;
+  Value accept(const Evaluator& evaluator) const =0;
 };

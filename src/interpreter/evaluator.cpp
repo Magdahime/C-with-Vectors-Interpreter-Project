@@ -2,14 +2,81 @@
 
 #include "parser/statementNode.hpp"
 
+std::optional<VariableInfo> Evaluator::searchVariable(std::string identifier,
+                                                      int currentDepth) const {
+  auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
+  if (iter != variableMap.end()) return iter->second;
+  return {};
+}
+
+std::optional<const FunctionStatementNode*> Evaluator::searchFunction(
+    std::string identifier) const {
+  auto iter = functionsMap.find(identifier);
+  if (iter != functionsMap.end()) return iter->second;
+  return {};
+}
+
+void Evaluator::enterBlock() {
+  currentDepth++;
+  scopeStack.emplace(currentDepth, std::set<std::string>());
+}
+void Evaluator::closeBlock() {
+  std::set<std::string> identifiers = scopeStack.top().second;
+  scopeStack.pop();
+  for (const auto& identifier : identifiers) {
+    variableMap.erase(std::make_pair(identifier, currentDepth));
+  }
+  currentDepth--;
+}
+
+void Evaluator::enterVariable(std::string identifier, std::string value) {
+  VariableInfo info = {Type::String, value};
+  variableMap.emplace(
+      std::make_pair(std::make_pair(identifier, currentDepth), info));
+  scopeStack.top().second.insert(identifier);
+}
+void Evaluator::enterVariable(std::string identifier, double value) {
+  VariableInfo info = {Type::Double, value};
+  variableMap.emplace(
+      std::make_pair(std::make_pair(identifier, currentDepth), info));
+  scopeStack.top().second.insert(identifier);
+}
+void Evaluator::enterVariable(std::string identifier, Matrix value) {
+  VariableInfo info = {Type::Matrix, value};
+  variableMap.emplace(
+      std::make_pair(std::make_pair(identifier, currentDepth), info));
+  scopeStack.top().second.insert(identifier);
+}
+void Evaluator::enterVariable(std::string identifier, int64_t value) {
+  VariableInfo info = {Type::Integer, value};
+  variableMap.emplace(
+      std::make_pair(std::make_pair(identifier, currentDepth), info));
+  scopeStack.top().second.insert(identifier);
+}
+
+void Evaluator::enterFunction(std::string identifier,
+                              FunctionStatementNode* node) {
+  functionsMap.emplace(std::make_pair(identifier, node));
+}
+
+void Evaluator::enterVariable(std::string identifier, TokenVariant value) {
+  if (std::holds_alternative<int64_t>(value))
+    enterVariable(identifier, std::get<int64_t>(value));
+  else if (std::holds_alternative<Matrix>(value))
+    enterVariable(identifier, std::get<Matrix>(value));
+  else if (std::holds_alternative<double>(value))
+    enterVariable(identifier, std::get<double>(value));
+  else if (std::holds_alternative<std::string>(value))
+    enterVariable(identifier, std::get<std::string>(value));
+}
+
 Value Evaluator::evaluate(const ValueNode* node) const {
   return node->getValue();
 }
 
 Value Evaluator::evaluate(const IdentifierNode* node) const {
   std::string identifier = std::get<std::string>(node->getValue());
-  std::optional<VariableInfo> var =
-      searchVariable(variableMap, identifier, *currentDepth);
+  std::optional<VariableInfo> var = searchVariable(identifier, currentDepth);
   if (var) return var->value;
   throw SemanticError("Unknown variable: " + identifier +
                       " at:" + node->getToken().getLinePositionString());

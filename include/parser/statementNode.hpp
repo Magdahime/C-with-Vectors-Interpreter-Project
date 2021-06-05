@@ -1,6 +1,6 @@
 #pragma once
-#include "parser/node.hpp"
 #include "parser/expressionNode.hpp"
+#include "parser/node.hpp"
 
 class StatementNode;
 class ChildrenStatementNode;
@@ -24,7 +24,6 @@ using ConditionStatementNodeUptr = std::unique_ptr<ConditionStatementNode>;
 using CaseStatementNodeUptr = std::unique_ptr<CaseStatementNode>;
 using DefaultStatementNodeUptr = std::unique_ptr<DefaultStatementNode>;
 
-
 class ChildrenStatementNode : public StatementNode {
  public:
   ChildrenStatementNode(Token token) : StatementNode(token){};
@@ -36,10 +35,11 @@ class ChildrenStatementNode : public StatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   void remove(const StatementNode* node);
-  void accept( Interpreter& interpreter) override{
-    for(const auto& child : children){
-      child->accept( interpreter);
+  Value accept(const Evaluator& evaluator) const override {
+    for (const auto& child : children) {
+      child->accept(evaluator);
     }
+    return 0;
   }
 
  protected:
@@ -55,8 +55,8 @@ class IfStatementNode : public ChildrenStatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  private:
@@ -66,8 +66,8 @@ class IfStatementNode : public ChildrenStatementNode {
 class OtherwiseStatementNode : public ChildrenStatementNode {
  public:
   OtherwiseStatementNode(Token token) : ChildrenStatementNode(token){};
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  private:
@@ -80,12 +80,12 @@ class LoopStatementNode : public ChildrenStatementNode {
   void setStep(TokenVariant newStep);
   void setEnd(TokenVariant newEnd);
   void setStart(TokenVariant newStart);
-  std::variant<std::string, int64_t> getStart(){return start;}
-  std::variant<std::string, int64_t> getEnd(){return end;}
-  std::variant<std::string, int64_t> getStep(){return step;}
+  std::variant<std::string, int64_t> getStart() { return start; }
+  std::variant<std::string, int64_t> getEnd() { return end; }
+  std::variant<std::string, int64_t> getStep() { return step; }
 
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  private:
@@ -102,8 +102,8 @@ class AslasStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  private:
@@ -122,8 +122,8 @@ class FunctionStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  protected:
@@ -141,8 +141,8 @@ class FunctionCallNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  private:
@@ -155,8 +155,8 @@ class ConditionStatementNode : public ChildrenStatementNode {
   ConditionStatementNode(Token token) : ChildrenStatementNode(token){};
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
 
  private:
@@ -168,9 +168,10 @@ class CaseStatementNode : public ChildrenStatementNode {
   void setCaseExpression(ExpressionNodeUptr expression) {
     this->caseExpression = std::move(expression);
   }
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
+
  private:
   ExpressionNodeUptr caseExpression;
 };
@@ -178,8 +179,9 @@ class CaseStatementNode : public ChildrenStatementNode {
 class DefaultStatementNode : public ChildrenStatementNode {
  public:
   DefaultStatementNode(Token token) : ChildrenStatementNode(token){};
-  void accept( Interpreter& interpreter) override {
-    interpreter.visit(this);
+  Value accept(const Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
   }
+
  private:
 };

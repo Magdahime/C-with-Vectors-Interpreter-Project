@@ -63,10 +63,3 @@ struct VariableInfo {
 using VariableMap = std::map<std::pair<std::string, uint64_t>, VariableInfo>;
 using FunctionMap = std::map<std::string, const FunctionStatementNode*>;
 using ScopeStack = std::stack<std::pair<uint64_t, std::set<std::string>>>;
-
-std::optional<VariableInfo> searchVariable(const VariableMap& variableMap,
-                                           std::string identifier,
-                                           int currentDepth);
-
-std::optional<const FunctionStatementNode*> searchFunction(
-    const FunctionMap& functionMap, std::string identifier);

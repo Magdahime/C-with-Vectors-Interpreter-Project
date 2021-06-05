@@ -1,12 +1,21 @@
 #pragma once
 #include <cmath>
+
 #include "interpreter/interpreterHelpers.hpp"
+#include "lexicalAnalyzer/token.hpp"
 
 class Evaluator {
  public:
-  Evaluator(const VariableMap& varMap) : variableMap(varMap) {}
-  Value evaluate(const AdditiveOperatorNode* node) const;
+  Evaluator() { scopeStack.emplace(currentDepth, std::set<std::string>()); }
+  void enterBlock();
+  void closeBlock();
+  void enterVariable(std::string identifier, TokenVariant value);
+  void enterVariable(std::string identifier, std::string value);
+  void enterVariable(std::string identifier, double value);
+  void enterVariable(std::string identifier, Matrix value);
+  void enterVariable(std::string identifier, int64_t value);
 
+  Value evaluate(const AdditiveOperatorNode* node) const;
   Value evaluate(const MultiplicativeOperatorNode* node) const;
   Value evaluate(const ExponentiationOperatorNode* node) const;
   Value evaluate(const MatrixOperatorNode* node) const;
@@ -27,12 +36,22 @@ class Evaluator {
   Value evaluate(const ConditionStatementNode* node) const;
   Value evaluate(const CaseStatementNode* node) const;
   Value evaluate(const DefaultStatementNode* node) const;
-  void setCurrentDepth(const uint64_t* currDepth) {
-    this->currentDepth = currDepth;
-  }
+
   bool checkZeroDivision(const Value value) const;
+  std::optional<VariableInfo> searchVariable(std::string identifier,
+                                             int currentDepth) const;
+
+  std::optional<const FunctionStatementNode*> searchFunction(
+      std::string identifier) const;
+
+  const VariableMap& getVariableMap() { return variableMap; }
 
  private:
-  const VariableMap& variableMap;
-  const uint64_t* currentDepth;
+  uint64_t currentDepth = 0;
+
+  VariableMap variableMap;
+  FunctionMap functionsMap;
+  ScopeStack scopeStack;
+
+  void enterFunction(std::string identifier, FunctionStatementNode* node);
 };
