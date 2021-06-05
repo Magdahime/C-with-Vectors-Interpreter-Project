@@ -20,11 +20,17 @@ class Matrix {
   Matrix transpose() const;
   double det() const;
   Matrix inverse() const;
+  Matrix getCofactor() const;
+  Matrix getAdjoint() const;
+  Matrix getSubmatrix(Matrix matrix, uint64_t excluding_row,
+                         uint64_t excluding_column) const;
 
  private:
   uint64_t rows = 0;
   uint64_t columns = 0;
   std::vector<double> values;
+
+  int changeSign(int64_t number) const;
 
   friend bool operator==(Matrix const& lhs, Matrix const& rhs) {
     return lhs.values == rhs.values && lhs.rows == rhs.rows &&
