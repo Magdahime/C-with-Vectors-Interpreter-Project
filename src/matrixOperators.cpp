@@ -1,4 +1,20 @@
+#include <cmath>
 #include "matrix.hpp"
+
+bool approximatelyEqual(float a, float b, float epsilon = std::numeric_limits<double>::epsilon())
+{
+    return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+bool operator==(Matrix const& lhs, Matrix const& rhs) {
+  if (lhs.rows == rhs.rows && lhs.columns == rhs.columns) {
+    for (size_t i = 0; i < lhs.values.size(); i++) {
+      if (!approximatelyEqual(lhs.values[i], rhs.values[i])) return false;
+    }
+    return true;
+  }
+  return false;
+}
 
 Matrix operator+(const Matrix& lhs, const Matrix& rhs) {
   if (lhs.rows == rhs.rows && lhs.columns == rhs.columns) {

@@ -190,7 +190,8 @@ TEST(EvaluatorTest, MATRIX_MATRIX_TEST) {
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
-  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), resultMatrix);
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
+            resultMatrix);
 }
 
 TEST(EvaluatorTest, INT_INT_TEST2) {
@@ -243,7 +244,6 @@ TEST(EvaluatorTest, INT_DOUBLE_TEST2) {
   EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 12.0);
 }
 
-
 TEST(EvaluatorTest, INT_DOUBLE_TEST3) {
   std::string test = R"(3/4.0)";
   StringSource src(test);
@@ -263,7 +263,6 @@ TEST(EvaluatorTest, DOUBLE_INT_TEST2) {
   ExpressionNodeUptr node = parser.parseExpression();
   EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 12.0);
 }
-
 
 TEST(EvaluatorTest, DOUBLE_INT_TEST3) {
   std::string test = R"(3.0 / 4 )";
@@ -290,7 +289,6 @@ TEST(EvaluatorTest, MATRIX_INT_TEST2) {
   EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
             resultMatrix);
 }
-
 
 TEST(EvaluatorTest, MATRIX_INT_TEST3) {
   Interpreter interpret;
@@ -324,25 +322,24 @@ TEST(EvaluatorTest, INT_MATRIX_TEST2) {
             resultMatrix);
 }
 
-
 TEST(EvaluatorTest, INT_MATRIX_TEST3) {
-  try{
-  Interpreter interpret;
-  std::vector<double> values = {1, 1, 1, 1};
-  std::vector<double> values2 = {2.5, 2.5, 2.5, 2.5};
-  Matrix resultMatrix(2, 2, values2);
-  Matrix matrix(2, 2, values);
-  interpret.enterVariable("zmienna", matrix);
-  std::string test = R"(2/zmienna)";
-  StringSource src(test);
-  LexicalAnalyzer lexicAna(&src);
-  Parser parser(lexicAna);
-  ExpressionNodeUptr node = parser.parseExpression();
-  node->accept(interpret.getEvaluator());
-  FAIL();
-  }catch(const SemanticError& err){
+  try {
+    Interpreter interpret;
+    std::vector<double> values = {1, 1, 1, 1};
+    std::vector<double> values2 = {2.5, 2.5, 2.5, 2.5};
+    Matrix resultMatrix(2, 2, values2);
+    Matrix matrix(2, 2, values);
+    interpret.enterVariable("zmienna", matrix);
+    std::string test = R"(2/zmienna)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    ExpressionNodeUptr node = parser.parseExpression();
+    node->accept(interpret.getEvaluator());
+    FAIL();
+  } catch (const SemanticError& err) {
     SUCCEED();
-  }catch(...){
+  } catch (...) {
     FAIL();
   }
 }
@@ -359,27 +356,28 @@ TEST(EvaluatorTest, DOUBLE_MATRIX_TEST2) {
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
-  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),resultMatrix);
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
+            resultMatrix);
 }
 
 TEST(EvaluatorTest, DOUBLE_MATRIX_TEST3) {
-  try{
-  Interpreter interpret;
-  std::vector<double> values = {1, 1, 1, 1};
-  std::vector<double> values2 = {2.5, 2.5, 2.5, 2.5};
-  Matrix resultMatrix(2, 2, values2);
-  Matrix matrix(2, 2, values);
-  interpret.enterVariable("zmienna", matrix);
-  std::string test = R"(2.0/zmienna)";
-  StringSource src(test);
-  LexicalAnalyzer lexicAna(&src);
-  Parser parser(lexicAna);
-  ExpressionNodeUptr node = parser.parseExpression();
-  node->accept(interpret.getEvaluator());
-  FAIL();
-  }catch(const SemanticError& err){
+  try {
+    Interpreter interpret;
+    std::vector<double> values = {1, 1, 1, 1};
+    std::vector<double> values2 = {2.5, 2.5, 2.5, 2.5};
+    Matrix resultMatrix(2, 2, values2);
+    Matrix matrix(2, 2, values);
+    interpret.enterVariable("zmienna", matrix);
+    std::string test = R"(2.0/zmienna)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    ExpressionNodeUptr node = parser.parseExpression();
+    node->accept(interpret.getEvaluator());
+    FAIL();
+  } catch (const SemanticError& err) {
     SUCCEED();
-  }catch(...){
+  } catch (...) {
     FAIL();
   }
 }
@@ -411,7 +409,7 @@ TEST(EvaluatorTest, MATRIX_DOUBLE_TEST3) {
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
   EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
-            matrix/2.0);
+            matrix / 2.0);
 }
 
 TEST(EvaluatorTest, MATRIX_MATRIX_TEST2) {
@@ -429,7 +427,8 @@ TEST(EvaluatorTest, MATRIX_MATRIX_TEST2) {
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
-  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), matrix * matrix2);
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
+            matrix * matrix2);
 }
 
 TEST(EvaluatorTest, EXP_INT_INT_TEST) {
@@ -442,7 +441,6 @@ TEST(EvaluatorTest, EXP_INT_INT_TEST) {
   EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 4);
 }
 
-
 TEST(EvaluatorTest, EXP_DOUBLE_DOUBLE_TEST) {
   std::string test = R"(3.0^3.0)";
   StringSource src(test);
@@ -453,7 +451,6 @@ TEST(EvaluatorTest, EXP_DOUBLE_DOUBLE_TEST) {
   EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 27.0);
 }
 
-
 TEST(EvaluatorTest, EXP_INT_DOUBLE_TEST) {
   std::string test = R"(3 ^ 4.0)";
   StringSource src(test);
@@ -463,8 +460,6 @@ TEST(EvaluatorTest, EXP_INT_DOUBLE_TEST) {
   ExpressionNodeUptr node = parser.parseExpression();
   EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 81.0);
 }
-
-
 
 TEST(EvaluatorTest, EXP_DOUBLE_INT_TEST) {
   std::string test = R"(3.0 ^ 4)";
@@ -512,7 +507,8 @@ TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST3) {
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
-  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), matrix.inverse());
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
+            matrix.inverse());
 }
 
 TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST4) {
@@ -525,23 +521,457 @@ TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST4) {
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
-  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), matrix.transpose());
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())),
+            matrix.transpose());
 }
 
 TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST5) {
-  try{
-  Interpreter interpret;
-  interpret.enterVariable("zmienna", 2.0);
-  std::string test = R"(det zmienna)";
+  try {
+    Interpreter interpret;
+    interpret.enterVariable("zmienna", 2.0);
+    std::string test = R"(det zmienna)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    ExpressionNodeUptr node = parser.parseExpression();
+    node->accept(interpret.getEvaluator());
+    FAIL();
+  } catch (const SemanticError& err) {
+    SUCCEED();
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST) {
+  std::string test = R"(2 > 2)";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
-  ExpressionNodeUptr node = parser.parseExpression();
-  node->accept(interpret.getEvaluator());
-  FAIL();
-  }catch(const SemanticError& err){
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST2) {
+  std::string test = R"(2>=2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST3) {
+  std::string test = R"(2<2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST4) {
+  std::string test = R"(2<=2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST5) {
+  std::string test = R"(2!=2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST6) {
+  std::string test = R"(2==2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST7) {
+  std::string test = R"(2 and 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_INT_TEST8) {
+  std::string test = R"(2 or 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST) {
+  std::string test = R"(2.0 > 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST2) {
+  std::string test = R"(2.0>=2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST3) {
+  std::string test = R"(2.0<2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST4) {
+  std::string test = R"(2.0<=2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST5) {
+  std::string test = R"(2.0!=2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST6) {
+  std::string test = R"(2.0==2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST7) {
+  std::string test = R"(2.0 and 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_DOUBLE_TEST8) {
+  std::string test = R"(2.0 or 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST) {
+  std::string test = R"(2.0 > 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST2) {
+  std::string test = R"(2.0>=2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST3) {
+  std::string test = R"(2.0<2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST4) {
+  std::string test = R"(2.0<=2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST5) {
+  std::string test = R"(2.0!=2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST6) {
+  std::string test = R"(2.0==2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST7) {
+  std::string test = R"(2.0 and 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_DOUBLE_INT_TEST8) {
+  std::string test = R"(2.0 or 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST) {
+  std::string test = R"(2 > 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST2) {
+  std::string test = R"(2>=2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST3) {
+  std::string test = R"(2<2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST4) {
+  std::string test = R"(2<=2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST5) {
+  std::string test = R"(2!=2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST6) {
+  std::string test = R"(2==2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST7) {
+  std::string test = R"(2 and 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_INT_DOUBLE_TEST8) {
+  std::string test = R"(2 or 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_STRING_STRING_TEST) {
+  std::string test = R"("mama" > "tata")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_STRING_STRING_TEST2) {
+  std::string test = R"("mama" >= "tata")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_STRING_STRING_TEST3) {
+  std::string test = R"("mama" < "tata")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_STRING_STRING_TEST4) {
+  std::string test = R"("mama" <= "tata")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_STRING_STRING_TEST5) {
+  std::string test = R"("mama" != "tata")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_STRING_STRING_TEST6) {
+  std::string test = R"("mama" == "tata")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_MATRIX_MATRIX_TEST7) {
+  Interpreter interpret;
+  std::vector<double> values = {1, 1, 1, 1};
+  std::vector<double> values2 = {2, 2, 2, 2};
+  Matrix resultMatrix(2, 2, values2);
+  Matrix matrix(2, 2, values);
+  Matrix matrix2(2, 2, values2);
+
+  interpret.enterVariable("matrix1", matrix);
+  interpret.enterVariable("matrix2", matrix2);
+  std::string test = R"(matrix1 == matrix2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_MATRIX_MATRIX_TEST2) {
+  Interpreter interpret;
+  std::vector<double> values = {1, 1, 1, 1};
+  std::vector<double> values2 = {2, 2, 2, 2};
+  Matrix resultMatrix(2, 2, values2);
+  Matrix matrix(2, 2, values);
+  Matrix matrix2(2, 2, values2);
+
+  interpret.enterVariable("matrix1", matrix);
+  interpret.enterVariable("matrix2", matrix2);
+  std::string test = R"(matrix1 != matrix2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}
+
+TEST(EvaluatorTest, LOGICALOP_MATRIX_MATRIX_TEST3) {
+  try {
+    Interpreter interpret;
+    std::vector<double> values = {1, 1, 1, 1};
+    std::vector<double> values2 = {2, 2, 2, 2};
+    Matrix resultMatrix(2, 2, values2);
+    Matrix matrix(2, 2, values);
+    Matrix matrix2(2, 2, values);
+
+    interpret.enterVariable("matrix1", matrix);
+    interpret.enterVariable("matrix2", matrix2);
+    std::string test = R"(matrix1 > matrix2)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+    node->accept(interpret.getEvaluator());
+    FAIL();
+  } catch (const SemanticError& err) {
     SUCCEED();
-  }catch(...){
+  } catch (...) {
     FAIL();
   }
 }

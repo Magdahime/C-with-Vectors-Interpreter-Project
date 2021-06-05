@@ -2,17 +2,18 @@
 #include <initializer_list>
 
 #include "helpers/exception.hpp"
+#include "interpreter/interpreter.hpp"
 #include "lexicalAnalyzer/lexicalAnalyzer.hpp"
 #include "lexicalAnalyzer/lexicalTable.hpp"
 #include "parser/expressionNode.hpp"
 #include "parser/node.hpp"
 #include "parser/statementNode.hpp"
-#include "interpreter/interpreter.hpp"
 
 class Parser {
  public:
   void parseProgram();
   ExpressionNodeUptr parseExpression();
+  ExpressionNodeUptr parseMultipleTestExpressions();
   void shiftToken();
   Parser(LexicalAnalyzer& newLexer)
       : programNode(std::make_unique<ChildrenStatementNode>()),
@@ -52,7 +53,6 @@ class Parser {
   ExpressionNodeUptr parseAssignExpression(ExpressionNodeUptr root);
   ExpressionNodeUptr parseParenthesesExpression();
   ExpressionNodeUptr parseTestExpression();
-  ExpressionNodeUptr parseMultipleTestExpressions();
   ExpressionNodeUptr parseMatrixAssignment(MatrixVariableUptr matrixNode);
 
   MatrixValueNodeUptr parseMatrixValue();

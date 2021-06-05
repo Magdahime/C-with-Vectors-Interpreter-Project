@@ -1,8 +1,9 @@
 #pragma once
 #include <cstdint>
+#include <limits>
 #include <variant>
 #include <vector>
-// TODO IMPLEMENT THIS
+
 class Matrix {
  public:
   Matrix() = default;
@@ -23,7 +24,7 @@ class Matrix {
   Matrix getCofactor() const;
   Matrix getAdjoint() const;
   Matrix getSubmatrix(Matrix matrix, uint64_t excluding_row,
-                         uint64_t excluding_column) const;
+                      uint64_t excluding_column) const;
 
  private:
   uint64_t rows = 0;
@@ -32,9 +33,9 @@ class Matrix {
 
   int changeSign(int64_t number) const;
 
-  friend bool operator==(Matrix const& lhs, Matrix const& rhs) {
-    return lhs.values == rhs.values && lhs.rows == rhs.rows &&
-           lhs.columns == rhs.columns;
+  friend bool operator==(Matrix const& lhs, Matrix const& rhs);
+  friend bool operator!=(Matrix const& lhs, Matrix const& rhs) {
+    return !operator==(lhs, rhs);
   };
 
   // Additive

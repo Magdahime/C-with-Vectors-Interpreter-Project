@@ -49,11 +49,11 @@ TEST(MatrixTest, CreateSubmatrixTest3) {
 }
 
 
-//BŁĘDY NUMERYCZNE
+// //BŁĘDY NUMERYCZNE
 // TEST(MatrixTest, InverseTest) {
 //   std::vector<double> values = {1, 2, 3, 4, 5, 6, 7, 8, 10};
 //   std::vector<double> identityValues = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 //   Matrix identityMatrix(3, 3, identityValues);
 //   Matrix matrix(3, 3, values);
-//   EXPECT_EQ(matrix.inverse() * matrix, identityMatrix);
+//   EXPECT_EQ(matrix.inverse() * matrix == identityMatrix, true);
 // }

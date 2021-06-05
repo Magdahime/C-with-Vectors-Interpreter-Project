@@ -242,8 +242,182 @@ Value Evaluator::evaluate(const MatrixOperatorNode* node) const {
 }
 
 Value Evaluator::evaluate(const LogicalOperatorNode* node) const {
-  throw SemanticError("LogicalOperatorNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  auto left = node->getLeft();
+  auto right = node->getRight();
+  Value leftValue = left->accept(*this);
+  if (right) {
+    Value rightValue = right->accept(*this);
+    int signature =
+        std::variant_size_v<Value> * leftValue.index() + rightValue.index();
+    Matrix returnMatrix;
+    switch (static_cast<OperatorSignatures>(signature)) {
+      case OperatorSignatures::INTEGER_INTEGER:
+        switch (node->getType()) {
+          case LogicalOperatorNode::NodeType::Greater:
+            return std::get<int64_t>(leftValue) > std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::GreaterEqual:
+            return std::get<int64_t>(leftValue) >=
+                   std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::Less:
+            return std::get<int64_t>(leftValue) < std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::LessEqual:
+            return std::get<int64_t>(leftValue) <=
+                   std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::NotEqual:
+            return std::get<int64_t>(leftValue) !=
+                   std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::And:
+            return std::get<int64_t>(leftValue) &&
+                   std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::Or:
+            return std::get<int64_t>(leftValue) ||
+                   std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::Equal:
+            return std::get<int64_t>(leftValue) ==
+                   std::get<int64_t>(rightValue);
+          default:
+            throw SemanticError("Invalid use of LogicalOperator at " +
+                                node->getToken().getLinePositionString() +
+                                " Not operator is unary!");
+        }
+      case OperatorSignatures::DOUBLE_INTEGER:
+        switch (node->getType()) {
+          case LogicalOperatorNode::NodeType::Greater:
+            return std::get<double>(leftValue) > std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::GreaterEqual:
+            return std::get<double>(leftValue) >= std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::Less:
+            return std::get<double>(leftValue) < std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::LessEqual:
+            return std::get<double>(leftValue) <= std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::NotEqual:
+            return std::get<double>(leftValue) != std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::And:
+            return std::get<double>(leftValue) && std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::Or:
+            return std::get<double>(leftValue) || std::get<int64_t>(rightValue);
+          case LogicalOperatorNode::NodeType::Equal:
+            return std::get<double>(leftValue) == std::get<int64_t>(rightValue);
+          default:
+            throw SemanticError("Invalid use of LogicalOperator at " +
+                                node->getToken().getLinePositionString() +
+                                " Not operator is unary!");
+        }
+      case OperatorSignatures::INTEGER_DOUBLE:
+        switch (node->getType()) {
+          case LogicalOperatorNode::NodeType::Greater:
+            return std::get<int64_t>(leftValue) > std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::GreaterEqual:
+            return std::get<int64_t>(leftValue) >= std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::Less:
+            return std::get<int64_t>(leftValue) < std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::LessEqual:
+            return std::get<int64_t>(leftValue) <= std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::NotEqual:
+            return std::get<int64_t>(leftValue) != std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::And:
+            return std::get<int64_t>(leftValue) && std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::Or:
+            return std::get<int64_t>(leftValue) || std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::Equal:
+            return std::get<int64_t>(leftValue) == std::get<double>(rightValue);
+          default:
+            throw SemanticError("Invalid use of LogicalOperator at " +
+                                node->getToken().getLinePositionString() +
+                                " Not operator is unary!");
+        }
+      case OperatorSignatures::DOUBLE_DOUBLE:
+        switch (node->getType()) {
+          case LogicalOperatorNode::NodeType::Greater:
+            return std::get<double>(leftValue) > std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::GreaterEqual:
+            return std::get<double>(leftValue) >= std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::Less:
+            return std::get<double>(leftValue) < std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::LessEqual:
+            return std::get<double>(leftValue) <= std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::NotEqual:
+            return std::get<double>(leftValue) != std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::And:
+            return std::get<double>(leftValue) && std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::Or:
+            return std::get<double>(leftValue) || std::get<double>(rightValue);
+          case LogicalOperatorNode::NodeType::Equal:
+            return std::get<double>(leftValue) == std::get<double>(rightValue);
+          default:
+            throw SemanticError("Invalid use of LogicalOperator at " +
+                                node->getToken().getLinePositionString() +
+                                " Not operator is unary!");
+        }
+      case OperatorSignatures::STRING_STRING:
+        switch (node->getType()) {
+          case LogicalOperatorNode::NodeType::Greater:
+            return std::get<std::string>(leftValue) >
+                   std::get<std::string>(rightValue);
+          case LogicalOperatorNode::NodeType::GreaterEqual:
+            return std::get<std::string>(leftValue) >=
+                   std::get<std::string>(rightValue);
+          case LogicalOperatorNode::NodeType::Less:
+            return std::get<std::string>(leftValue) <
+                   std::get<std::string>(rightValue);
+          case LogicalOperatorNode::NodeType::LessEqual:
+            return std::get<std::string>(leftValue) >=
+                   std::get<std::string>(rightValue);
+          case LogicalOperatorNode::NodeType::NotEqual:
+            return std::get<std::string>(leftValue) !=
+                   std::get<std::string>(rightValue);
+          case LogicalOperatorNode::NodeType::Equal:
+            return std::get<std::string>(leftValue) ==
+                   std::get<std::string>(rightValue);
+          default:
+            throw SemanticError("Invalid use of LogicalOperator at " +
+                                node->getToken().getLinePositionString() +
+                                "Available opertaors for string variables are: "
+                                "<, <=, >=, >, ==, !=");
+        }
+      case OperatorSignatures::MATRIX_MATRIX:
+        switch (node->getType()) {
+          case LogicalOperatorNode::NodeType::NotEqual:
+            return std::get<Matrix>(leftValue) != std::get<Matrix>(rightValue);
+          case LogicalOperatorNode::NodeType::Equal:
+            return std::get<Matrix>(leftValue) == std::get<Matrix>(rightValue);
+          default:
+            throw SemanticError(
+                "Invalid use of LogicalOperator at " +
+                node->getToken().getLinePositionString() +
+                " Logical operator available for matrices are: !=, ==");
+        }
+      default:
+        throw SemanticError(
+            "Wrong types in LogicOperator at " +
+            node->getToken().getLinePositionString() +
+            ". Correct types are matrix:matrix," +
+            "string:string, integer:integer, integer:double, double:integer, "
+            "double:double.");
+    }
+  } else {
+    switch (leftValue.index()) {
+      case 0:
+        if (node->getType() == LogicalOperatorNode::NodeType::Not) {
+          return !std::get<int64_t>(leftValue);
+        } else
+          throw SemanticError("Invalid use of LogicalOperator at " +
+                              node->getToken().getLinePositionString() +
+                              " Only Not operator is unary!");
+      case 1:
+        if (node->getType() == LogicalOperatorNode::NodeType::Not) {
+          return !std::get<double>(leftValue);
+        } else
+          throw SemanticError("Invalid use of LogicalOperator at " +
+                              node->getToken().getLinePositionString() +
+                              "Only Not operator is unary!");
+      default:
+        throw SemanticError(
+            "Invalid use of LogicalOperator at " +
+            node->getToken().getLinePositionString() +
+            "You can use not operator only with double or integer.");
+    }
+  }
 }
 Value Evaluator::evaluate(const AssignmentNode* node) const {
   throw SemanticError("AssignmentNode Not implemented! At: " +

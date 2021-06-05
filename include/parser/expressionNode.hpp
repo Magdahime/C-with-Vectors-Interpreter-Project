@@ -130,6 +130,7 @@ class LogicalOperatorNode : public ExpressionValueNode {
   void accept(Interpreter& interpreter) override { interpreter.visit(this); }
   Value accept(const Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
+    
   }
   NodeType getType() const { return type; }
 
