@@ -975,3 +975,53 @@ TEST(EvaluatorTest, LOGICALOP_MATRIX_MATRIX_TEST3) {
     FAIL();
   }
 }
+
+TEST(EvaluatorTest, LOGICALOP_NOT_INT_TEST) {
+  std::string test = R"(not 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_NOT_INT_TEST2) {
+  std::string test = R"(! 2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_NOT_DOUBLE_TEST) {
+  std::string test = R"(not 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, LOGICALOP_NOT_DOUBLE_TEST2) {
+  std::string test = R"(! 2.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 0);
+}
+
+TEST(EvaluatorTest, MIX_LOGICAL_NOT_LOGICAL_OP) {
+  std::string test = R"(3+ 2 > 0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
+  EXPECT_EQ(std::get<int64_t>(node->accept(interpret.getEvaluator())), 1);
+}

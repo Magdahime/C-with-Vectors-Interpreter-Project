@@ -667,6 +667,13 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
   } else if (accept(Token::TokenType::OpenSquareBracketToken)) {
     MatrixValueNodeUptr node = parseMatrixValue();
     return node;
+  } else if (accept(Token::TokenType::NotToken)) {
+    LogicalOperatorNodeUptr logicalNode =
+        std::make_unique<LogicalOperatorNode>(currentToken);
+    shiftToken();
+    ExpressionNodeUptr expressionNode = parseMultipleTestExpressions();
+    logicalNode->add(std::move(expressionNode));
+    return logicalNode;
   } else {
     return ExpressionNodeUptr{};
   }
@@ -691,8 +698,7 @@ ExpressionNodeUptr Parser::parseTestExpression() {
 ExpressionNodeUptr Parser::parseMultipleTestExpressions() {
   ExpressionNodeUptr leftHandExpression = parseTestExpression();
   LogicalOperatorNodeUptr testNode;
-  while (accept({Token::TokenType::AndToken, Token::TokenType::OrToken,
-                 Token::TokenType::NotToken})) {
+  while (accept({Token::TokenType::AndToken, Token::TokenType::OrToken})) {
     if (!testNode) {
       testNode = std::make_unique<LogicalOperatorNode>(currentToken);
       testNode->add(std::move(leftHandExpression));

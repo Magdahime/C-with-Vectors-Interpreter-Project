@@ -411,6 +411,20 @@ Value Evaluator::evaluate(const LogicalOperatorNode* node) const {
           throw SemanticError("Invalid use of LogicalOperator at " +
                               node->getToken().getLinePositionString() +
                               "Only Not operator is unary!");
+      case 2:
+        if (node->getType() == LogicalOperatorNode::NodeType::Not) {
+          return std::get<std::string>(leftValue).empty();
+        } else
+          throw SemanticError("Invalid use of LogicalOperator at " +
+                              node->getToken().getLinePositionString() +
+                              "Only Not operator is unary!");
+      case 3:
+        if (node->getType() == LogicalOperatorNode::NodeType::Not) {
+          return std::get<Matrix>(leftValue).empty();
+        } else
+          throw SemanticError("Invalid use of LogicalOperator at " +
+                              node->getToken().getLinePositionString() +
+                              "Only Not operator is unary!");
       default:
         throw SemanticError(
             "Invalid use of LogicalOperator at " +
