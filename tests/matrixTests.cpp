@@ -48,11 +48,12 @@ TEST(MatrixTest, CreateSubmatrixTest3) {
   EXPECT_EQ(matrix.getSubmatrix(matrix, 1, 1), returnMatrix);
 }
 
-// TEST(MatrixTest, CofactorTest) {
-//   std::vector<double> values = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-//   std::vector<double> cofValues = {-3, 6, -3, 6, -12, 6, -3, 6, -3};
-//   Matrix returnMatrix(3, 3, cofValues);
+
+//BŁĘDY NUMERYCZNE
+// TEST(MatrixTest, InverseTest) {
+//   std::vector<double> values = {1, 2, 3, 4, 5, 6, 7, 8, 10};
+//   std::vector<double> identityValues = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+//   Matrix identityMatrix(3, 3, identityValues);
 //   Matrix matrix(3, 3, values);
-//   auto cofactored = matrix.getCofactor();
-//   EXPECT_EQ(cofactored, returnMatrix);
+//   EXPECT_EQ(matrix.inverse() * matrix, identityMatrix);
 // }

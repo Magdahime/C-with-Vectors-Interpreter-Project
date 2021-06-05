@@ -154,6 +154,7 @@ Matrix operator*(const double number, const Matrix& lhs) {
 
 Matrix operator/(const Matrix& lhs, const Matrix& rhs) {
   if (rhs.isSquare() && lhs.columns == rhs.rows) {
+    return lhs * rhs.inverse();
   }
   return Matrix{};
 }
