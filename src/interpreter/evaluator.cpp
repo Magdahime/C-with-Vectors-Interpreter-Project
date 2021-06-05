@@ -137,7 +137,8 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
       if (isMulti)
         return std::get<int64_t>(leftValue) * std::get<double>(rightValue);
       else
-        return std::get<int64_t>(leftValue) / std::get<double>(rightValue);
+        return static_cast<double>(std::get<int64_t>(leftValue) /
+                                   std::get<double>(rightValue));
     case OperatorSignatures::DOUBLE_INTEGER:
       if (isMulti)
         return std::get<double>(leftValue) * std::get<int64_t>(rightValue);
@@ -187,8 +188,33 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
   }
 }
 Value Evaluator::evaluate(const ExponentiationOperatorNode* node) const {
-  throw SemanticError("ExponentiationOperatorNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  auto left = node->getLeft();
+  auto right = node->getRight();
+  Value leftValue = left->accept(*this);
+  Value rightValue = right->accept(*this);
+  int signature =
+      std::variant_size_v<Value> * leftValue.index() + rightValue.index();
+  Matrix returnMatrix;
+  switch (static_cast<OperatorSignatures>(signature)) {
+    case OperatorSignatures::INTEGER_INTEGER:
+      return std::pow(std::get<int64_t>(leftValue),
+                      std::get<int64_t>(rightValue));
+    case OperatorSignatures::INTEGER_DOUBLE:
+      return std::pow(std::get<int64_t>(leftValue),
+                      std::get<double>(rightValue));
+    case OperatorSignatures::DOUBLE_INTEGER:
+      return std::pow(std::get<double>(leftValue),
+                      std::get<int64_t>(rightValue));
+    case OperatorSignatures::DOUBLE_DOUBLE:
+      return std::pow(std::get<double>(leftValue),
+                      std::get<double>(rightValue));
+    default:
+      throw SemanticError("Wrong types in ExponentiationOperator at " +
+                          node->getToken().getLinePositionString() +
+                          ". Correct types are" +
+                          "integer:integer, integer:double, double:integer, " +
+                          "double:double.");
+  }
 }
 Value Evaluator::evaluate(const MatrixOperatorNode* node) const {
   throw SemanticError("MatrixOperatorNode Not implemented! At: " +

@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include "interpreter/interpreterHelpers.hpp"
 
 class Evaluator {

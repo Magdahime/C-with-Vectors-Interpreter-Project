@@ -99,7 +99,7 @@ std::optional<Token> LexicalAnalyzer::buildDivisionTokenOrComment() {
     std::stringstream ss;
     ss << current.nextLetter;
     NextCharacter nextCharacter = source->getChar();
-    if (current.nextLetter == '/') {
+    if (nextCharacter.nextLetter == '/') {
       ss << nextCharacter.nextLetter;
       nextCharacter = source->getChar();
       uint32_t length = 2;

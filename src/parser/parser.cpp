@@ -245,7 +245,7 @@ StatementNodeUptr Parser::parseLoopStatement() {
     expect(Token::TokenType::ColonToken);
     shiftToken();
     expect(Token::TokenType::OpenBlockToken);
-    //interpreter.enterBlock();
+    // interpreter.enterBlock();
     shiftToken();
     StatementNodeUptr loopStatementsNode;
     while (loopStatementsNode = parseStatement()) {
@@ -254,8 +254,8 @@ StatementNodeUptr Parser::parseLoopStatement() {
     expect(
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
-    //loopNode->accept(interpreter);
-    //interpreter.closeBlock();
+    // loopNode->accept(interpreter);
+    // interpreter.closeBlock();
     return loopNode;
   }
   return StatementNodeUptr{};
