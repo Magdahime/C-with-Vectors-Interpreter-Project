@@ -475,3 +475,73 @@ TEST(EvaluatorTest, EXP_DOUBLE_INT_TEST) {
   ExpressionNodeUptr node = parser.parseExpression();
   EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 81.0);
 }
+
+TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST) {
+  Interpreter interpret;
+  std::vector<double> values = {1, 1, 1, 1};
+  Matrix matrix(2, 2, values);
+  interpret.enterVariable("zmienna", matrix);
+  std::string test = R"(det zmienna)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 0.0);
+}
+
+TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST2) {
+  Interpreter interpret;
+  std::vector<double> values = {1, 1, 1, 1};
+  Matrix matrix(2, 2, values);
+  interpret.enterVariable("zmienna", matrix);
+  std::string test = R"(det zmienna + zmienna)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 0.0);
+}
+
+TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST3) {
+  Interpreter interpret;
+  std::vector<double> values = {1, 1, 2, 1};
+  Matrix matrix(2, 2, values);
+  interpret.enterVariable("zmienna", matrix);
+  std::string test = R"(inv zmienna)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), matrix.inverse());
+}
+
+TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST4) {
+  Interpreter interpret;
+  std::vector<double> values = {1, 1, 1, 1};
+  Matrix matrix(2, 2, values);
+  interpret.enterVariable("zmienna", matrix);
+  std::string test = R"(trans zmienna)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), matrix.transpose());
+}
+
+TEST(EvaluatorTest, Evaluate_MatrixOperator_TEST5) {
+  try{
+  Interpreter interpret;
+  interpret.enterVariable("zmienna", 2.0);
+  std::string test = R"(det zmienna)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  ExpressionNodeUptr node = parser.parseExpression();
+  node->accept(interpret.getEvaluator());
+  FAIL();
+  }catch(const SemanticError& err){
+    SUCCEED();
+  }catch(...){
+    FAIL();
+  }
+}

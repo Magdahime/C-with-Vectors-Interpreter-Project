@@ -137,8 +137,7 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
       if (isMulti)
         return std::get<int64_t>(leftValue) * std::get<double>(rightValue);
       else
-        return std::get<int64_t>(leftValue) /
-                                   std::get<double>(rightValue);
+        return std::get<int64_t>(leftValue) / std::get<double>(rightValue);
     case OperatorSignatures::DOUBLE_INTEGER:
       if (isMulti)
         return std::get<double>(leftValue) * std::get<int64_t>(rightValue);
@@ -217,8 +216,29 @@ Value Evaluator::evaluate(const ExponentiationOperatorNode* node) const {
   }
 }
 Value Evaluator::evaluate(const MatrixOperatorNode* node) const {
-  throw SemanticError("MatrixOperatorNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  auto left = node->getLeft();
+  Value leftValue = left->accept(*this);
+  bool isDet = node->getType() == MatrixOperatorNode::NodeType::Det;
+  bool isInv = node->getType() == MatrixOperatorNode::NodeType::Inverse;
+  bool isTrans = node->getType() == MatrixOperatorNode::NodeType::Transpose;
+
+  switch (leftValue.index()) {
+    case 3:
+      if (isDet) {
+        return std::get<Matrix>(leftValue).det();
+      } else if (isInv) {
+        return std::get<Matrix>(leftValue).inverse();
+      } else if (isTrans) {
+        return std::get<Matrix>(leftValue).transpose();
+      } else {
+        throw SemanticError("Invalid MatrixOperator at " +
+                            node->getToken().getLinePositionString());
+      }
+    default:
+      throw SemanticError("Wrong type in MatrixOperatorNode at " +
+                          node->getToken().getLinePositionString() +
+                          ". You can only use this operators with matrices!");
+  }
 }
 
 Value Evaluator::evaluate(const LogicalOperatorNode* node) const {

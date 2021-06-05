@@ -654,8 +654,19 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
         std::make_unique<AdditiveOperatorNode>(currentToken);
     shiftToken();
     ExpressionNodeUptr factorNode = parseFactor();
-    additiveOperatorNode->add(std::move(parseFactor()));
+    additiveOperatorNode->add(std::move(factorNode));
     return additiveOperatorNode;
+  } else if (accept({Token::TokenType::DetToken, Token::TokenType::TransToken,
+                     Token::TokenType::InvToken})) {
+    MatrixOperatorNodeUptr matrixOperatorNode =
+        std::make_unique<MatrixOperatorNode>(currentToken);
+    shiftToken();
+    ExpressionNodeUptr expressionNode = parseExpression();
+    matrixOperatorNode->add(std::move(expressionNode));
+    return matrixOperatorNode;
+  } else if (accept(Token::TokenType::OpenSquareBracketToken)) {
+    MatrixValueNodeUptr node = parseMatrixValue();
+    return node;
   } else {
     return ExpressionNodeUptr{};
   }
