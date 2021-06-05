@@ -137,8 +137,8 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
       if (isMulti)
         return std::get<int64_t>(leftValue) * std::get<double>(rightValue);
       else
-        return static_cast<double>(std::get<int64_t>(leftValue) /
-                                   std::get<double>(rightValue));
+        return std::get<int64_t>(leftValue) /
+                                   std::get<double>(rightValue);
     case OperatorSignatures::DOUBLE_INTEGER:
       if (isMulti)
         return std::get<double>(leftValue) * std::get<int64_t>(rightValue);

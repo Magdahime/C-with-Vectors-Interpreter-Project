@@ -431,3 +431,47 @@ TEST(EvaluatorTest, MATRIX_MATRIX_TEST2) {
   ExpressionNodeUptr node = parser.parseExpression();
   EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), matrix * matrix2);
 }
+
+TEST(EvaluatorTest, EXP_INT_INT_TEST) {
+  std::string test = R"(2^2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 4);
+}
+
+
+TEST(EvaluatorTest, EXP_DOUBLE_DOUBLE_TEST) {
+  std::string test = R"(3.0^3.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 27.0);
+}
+
+
+TEST(EvaluatorTest, EXP_INT_DOUBLE_TEST) {
+  std::string test = R"(3 ^ 4.0)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 81.0);
+}
+
+
+
+TEST(EvaluatorTest, EXP_DOUBLE_INT_TEST) {
+  std::string test = R"(3.0 ^ 4)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  Interpreter interpret;
+  ExpressionNodeUptr node = parser.parseExpression();
+  EXPECT_EQ(std::get<double>(node->accept(interpret.getEvaluator())), 81.0);
+}
