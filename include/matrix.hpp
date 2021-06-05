@@ -10,7 +10,16 @@ class Matrix {
       : rows(rows), columns(columns), values(values){};
   Matrix(uint64_t rows, uint64_t columns)
       : rows(rows), columns(columns), values(rows * columns, 0.0){};
-  bool empty() { return values.empty(); };
+  bool empty() const { return values.empty(); };
+  bool isSquare() const { return columns == rows; }
+  const std::vector<double>& getValues() const { return values; }
+  void setValues(std::vector<double>& values) { this->values = values; }
+  uint64_t getColumns() const { return columns; }
+  uint64_t getRows() const { return rows; }
+
+  Matrix transpose() const;
+  double det() const;
+  Matrix inverse() const;
 
  private:
   uint64_t rows = 0;
@@ -22,7 +31,7 @@ class Matrix {
            lhs.columns == rhs.columns;
   };
 
-  //Additive
+  // Additive
   friend Matrix operator+(const Matrix& lhs, const Matrix& rhs);
   friend Matrix operator+(const Matrix& lhs, const int64_t number);
   friend Matrix operator+(const int64_t number, const Matrix& lhs);
@@ -38,7 +47,7 @@ class Matrix {
   friend Matrix operator-(const Matrix& lhs, const double number);
   friend Matrix operator-(const double number, const Matrix& lhs);
   friend Matrix operator-(const Matrix& lhs);
-  //Multiplicative
+  // Multiplicative
   friend Matrix operator*(const Matrix& lhs, const Matrix& rhs);
   friend Matrix operator*(const Matrix& lhs, const int64_t number);
   friend Matrix operator*(const int64_t number, const Matrix& lhs);
@@ -47,4 +56,7 @@ class Matrix {
   friend Matrix operator*(const Matrix& lhs, const double number);
   friend Matrix operator*(const double number, const Matrix& lhs);
   friend Matrix operator/(const Matrix& lhs, const Matrix& rhs);
+  friend Matrix operator/(const Matrix& lhs, const int64_t number);
+  friend Matrix operator/(const Matrix& lhs, const double number);
+  friend Matrix operator/(const Matrix& lhs, const int number);
 };

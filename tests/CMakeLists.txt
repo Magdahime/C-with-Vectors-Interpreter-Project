@@ -33,6 +33,7 @@ set(SOURCES
   lexicalAnalyzerTest.cpp
   parserTests.cpp
   evaluatorTest.cpp
+  matrixTests.cpp
   ${SOURCE_DIRECTORY}/program.cpp
   ${SOURCE_DIRECTORY}/source.cpp
   ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
@@ -47,6 +48,7 @@ set(SOURCES
   ${INTERPRETER_DIRECTORY}/interpreterHelpers.cpp
   ${SOURCE_DIRECTORY}/matrixOperators.cpp
   ${SOURCE_DIRECTORY}/matrix.cpp
+  ${SOURCE_DIRECTORY}/matrixHelpers.cpp
 )
 
 add_executable(tests ${SOURCES})

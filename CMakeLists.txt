@@ -28,6 +28,7 @@ set(SOURCES
         ${SOURCE_DIRECTORY}/program.cpp
         ${SOURCE_DIRECTORY}/source.cpp
         ${SOURCE_DIRECTORY}/matrix.cpp
+        ${SOURCE_DIRECTORY}/matrixHelpers.cpp
         ${SOURCE_DIRECTORY}/matrixOperators.cpp
         ${SOURCE_DIRECTORY}/${HELPERS_DIRECTORY}/sourceFactory.cpp
         ${PARSER_DIRECTORY}/parser.cpp

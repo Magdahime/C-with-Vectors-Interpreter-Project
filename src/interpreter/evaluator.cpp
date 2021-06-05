@@ -179,11 +179,10 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
         return std::get<Matrix>(leftValue) / std::get<Matrix>(rightValue);
     default:
       throw SemanticError("Wrong types in MultiplicativeOperator at " +
-                              node->getToken().getLinePositionString() +
-                              ". Correct types are matrix:matrix, "
-                              "matrix:double, "
-                              "matrix:integer,",
-                          "integer:integer, integer:double, double:integer, "
+                          node->getToken().getLinePositionString() +
+                          ". Correct types are matrix:matrix, " +
+                          "matrix:double, " + "matrix:integer," +
+                          "integer:integer, integer:double, double:integer, " +
                           "double:double.");
   }
 }
@@ -258,7 +257,7 @@ Value Evaluator::evaluate(const ExpressionNode* node) const {
                       node->getToken().getLinePositionString());
 }
 
-bool checkZeroDivision(const Value value) const {
+bool Evaluator::checkZeroDivision(const Value value) const {
   switch (value.index()) {
     case 0:
       if (std::get<int64_t>(value) == 0) return true;

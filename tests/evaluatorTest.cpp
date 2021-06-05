@@ -190,5 +190,5 @@ TEST(EvaluatorTest, MATRIX_MATRIX_TEST) {
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
   ExpressionNodeUptr node = parser.parseExpression();
-  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), values2);
+  EXPECT_EQ(std::get<Matrix>(node->accept(interpret.getEvaluator())), resultMatrix);
 }
