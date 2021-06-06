@@ -83,6 +83,17 @@ void IfStatementNode::buildTreeStringStream(int64_t depth,
   for (const auto& child : children) {
     child->buildTreeStringStream(depth + 2, tree);
   }
+  if (otherwiseExpression)
+    otherwiseExpression->buildTreeStringStream(depth + 1, tree);
+}
+
+void OtherwiseStatementNode::buildTreeStringStream(
+    int64_t depth, std::stringstream& tree) const {
+  std::string indent(depth, ' ');
+  tree << indent << LexicalTable::token2StringTable.at(token.getType()) << "\n";
+  for (const auto& child : children) {
+    child->buildTreeStringStream(depth + 1, tree);
+  }
 }
 
 void ConditionStatementNode::buildTreeStringStream(

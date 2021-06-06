@@ -1133,3 +1133,39 @@ matrix[2][2] macierz = [zmienna,zmienna,zmienna,zmienna])";
             matrix);
   EXPECT_EQ(varMap.at(std::make_pair("macierz", 0)).type, Type::Matrix);
 }
+
+TEST(EvaluatorTest, EvaluateIFTest) {
+  std::string test = R"(integer zmienna = 4
+if(zmienna > 0):
+  zmienna = 8
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            8);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}
+
+TEST(EvaluatorTest, EvaluateIFOtherwiseTest) {
+  std::string test = R"(integer zmienna = 4
+if(zmienna < 0):
+  zmienna = 2
+otherwise:
+  zmienna = 9
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            9);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}

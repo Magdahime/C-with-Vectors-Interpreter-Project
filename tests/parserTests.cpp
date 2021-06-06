@@ -309,10 +309,10 @@ otherwise:
    AssignmentOperatorToken
     IdentifierToken
     DoubleLiteralToken
-   OtherwiseToken
-    AssignmentOperatorToken
-     IdentifierToken
-     DoubleLiteralToken
+  OtherwiseToken
+   AssignmentOperatorToken
+    IdentifierToken
+    DoubleLiteralToken
 )";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);

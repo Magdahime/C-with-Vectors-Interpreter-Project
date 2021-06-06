@@ -25,6 +25,7 @@ class LoopStatementNode;
 class VariableNode;
 class MatrixVariable;
 class AssignmentNode;
+class AssignNewValueNode;
 class ValueNode;
 class MatrixSizeNode;
 class MatrixOperatorNode;

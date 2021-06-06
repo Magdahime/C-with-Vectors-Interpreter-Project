@@ -93,7 +93,7 @@ StatementNodeUptr Parser::parseIfStatement() {
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
     StatementNodeUptr otherwiseNode = parseOtherwiseStatement();
-    if (otherwiseNode) ifNode->add(std::move(otherwiseNode));
+    if (otherwiseNode) ifNode->setOtherwiseExpression(std::move(otherwiseNode));
     expect(
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
@@ -406,8 +406,8 @@ StatementNodeUptr Parser::parseFunCallOrAssignment() {
       funcallNode->setIdentifier(identifier.getString());
       return parseFunCall(std::move(funcallNode));
     } else if (accept(Token::TokenType::AssignmentOperatorToken)) {
-      AssignmentNodeUptr assignmentNode =
-          std::make_unique<AssignmentNode>(currentToken);
+      AssignNewValueNodeUptr assignmentNode =
+          std::make_unique<AssignNewValueNode>(currentToken);
       shiftToken();
       ValueNodeUptr valueNode = std::make_unique<ValueNode>(identifier);
       assignmentNode->add(std::move(valueNode));

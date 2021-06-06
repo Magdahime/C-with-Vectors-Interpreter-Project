@@ -5,8 +5,30 @@
 std::optional<VariableInfo> Evaluator::searchVariable(std::string identifier,
                                                       int currentDepth) const {
   auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
-  if (iter != variableMap.end()) return iter->second;
+  if (iter != variableMap.end()) {
+    return iter->second;
+  } else {
+    while (currentDepth > 0) {
+      currentDepth--;
+      iter = variableMap.find(std::make_pair(identifier, currentDepth));
+    }
+    if (iter != variableMap.end()) return iter->second;
+  }
   return {};
+}
+
+void Evaluator::updateVariable(std::string identifier, int currentDepth,
+                               Value newValue) {
+  auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
+  if (iter != variableMap.end()) {
+    iter->second.value = newValue;
+  } else {
+    while (currentDepth > 0) {
+      currentDepth--;
+      iter = variableMap.find(std::make_pair(identifier, currentDepth));
+    }
+    iter->second.value = newValue;
+  }
 }
 
 std::optional<const FunctionStatementNode*> Evaluator::searchFunction(
@@ -31,27 +53,43 @@ void Evaluator::closeBlock() {
 
 void Evaluator::enterVariable(std::string identifier, std::string value) {
   VariableInfo info = {Type::String, value};
+  try {
+    scopeStack.top().second.insert(identifier);
+  } catch (...) {
+    throw SemanticError("Variable " + identifier + "already exists!");
+  }
   variableMap.emplace(
       std::make_pair(std::make_pair(identifier, currentDepth), info));
-  scopeStack.top().second.insert(identifier);
 }
 void Evaluator::enterVariable(std::string identifier, double value) {
   VariableInfo info = {Type::Double, value};
+  try {
+    scopeStack.top().second.insert(identifier);
+  } catch (...) {
+    throw SemanticError("Variable " + identifier + "already exists!");
+  }
   variableMap.emplace(
       std::make_pair(std::make_pair(identifier, currentDepth), info));
-  scopeStack.top().second.insert(identifier);
 }
 void Evaluator::enterVariable(std::string identifier, Matrix value) {
   VariableInfo info = {Type::Matrix, value};
+  try {
+    scopeStack.top().second.insert(identifier);
+  } catch (...) {
+    throw SemanticError("Variable " + identifier + "already exists!");
+  }
   variableMap.emplace(
       std::make_pair(std::make_pair(identifier, currentDepth), info));
-  scopeStack.top().second.insert(identifier);
 }
 void Evaluator::enterVariable(std::string identifier, int64_t value) {
   VariableInfo info = {Type::Integer, value};
+  try {
+    scopeStack.top().second.insert(identifier);
+  } catch (...) {
+    throw SemanticError("Variable " + identifier + "already exists!");
+  }
   variableMap.emplace(
       std::make_pair(std::make_pair(identifier, currentDepth), info));
-  scopeStack.top().second.insert(identifier);
 }
 
 void Evaluator::enterFunction(std::string identifier,
@@ -498,14 +536,16 @@ Value Evaluator::evaluate(const LogicalOperatorNode* node) {
     }
   }
 }
+
 Value Evaluator::evaluate(const AssignmentNode* node) {
   auto left = node->getLeft();
   auto right = node->getRight();
+  Value leftValue = left->accept(*this);
   Value rightValue = right->accept(*this);
   switch (rightValue.index()) {
     case 0:
       if (left->getToken() == Token::TokenType::IntegerToken) {
-        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+        enterVariable(std::get<std::string>(leftValue),
                       std::get<int64_t>(rightValue));
         break;
       } else {
@@ -516,7 +556,7 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
       }
     case 1:
       if (left->getToken() == Token::TokenType::DoubleToken) {
-        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+        enterVariable(std::get<std::string>(leftValue),
                       std::get<double>(rightValue));
         break;
       } else {
@@ -527,7 +567,7 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
       }
     case 2:
       if (left->getToken() == Token::TokenType::TextToken) {
-        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+        enterVariable(std::get<std::string>(leftValue),
                       std::get<std::string>(rightValue));
         break;
       } else {
@@ -538,7 +578,6 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
       }
     case 3:
       if (left->getToken() == Token::TokenType::MatrixToken) {
-        Value leftValue = left->accept(*this);
         Matrix valueMatrix = std::get<Matrix>(rightValue);
         Matrix sizeMatrix = std::get<Matrix>(leftValue);
         enterVariable(static_cast<const MatrixVariable*>(left)->getIdentifier(),
@@ -549,6 +588,54 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
                             node->getToken().getLinePositionString() +
                             " Type of assign expression is matrix, but type "
                             "of variable is not!");
+      }
+  }
+  return {};
+}
+
+Value Evaluator::evaluate(const AssignNewValueNode* node) {
+  auto left = node->getLeft();
+  auto right = node->getRight();
+  Value leftValue = left->accept(*this);
+  std::string identifier = std::get<std::string>(leftValue);
+  Value rightValue = right->accept(*this);
+  std::optional<VariableInfo> info = searchVariable(identifier, currentDepth);
+  switch (rightValue.index()) {
+    case 0:
+      if (info && info->type == Type::Integer) {
+        updateVariable(identifier, currentDepth, rightValue);
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Mismatched types or variable doesn't exist.");
+      }
+    case 1:
+      if (info && info->type == Type::Double) {
+        updateVariable(identifier, currentDepth, rightValue);
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Mismatched types or variable doesn't exist.");
+      }
+    case 2:
+      if (info && info->type == Type::String) {
+        updateVariable(identifier, currentDepth, rightValue);
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Mismatched types or variable doesn't exist.");
+      }
+    case 3:
+      if (info && info->type == Type::Matrix) {
+        updateVariable(identifier, currentDepth, rightValue);
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Mismatched types or variable doesn't exist.");
       }
   }
   return {};
@@ -615,24 +702,51 @@ Matrix Evaluator::combineSizeValues(const AssignmentNode* node,
 }
 
 Value Evaluator::evaluate(const VariableNode* node) {
-  throw SemanticError("VariableNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  return node->getIdentifier();
 }
 Value Evaluator::evaluate(const MatrixVariable* node) {
   return node->getMatrixSizeNode()->accept(*this);
 }
+Value Evaluator::evaluate(const IfStatementNode* node) {
+  Value conditionValue = node->getIfExpression()->accept(*this);
+  const std::vector<StatementNodeUptr>& children = node->getChildren();
+  switch (conditionValue.index()) {
+    case 0:
+      if (std::get<int64_t>(conditionValue) != 0) {
+        enterBlock();
+        for (const auto& child : children) {
+          child->accept(*this);
+        }
+        closeBlock();
+      } else {
+        const StatementNode* otherwiseNode = node->getOtherwiseExpression();
+        if (otherwiseNode) otherwiseNode->accept(*this);
+      }
+      break;
+    default:
+      throw SemanticError(
+          "Condition expression in if statement is not evaluable to bool at:" +
+          node->getToken().getLinePositionString());
+      break;
+  }
+  return {};
+}
+
+Value Evaluator::evaluate(const OtherwiseStatementNode* node) {
+  const std::vector<StatementNodeUptr>& children = node->getChildren();
+  enterBlock();
+  for (const auto& child : children) {
+    child->accept(*this);
+  }
+  closeBlock();
+  return {};
+}
+
 Value Evaluator::evaluate(const ArgumentNode* node) {
   throw SemanticError("ArgumentNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const IfStatementNode* node) {
-  throw SemanticError("IfStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
-}
-Value Evaluator::evaluate(const OtherwiseStatementNode* node) {
-  throw SemanticError("OtherwiseStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
-}
+
 Value Evaluator::evaluate(const LoopStatementNode* node) {
   throw SemanticError("LoopStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());

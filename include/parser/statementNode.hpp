@@ -52,6 +52,14 @@ class IfStatementNode : public ChildrenStatementNode {
   void setIfExpression(ExpressionNodeUptr expression) {
     this->ifExpression = std::move(expression);
   }
+  void setOtherwiseExpression(StatementNodeUptr expression) {
+    this->otherwiseExpression = std::move(expression);
+  }
+  const StatementNode* getOtherwiseExpression() const {
+    if (otherwiseExpression) return otherwiseExpression.get();
+    return nullptr;
+  }
+  const ExpressionNode* getIfExpression() const { return ifExpression.get(); }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
@@ -61,6 +69,7 @@ class IfStatementNode : public ChildrenStatementNode {
 
  private:
   ExpressionNodeUptr ifExpression;
+  StatementNodeUptr otherwiseExpression;
 };
 
 class OtherwiseStatementNode : public ChildrenStatementNode {
@@ -69,6 +78,9 @@ class OtherwiseStatementNode : public ChildrenStatementNode {
   Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
+
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
 
  private:
 };
