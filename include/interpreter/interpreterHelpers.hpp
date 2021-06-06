@@ -7,6 +7,7 @@
 #include "matrix.hpp"
 
 class StatementNode;
+class ReturnStatementNode;
 class ChildrenStatementNode;
 class FunctionStatementNode;
 class AslasStatementNode;

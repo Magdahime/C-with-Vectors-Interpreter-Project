@@ -9,7 +9,11 @@ class Evaluator {
   Evaluator() { scopeStack.emplace(currentDepth, std::set<std::string>()); }
   void enterBlock();
   void closeBlock();
-  void enterVariable(std::string identifier, TokenVariant value);
+
+  void enterCall();
+  void closeCall();
+
+  void enterVariable(std::string identifier, Value value);
   void enterVariable(std::string identifier, std::string value);
   void enterVariable(std::string identifier, double value);
   void enterVariable(std::string identifier, Matrix value);
@@ -21,7 +25,6 @@ class Evaluator {
   Value evaluate(const MatrixOperatorNode* node);
   Value evaluate(const ValueNode* node);
   Value evaluate(const IdentifierNode* node);
-  Value evaluate(const ExpressionNode* node);
   Value evaluate(const LogicalOperatorNode* node);
   Value evaluate(const AssignmentNode* node);
   Value evaluate(const AssignNewValueNode* node);
@@ -39,11 +42,13 @@ class Evaluator {
   Value evaluate(const ConditionStatementNode* node);
   Value evaluate(const CaseStatementNode* node);
   Value evaluate(const DefaultStatementNode* node);
+  Value evaluate(const ReturnStatementNode* node);
 
   LoopComp checkLoopComponents(const LoopStatementNode* node);
   Value checkAslasExpression(const ExpressionNode* node);
   bool checkCaseExpression(const ExpressionNode* node);
   bool checkZeroDivision(const Value value) const;
+  bool checkArgument(const Value value, Type type) const;
   std::optional<VariableInfo> searchVariable(std::string identifier,
                                              int currentDepth) const;
   void updateVariable(std::string identifier, int currentDepth, Value newValue);
@@ -62,6 +67,7 @@ class Evaluator {
   VariableMap variableMap;
   FunctionMap functionsMap;
   ScopeStack scopeStack;
+  int64_t insideFunctionCounter = 0;
 
   void enterFunction(std::string identifier, const FunctionStatementNode* node,
                      std::vector<ArgumentInfo> args);

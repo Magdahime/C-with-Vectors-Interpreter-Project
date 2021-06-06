@@ -16,7 +16,10 @@ class LogicalOperatorNode;
 class MatrixOperatorNode;
 class ExponentiationOperatorNode;
 class AssignNewValueNode;
+class FunctionCallNode;
 
+
+using FunctionCallNodeUptr = std::unique_ptr<FunctionCallNode>;
 using AssignNewValueNodeUptr = std::unique_ptr<AssignNewValueNode>;
 using ExpressionNodeUptr = std::unique_ptr<ExpressionNode>;
 using ValueNodeUptr = std::unique_ptr<ValueNode>;
@@ -300,4 +303,27 @@ class ArgumentNode : public ExpressionLeafNode {
 
  private:
   std::string identifier;
+};
+
+class FunctionCallNode : public ExpressionValueNode {
+ public:
+  FunctionCallNode(Token token) : ExpressionValueNode(token){};
+  void setIdentifier(std::string identifier) { this->identifier = identifier; }
+  void setArgumentsNodes(std::vector<ExpressionNodeUptr>& arguments) {
+    std::ranges::move(arguments, std::back_inserter(this->arguments));
+  }
+
+  std::string getIdentifier() const { return identifier; }
+  const std::vector<ExpressionNodeUptr>& getArguments() const {
+    return arguments;
+  }
+  void buildTreeStringStream(int64_t depth,
+                             std::stringstream& tree) const override;
+  Value accept(Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+
+ private:
+  std::string identifier;
+  std::vector<ExpressionNodeUptr> arguments;
 };

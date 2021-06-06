@@ -19,7 +19,7 @@ TEST(EvaluatorTest, EvaluateVariableTest) {
 
 TEST(EvaluatorTest, EvaluateVariableTest2) {
   Evaluator evaluator;
-  evaluator.enterVariable("zmienna", TokenVariant(4));
+  evaluator.enterVariable("zmienna", static_cast<int64_t>(4));
   EXPECT_EQ(evaluator.getVariableMap().size(), 1);
   IdentifierNode node(Token(Token::TokenType::IdentifierToken, "zmienna"));
   EXPECT_EQ(std::get<int64_t>(evaluator.evaluate(&node)), 4);

@@ -2,24 +2,26 @@
 #include "parser/expressionNode.hpp"
 #include "parser/node.hpp"
 
+class ReturnStatementNode;
 class StatementNode;
 class ChildrenStatementNode;
 class FunctionStatementNode;
 class AslasStatementNode;
 class IfStatementNode;
 class OtherwiseStatementNode;
-class FunctionCallNode;
+
 class ConditionStatementNode;
 class CaseStatementNode;
 class DefaultStatementNode;
 
 using StatementNodeUptr = std::unique_ptr<StatementNode>;
+using ReturnStatementNodeUptr = std::unique_ptr<ReturnStatementNode>;
 using ChildrenStatementNodeUptr = std::unique_ptr<ChildrenStatementNode>;
 using FunctionStatementNodeUptr = std::unique_ptr<FunctionStatementNode>;
 using AslasStatementNodeUptr = std::unique_ptr<AslasStatementNode>;
 using IfStatementNodeUptr = std::unique_ptr<IfStatementNode>;
 using OtherwiseStatementNodeUptr = std::unique_ptr<OtherwiseStatementNode>;
-using FunctionCallNodeUptr = std::unique_ptr<FunctionCallNode>;
+
 using ConditionStatementNodeUptr = std::unique_ptr<ConditionStatementNode>;
 using CaseStatementNodeUptr = std::unique_ptr<CaseStatementNode>;
 using DefaultStatementNodeUptr = std::unique_ptr<DefaultStatementNode>;
@@ -140,7 +142,9 @@ class FunctionStatementNode : public ChildrenStatementNode {
 
   const Token& getReturnType() const { return returnType; }
   std::string getIdentifier() const { return identifier; }
-  const std::vector<ArgumentNodeUptr>& getArguments() const{ return arguments; }
+  const std::vector<ArgumentNodeUptr>& getArguments() const {
+    return arguments;
+  }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   Value accept(Evaluator& evaluator) const override {
@@ -151,24 +155,6 @@ class FunctionStatementNode : public ChildrenStatementNode {
   Token returnType;
   std::string identifier;
   std::vector<ArgumentNodeUptr> arguments;
-};
-
-class FunctionCallNode : public ChildrenStatementNode {
- public:
-  FunctionCallNode(Token token) : ChildrenStatementNode(token){};
-  void setIdentifier(std::string identifier) { this->identifier = identifier; }
-  void setArgumentsNodes(std::vector<ExpressionNodeUptr>& arguments) {
-    std::ranges::move(arguments, std::back_inserter(this->arguments));
-  }
-  void buildTreeStringStream(int64_t depth,
-                             std::stringstream& tree) const override;
-  Value accept(Evaluator& evaluator) const override {
-    return evaluator.evaluate(this);
-  }
-
- private:
-  std::string identifier;
-  std::vector<ExpressionNodeUptr> arguments;
 };
 
 class ConditionStatementNode : public ChildrenStatementNode {
@@ -217,4 +203,20 @@ class DefaultStatementNode : public ChildrenStatementNode {
   }
 
  private:
+};
+
+class ReturnStatementNode : public ChildrenStatementNode {
+ public:
+  ReturnStatementNode(Token token) : ChildrenStatementNode(token){};
+  Value accept(Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+
+  void setReturnValue(ExpressionNodeUptr newReturnValue) {
+    this->returnValue = std::move(newReturnValue);
+  }
+  const ExpressionNode* getReturnValue() const { return returnValue.get(); }
+
+ private:
+  ExpressionNodeUptr returnValue;
 };

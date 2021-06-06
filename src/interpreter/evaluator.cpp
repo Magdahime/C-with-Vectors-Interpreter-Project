@@ -130,7 +130,7 @@ void Evaluator::enterFunction(std::string identifier,
   functionsMap.emplace(std::make_pair(identifier, std::make_pair(node, info)));
 }
 
-void Evaluator::enterVariable(std::string identifier, TokenVariant value) {
+void Evaluator::enterVariable(std::string identifier, Value value) {
   if (std::holds_alternative<int64_t>(value))
     enterVariable(identifier, std::get<int64_t>(value));
   else if (std::holds_alternative<Matrix>(value))
@@ -918,13 +918,90 @@ Value Evaluator::evaluate(const FunctionStatementNode* node) {
   return {};
 }
 Value Evaluator::evaluate(const FunctionCallNode* node) {
-  throw SemanticError("FunctionCallNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  std::string identifier = node->getIdentifier();
+  auto functionInfo = searchFunction(identifier);
+  if (!functionInfo) {
+    throw SemanticError(
+        "Function of identifier : " + identifier +
+        " does not exists! At: " + node->getToken().getLinePositionString());
+  }
+  std::vector<ArgumentInfo> declaredArguments = functionInfo->second.arguments;
+  const std::vector<ExpressionNodeUptr>& userArguments = node->getArguments();
+
+  if (userArguments.size() != declaredArguments.size())
+    throw SemanticError("Wrong number of arguments!  At: " +
+                        node->getToken().getLinePositionString());
+  std::vector<Value> realValues;
+  for (size_t i = 0; i < userArguments.size(); i++) {
+    Value value = userArguments[i]->accept(*this);
+    if (!checkArgument(value, declaredArguments[i].type))
+      throw SemanticError(
+          "Argument expression type and declared argument type are different!  "
+          "At: " +
+          node->getToken().getLinePositionString());
+    realValues.push_back(value);
+  }
+  enterBlock();
+  for (size_t i = 0; i < realValues.size(); i++) {
+    enterVariable(declaredArguments[i].identifier, realValues[i]);
+  }
+  Value returnValue;
+  insideFunctionCounter++;
+  int64_t currDepth = currentDepth;
+  try {
+    for (const auto& child : functionInfo->first->getChildren()) {
+      child->accept(*this);
+    }
+  } catch (const ReturnThrow& ret) {
+    if (functionInfo->second.returnType == Type::Void)
+      throw SemanticError("This function was declared as void!" +
+                          node->getToken().getLinePositionString());
+
+    switch (ret.getValue().index()) {
+      case 0:
+        if (functionInfo->second.returnType != Type::Integer)
+          throw SemanticError(
+              "Returned value doesn't match declared return value of "
+              "function. At: " +
+              node->getToken().getLinePositionString());
+        break;
+      case 1:
+        if (functionInfo->second.returnType != Type::Double)
+          throw SemanticError(
+              "Returned value doesn't match declared return value of "
+              "function. At: " +
+              node->getToken().getLinePositionString());
+        break;
+      case 2:
+        if (functionInfo->second.returnType != Type::String)
+          throw SemanticError(
+              "Returned value doesn't match declared return value of "
+              "function. At: " +
+              node->getToken().getLinePositionString());
+        break;
+      case 3:
+        if (functionInfo->second.returnType != Type::Matrix)
+          throw SemanticError(
+              "Returned value doesn't match declared return value of "
+              "function. At: " +
+              node->getToken().getLinePositionString());
+        break;
+      default:
+        break;
+    }
+    returnValue = ret.getValue();
+  }
+  for (size_t i = currentDepth - currDepth; i > 0; i--) {
+    closeBlock();
+  }
+  insideFunctionCounter--;
+  closeBlock();
+  return returnValue;
 }
 
-Value Evaluator::evaluate(const ExpressionNode* node) {
-  throw SemanticError("ExpressionNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+Value Evaluator::evaluate(const ReturnStatementNode* node) {
+  Value value = node->getReturnValue()->accept(*this);
+  throw ReturnThrow(value, currentDepth);
 }
 
 Value Evaluator::evaluate(const ArgumentNode* node) {
@@ -949,6 +1026,24 @@ Value Evaluator::evaluate(const ArgumentNode* node) {
                           " Valid types are integer, double, text, matrix.");
   }
   return static_cast<int64_t>(argType);
+}
+
+bool Evaluator::checkArgument(const Value value, Type type) const {
+  switch (value.index()) {
+    case 0:
+      if (type != Type::Integer) return false;
+      break;
+    case 1:
+      if (type != Type::Double) return false;
+      break;
+    case 2:
+      if (type != Type::String) return false;
+      break;
+    case 3:
+      if (type != Type::Matrix) return false;
+      break;
+  }
+  return true;
 }
 
 bool Evaluator::checkZeroDivision(const Value value) const {

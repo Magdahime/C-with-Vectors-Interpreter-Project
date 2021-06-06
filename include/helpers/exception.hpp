@@ -1,6 +1,8 @@
 #pragma once
 #include <stdexcept>
 
+#include "interpreter/interpreterHelpers.hpp"
+
 class Exception : public std::runtime_error {
  public:
   Exception(std::string m) : std::runtime_error(m) {}
@@ -62,7 +64,20 @@ class UnexpectedToken : public Exception {
   UnexpectedToken(std::string m) : Exception(m) {}
 };
 
-class SemanticError : public Exception{
+class SemanticError : public Exception {
  public:
   SemanticError(std::string m) : Exception(m) {}
+};
+
+class ReturnThrow : public std::exception {
+ public:
+  ReturnThrow(Value newValue, int64_t newDepth)
+      : value(newValue), depth(newDepth) {}
+
+  Value getValue() const { return value; }
+  int64_t getDepth() const { return depth; }
+
+ private:
+  Value value;
+  int64_t depth;
 };

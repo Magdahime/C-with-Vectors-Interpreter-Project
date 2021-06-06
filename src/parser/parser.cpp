@@ -317,22 +317,18 @@ StatementNodeUptr Parser::parseFunctionStatement(
 //|string;
 StatementNodeUptr Parser::parseReturnStatement() {
   if (accept(Token::TokenType::ReturnToken)) {
-    ChildrenStatementNodeUptr returnStatementNode =
-        std::make_unique<ChildrenStatementNode>(currentToken);
+    ReturnStatementNodeUptr returnStatementNode =
+        std::make_unique<ReturnStatementNode>(currentToken);
     shiftToken();
-    if (!(accept({Token::TokenType::IntegerLiteralToken,
-                  Token::TokenType::DoubleLiteralToken,
-                  Token::TokenType::StringLiteralToken}))) {
-      MatrixValueNodeUptr matrix = parseMatrixValue();
-      if (matrix) return matrix;
-      ExpressionNodeUptr expression = parseExpression();
-      if (expression) return expression;
+    ExpressionNodeUptr expression = parseExpression();
+    if (expression) {
+      returnStatementNode->setReturnValue(std::move(expression));
+    } else {
       std::string message = "Unexpected token at " +
                             currentToken.getLinePositionString() +
                             ". Expecting: return value.";
       throw UnexpectedToken(message);
     }
-    shiftToken();
     return returnStatementNode;
   }
   return StatementNodeUptr{};
@@ -383,7 +379,7 @@ StatementNodeUptr Parser::parseFunCallOrAssignment() {
   return StatementNodeUptr{};
 }
 
-StatementNodeUptr Parser::parseFunCall(FunctionCallNodeUptr root) {
+ExpressionNodeUptr Parser::parseFunCall(FunctionCallNodeUptr root) {
   std::vector<ExpressionNodeUptr> arguments = parseFunCallArguments();
   root->setArgumentsNodes(arguments);
   expect(Token::TokenType::CloseRoundBracketToken);
@@ -403,10 +399,21 @@ std::vector<ExpressionNodeUptr> Parser::parseFunCallArguments() {
 
 ExpressionNodeUptr Parser::parseAssignment(AssignmentNodeUptr root) {
   ExpressionNodeUptr expressionNode = parseExpression();
-  root->add(std::move(expressionNode));
+  if (expressionNode)
+    root->add(std::move(expressionNode));
+  else {
+    expect(Token::TokenType::IdentifierToken);
+    Token identifier = currentToken;
+    shiftToken();
+    expect(Token::TokenType::OpenRoundBracketToken);
+    shiftToken();
+    FunctionCallNodeUptr funcallNode = std::make_unique<FunctionCallNode>(
+        Token(Token::TokenType::FunctionToken));
+    funcallNode->setIdentifier(identifier.getString());
+    root->add(std::move(parseFunCall(std::move(funcallNode))));
+  }
   return root;
 }
-
 // Sfaktoryzowane
 //[fun statement] ::= type, 'function', identifier, '(',arguments,')',':',
 // indent, \{statement\},[return statement] ;
