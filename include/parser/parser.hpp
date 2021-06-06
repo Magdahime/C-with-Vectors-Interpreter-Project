@@ -68,3 +68,5 @@ class Parser {
   Evaluator evaluator;
   Token currentToken;
 };
+
+using ParserUptr = std::unique_ptr<Parser>;

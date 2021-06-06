@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <limits>
 #include <variant>
+#include <string>
 #include <vector>
 
 class Matrix {
@@ -26,7 +27,7 @@ class Matrix {
   Matrix getAdjoint() const;
   Matrix getSubmatrix(Matrix matrix, uint64_t excluding_row,
                       uint64_t excluding_column) const;
-
+  std::string toString() const;
  private:
   uint64_t rows = 0;
   uint64_t columns = 0;

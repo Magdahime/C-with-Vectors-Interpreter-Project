@@ -3,6 +3,7 @@
 #include <set>
 #include <stack>
 #include <string>
+#include <unordered_map>
 
 #include "matrix.hpp"
 
@@ -37,7 +38,14 @@ class IdentifierNode;
 
 enum class Type { Integer, Double, String, Matrix, Void };
 
-struct ArgumentInfo{
+const static std::unordered_map<Type, std::string> type2StringTable{
+    {Type::Integer, "Type::Integer"},
+    {Type::Double, "Type::Double"},
+    {Type::String, "Type::String"},
+    {Type::Matrix, "Type::Matrix"},
+    {Type::Void, "Type::Void"}};
+
+struct ArgumentInfo {
   Type type;
   std::string identifier;
 };
@@ -67,7 +75,6 @@ struct VariableInfo {
   Type type;
   Value value;
 };
-
 
 struct FunctionInfo {
   Type returnType;

@@ -72,3 +72,5 @@ class Evaluator {
   void enterFunction(std::string identifier, const FunctionStatementNode* node,
                      std::vector<ArgumentInfo> args);
 };
+
+using EvaluatorUptr = std::unique_ptr<Evaluator>;

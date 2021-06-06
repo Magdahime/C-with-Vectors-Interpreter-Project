@@ -2,6 +2,8 @@
 
 SourceSptr Program::source;
 LexicalAnalyzerUptr Program::lexicalAnalyzer;
+ParserUptr Program::parser;
+EvaluatorUptr Program::evaluator;
 
 void Program::start(const int argc,
                     const std::vector<std::string_view> &arguments) {
@@ -31,6 +33,10 @@ void Program::parseFlags(const std::vector<std::string_view> &arguments) {
             "Flags you provided are invalid. Try --help for help");
         break;
     }
+
+    Program::parser = std::make_unique<Parser>(*lexicalAnalyzer.get());
+    Program::evaluator = std::make_unique<Evaluator>();
+    startInterpreter();
   } catch (WrongFlagsException &ex) {
     std::cout << ex.what() << "\n";
     return;
@@ -55,5 +61,26 @@ void Program::showHelp() {
 }
 
 void Program::startInterpreter() {
-  std::cout << "Hello from interpreter!" << std::endl;
+  parser->parseProgram();
+  parser->getProgramNode()->accept(*evaluator.get());
+  printVariablesAndFunctions(evaluator->getVariableMap(),
+                             evaluator->getFunctionMap());
+}
+
+void Program::printVariablesAndFunctions(VariableMap varMap, FunctionMap funMap) {
+  for (auto const &[key, val] : varMap) {
+    std::cout << key.first << '\t' << type2StringTable.at(val.type) << '\t'
+              << std::visit(Program::make_string_functor(), val.value)
+              << std::endl;
+  }
+
+  for (auto const &[key, val] : funMap) {
+    std::cout << type2StringTable.at(val.second.returnType) << '\t' << key
+              << '\t';
+    for (const auto &arg : val.second.arguments) {
+      std::cout << type2StringTable.at(arg.type) << ' ' << arg.identifier
+                << ",";
+    }
+    std::cout << "\n";
+  }
 }

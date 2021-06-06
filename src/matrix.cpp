@@ -1,8 +1,20 @@
 #include "matrix.hpp"
 
 #include <iostream>
+#include <sstream>
 
 #include "matrixHelpers.hpp"
+
+std::string Matrix::toString() const {
+  std::stringstream ss;
+  ss << "[";
+  for (const auto& value : values) {
+    ss << std::to_string(value);
+    ss << ",";
+  }
+  ss << "]";
+  return ss.str();
+}
 
 Matrix Matrix::transpose() const {
   Matrix returnMatrix(rows, columns);
@@ -27,7 +39,7 @@ Matrix Matrix::inverse() const {
   if (determinant == 0.0) {
     throw std::runtime_error("This matrix is singular!");
   }
-  return  (getCofactor() * (1.0/det())).transpose();
+  return (getCofactor() * (1.0 / det())).transpose();
 }
 
 Matrix Matrix::getCofactor() const {
