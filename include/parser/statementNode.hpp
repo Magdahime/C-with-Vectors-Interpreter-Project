@@ -89,21 +89,23 @@ class LoopStatementNode : public ChildrenStatementNode {
  public:
   LoopStatementNode(Token token) : ChildrenStatementNode(token) {}
 
-  void setStep(TokenVariant newStep);
-  void setEnd(TokenVariant newEnd);
-  void setStart(TokenVariant newStart);
-  std::variant<std::string, int64_t> getStart() { return start; }
-  std::variant<std::string, int64_t> getEnd() { return end; }
-  std::variant<std::string, int64_t> getStep() { return step; }
+  void setStep(ExpressionNodeUptr newStep) { this->step = std::move(newStep); }
+  void setEnd(ExpressionNodeUptr newEnd) { this->end = std::move(newEnd); }
+  void setStart(ExpressionNodeUptr newStart) {
+    this->start = std::move(newStart);
+  }
+  const ExpressionNode* getStart() const { return start.get(); }
+  const ExpressionNode* getEnd() const { return end.get(); }
+  const ExpressionNode* getStep() const { return step.get(); }
 
   Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
  private:
-  std::variant<std::string, int64_t> start = 0;
-  std::variant<std::string, int64_t> end = 0;
-  std::variant<std::string, int64_t> step = 1;
+  ExpressionNodeUptr start;
+  ExpressionNodeUptr end;
+  ExpressionNodeUptr step;
 };
 
 class AslasStatementNode : public ChildrenStatementNode {
@@ -111,6 +113,9 @@ class AslasStatementNode : public ChildrenStatementNode {
   AslasStatementNode(Token token) : ChildrenStatementNode(token){};
   void setAsLAsExpression(ExpressionNodeUptr expression) {
     this->aslasExpression = std::move(expression);
+  }
+  const ExpressionNode* getAsLAsExpression() const {
+    return aslasExpression.get();
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
@@ -170,8 +175,16 @@ class ConditionStatementNode : public ChildrenStatementNode {
   Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
+  void setDefault(StatementNodeUptr defaultNode) {
+    this->defaultStatement = std::move(defaultNode);
+  }
+  const StatementNode* getDefault() const {
+    if (defaultStatement) return defaultStatement.get();
+    return nullptr;
+  }
 
  private:
+  StatementNodeUptr defaultStatement;
 };
 
 class CaseStatementNode : public ChildrenStatementNode {
@@ -180,6 +193,10 @@ class CaseStatementNode : public ChildrenStatementNode {
   void setCaseExpression(ExpressionNodeUptr expression) {
     this->caseExpression = std::move(expression);
   }
+  const ExpressionNode* getCaseExpression() const{
+    return caseExpression.get();
+  }
+
   Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }

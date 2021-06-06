@@ -1169,3 +1169,191 @@ otherwise:
             9);
   EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
 }
+
+TEST(EvaluatorTest, LocalityOfVariables) {
+  std::string test = R"(integer zmienna = 4
+if(zmienna < 0):
+  integer zmienna = 2
+otherwise:
+  integer zmienna = 9
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            4);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}
+
+TEST(EvaluatorTest, LocalityOfVariables2) {
+  std::string test = R"(integer zmienna = 4
+if(zmienna < 0):
+  integer zmienna = 2
+  zmienna = 3
+otherwise:
+  integer zmienna = 9
+  zmienna = 7
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            4);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}
+
+TEST(EvaluatorTest, EvaluateLoopTest) {
+  std::string test = R"(integer zmienna = 0
+loop(0:10:2):
+  zmienna = zmienna + 1
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            5);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}
+
+TEST(EvaluatorTest, EvaluateLoopTest2) {
+  std::string test = R"(integer licznik = 5
+integer zmienna = 0
+loop(0:2*licznik:2):
+  zmienna = zmienna + 1
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            5);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}
+
+TEST(EvaluatorTest, EvaluateLoopTest3) {
+  try {
+    std::string test = R"(integer licznik = 5
+integer zmienna = 0
+loop(0:2*licznik:-2):
+  zmienna = zmienna + 1
+)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    parser.parseProgram();
+    Evaluator evaluator;
+    parser.getProgramNode()->accept(evaluator);
+    FAIL() << "Expected throw";
+  } catch (const SemanticError& err) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Expected semantic error throw";
+  }
+}
+
+TEST(EvaluatorTest, EvaluateAsLongAsTest) {
+  std::string test = R"(integer licznik = 5
+integer zmienna = 1
+asLongAs(licznik > 0):
+  zmienna = zmienna * 2
+  licznik = licznik - 1
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            32);
+   EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("licznik", 0)).value),
+            0);
+}
+
+TEST(EvaluatorTest, EvaluateAsLongAsTest2) {
+  std::string test = R"(integer licznik = 5
+integer zmienna = 1
+asLongAs(licznik > 0 and zmienna < 10):
+  zmienna = zmienna * 2
+  licznik = licznik - 1
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            16);
+   EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("licznik", 0)).value),
+            1);
+}
+
+TEST(EvaluatorTest, ConditionCaseTest) {
+  std::string test = R"(integer age = 60
+double price = 0.0
+condition:
+    case(age < 10):
+        price = 5.0
+    case(age >= 10 and age < 20):
+        price = 15.0
+    case(age >= 20 and age < 60):
+        price = 25.0
+    case(age >= 60):
+        price = 15.0
+    default: // tutaj wpadamy gdy nic nie pasuje
+        price = -1.0
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("price", 0)).value),
+            15.0);
+}
+
+TEST(EvaluatorTest, ConditionCaseTest3) {
+  std::string test = R"(integer age = 60
+double price = 0.0
+condition:
+    case(age < 10):
+        price = 5.0
+    case(age >= 10 and age < 20):
+        price = 15.0
+    case(age >= 20):
+        price = 25.0
+    case(age == 60):
+        price = 35.0
+    default: // tutaj wpadamy gdy nic nie pasuje
+        price = -1.0
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("price", 0)).value),
+            25.0);
+}

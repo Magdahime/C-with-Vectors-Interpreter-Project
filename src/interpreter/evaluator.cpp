@@ -748,31 +748,144 @@ Value Evaluator::evaluate(const ArgumentNode* node) {
 }
 
 Value Evaluator::evaluate(const LoopStatementNode* node) {
-  throw SemanticError("LoopStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  const std::vector<StatementNodeUptr>& loopChildren = node->getChildren();
+  LoopComp comp = checkLoopComponents(node);
+  int64_t counter = comp.start;
+  enterBlock();
+  if (comp.end - comp.start > 0) {
+    while (counter < comp.end) {
+      for (const auto& child : loopChildren) child->accept(*this);
+      counter += comp.step;
+    }
+  } else {
+    while (counter > comp.end) {
+      for (const auto& child : loopChildren) child->accept(*this);
+      counter -= comp.step;
+    }
+  }
+  closeBlock();
+  return {};
 }
+
+LoopComp Evaluator::checkLoopComponents(const LoopStatementNode* node) {
+  Value start = node->getStart()->accept(*this);
+  Value end = node->getEnd()->accept(*this);
+  Value step = node->getStep()->accept(*this);
+  int64_t startValue;
+  int64_t endValue;
+  int64_t stepValue;
+  switch (start.index()) {
+    case 0:
+      startValue = std::get<int64_t>(start);
+      if (startValue < 0)
+        throw SemanticError("Start value cannot be less than 0. At: " +
+                                 node->getToken().getLinePositionString());
+      break;
+    default:
+      throw SemanticError("Start value can only be of type integer at: " +
+                          node->getToken().getLinePositionString());
+  }
+  switch (end.index()) {
+    case 0:
+      endValue = std::get<int64_t>(end);
+      if (startValue > endValue)
+        throw SemanticError(
+            "End value must be bigger than startValue. At: " +
+            node->getToken().getLinePositionString());
+      break;
+    default:
+      throw SemanticError("End value can only be of type integer at: " +
+                          node->getToken().getLinePositionString());
+  }
+  switch (step.index()) {
+    case 0:
+      stepValue = std::get<int64_t>(step);
+      if (stepValue <= 0)
+        throw SemanticError("Step value must be bigger than 0. At: " +
+                                 node->getToken().getLinePositionString());
+      break;
+    default:
+      throw SemanticError("Step value can only be of type integer at:" +
+                          node->getToken().getLinePositionString());
+  }
+  return LoopComp{startValue, endValue, stepValue};
+}
+
 Value Evaluator::evaluate(const AslasStatementNode* node) {
-  throw SemanticError("AslasStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  const std::vector<StatementNodeUptr>& aslasChildren = node->getChildren();
+  enterBlock();
+  while (std::get<int64_t>(checkAslasExpression(node->getAsLAsExpression())) !=
+         0) {
+    for (const auto& child : aslasChildren) {
+      child->accept(*this);
+    }
+  }
+  closeBlock();
+  return {};
 }
+
+Value Evaluator::checkAslasExpression(const ExpressionNode* node) {
+  Value value = node->accept(*this);
+  switch (value.index()) {
+    case 0:
+      return value;
+    default:
+      throw SemanticError(
+          "Expression in AsLongAs statement must be of type integer. At: " +
+          node->getToken().getLinePositionString());
+  }
+}
+
+Value Evaluator::evaluate(const ConditionStatementNode* node) {
+  const std::vector<StatementNodeUptr>& conditionChildren = node->getChildren();
+  bool caseCompleted = false;
+  for (const auto& child : conditionChildren) {
+    if (std::get<int64_t>(child->accept(*this)) != 0) {
+      caseCompleted = true;
+      break;
+    }
+  }
+  if (!caseCompleted) {
+    node->getDefault()->accept(*this);
+  }
+  return {};
+}
+
+Value Evaluator::evaluate(const CaseStatementNode* node) {
+  Value evalCaseExpression = node->getCaseExpression()->accept(*this);
+  int64_t evalValue;
+  switch (evalCaseExpression.index()) {
+    case 0:
+      evalValue = std::get<int64_t>(evalCaseExpression);
+      break;
+    default:
+      throw SemanticError(
+          "Expression in Case statement must be of type integer. At: " +
+          node->getToken().getLinePositionString());
+  }
+  if (evalValue != 0) {
+    const std::vector<StatementNodeUptr>& caseChildren = node->getChildren();
+    for (const auto& child : caseChildren) {
+      child->accept(*this);
+    }
+    return 1;
+  }
+  return {};
+}
+Value Evaluator::evaluate(const DefaultStatementNode* node) {
+  const std::vector<StatementNodeUptr>& defaultChildren = node->getChildren();
+  for (const auto& child : defaultChildren) {
+    child->accept(*this);
+  }
+  return {};
+}
+
 Value Evaluator::evaluate(const FunctionStatementNode* node) {
   throw SemanticError("FunctionStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
 Value Evaluator::evaluate(const FunctionCallNode* node) {
   throw SemanticError("FunctionCallNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
-}
-Value Evaluator::evaluate(const ConditionStatementNode* node) {
-  throw SemanticError("ConditionStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
-}
-Value Evaluator::evaluate(const CaseStatementNode* node) {
-  throw SemanticError("CaseStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
-}
-Value Evaluator::evaluate(const DefaultStatementNode* node) {
-  throw SemanticError("DefaultStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
 

@@ -140,7 +140,8 @@ StatementNodeUptr Parser::parseConditionStatement() {
       conditionNode->add(std::move(caseStatementsNodes));
     }
     StatementNodeUptr defaultStatement = parseDefaultStatement();
-    if (defaultStatement) conditionNode->add(std::move(defaultStatement));
+    if (defaultStatement)
+      conditionNode->setDefault(std::move(defaultStatement));
     expect(
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
@@ -208,37 +209,27 @@ StatementNodeUptr Parser::parseLoopStatement() {
     shiftToken();
     expect(Token::TokenType::OpenRoundBracketToken);
     shiftToken();
-    if (!(accept(Token::TokenType::IntegerLiteralToken) ||
-          accept(Token::TokenType::IdentifierToken))) {
-      std::string message =
-          "Token at " + currentToken.getLinePositionString() +
-          " is unexpected. Expecting: identifier or integerLiteral token";
-      throw UnexpectedToken(message);
-    }
-    loopNode->setStart(currentToken.getValue());
-    shiftToken();
+    ExpressionNodeUptr start = parseExpression();
+    if (!start)
+      throw UnexpectedToken("Token at " + currentToken.getLinePositionString() +
+                            " is unexpected. Expecting: start expression");
+    loopNode->setStart(std::move(start));
     expect(Token::TokenType::ColonToken);
     shiftToken();
-    if (!(accept(Token::TokenType::IntegerLiteralToken) ||
-          accept(Token::TokenType::IdentifierToken))) {
-      std::string message =
+    ExpressionNodeUptr end = parseExpression();
+    if (!end)
+      throw UnexpectedToken(
           "Token at " + currentToken.getLinePositionString() +
-          " is unexpected. Expecting: identifier or integerLiteral token";
-      throw UnexpectedToken(message);
-    }
-    loopNode->setEnd(currentToken.getValue());
-    shiftToken();
+          " is unexpected. Expecting: identifier or integerLiteral token");
+    loopNode->setEnd(std::move(end));
     if (accept(Token::TokenType::ColonToken)) {
       shiftToken();
-      if (!(accept(Token::TokenType::IntegerLiteralToken) ||
-            accept(Token::TokenType::IdentifierToken))) {
-        std::string message =
+      ExpressionNodeUptr step = parseExpression();
+      if (!step)
+        throw UnexpectedToken(
             "Token at " + currentToken.getLinePositionString() +
-            " is unexpected. Expecting: identifier or integerLiteral token";
-        throw UnexpectedToken(message);
-      }
-      loopNode->setStep(currentToken.getValue());
-      shiftToken();
+            " is unexpected. Expecting: identifier or integerLiteral token");
+      loopNode->setStep(std::move(step));
     }
     expect(Token::TokenType::CloseRoundBracketToken);
     shiftToken();

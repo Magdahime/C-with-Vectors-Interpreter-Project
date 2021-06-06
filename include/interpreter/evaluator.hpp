@@ -40,8 +40,12 @@ class Evaluator {
   Value evaluate(const CaseStatementNode* node);
   Value evaluate(const DefaultStatementNode* node);
 
+  LoopComp checkLoopComponents(const LoopStatementNode* node);
+  Value checkAslasExpression(const ExpressionNode* node);
+  bool checkCaseExpression(const ExpressionNode* node);
   bool checkZeroDivision(const Value value) const;
-  std::optional<VariableInfo> searchVariable(std::string identifier,int currentDepth) const;
+  std::optional<VariableInfo> searchVariable(std::string identifier,
+                                             int currentDepth) const;
   void updateVariable(std::string identifier, int currentDepth, Value newValue);
   Matrix combineSizeValues(const AssignmentNode* node, const Matrix& size,
                            const Matrix& values) const;
