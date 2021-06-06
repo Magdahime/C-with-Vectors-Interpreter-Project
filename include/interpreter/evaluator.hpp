@@ -15,27 +15,27 @@ class Evaluator {
   void enterVariable(std::string identifier, Matrix value);
   void enterVariable(std::string identifier, int64_t value);
 
-  Value evaluate(const AdditiveOperatorNode* node) const;
-  Value evaluate(const MultiplicativeOperatorNode* node) const;
-  Value evaluate(const ExponentiationOperatorNode* node) const;
-  Value evaluate(const MatrixOperatorNode* node) const;
-  Value evaluate(const ValueNode* node) const;
-  Value evaluate(const IdentifierNode* node) const;
-  Value evaluate(const ExpressionNode* node) const;
-  Value evaluate(const LogicalOperatorNode* node) const;
-  Value evaluate(const AssignmentNode* node) const;
-  Value evaluate(const VariableNode* node) const;
-  Value evaluate(const MatrixVariable* node) const;
-  Value evaluate(const ArgumentNode* node) const;
-  Value evaluate(const IfStatementNode* node) const;
-  Value evaluate(const OtherwiseStatementNode* node) const;
-  Value evaluate(const LoopStatementNode* node) const;
-  Value evaluate(const AslasStatementNode* node) const;
-  Value evaluate(const FunctionStatementNode* node) const;
-  Value evaluate(const FunctionCallNode* node) const;
-  Value evaluate(const ConditionStatementNode* node) const;
-  Value evaluate(const CaseStatementNode* node) const;
-  Value evaluate(const DefaultStatementNode* node) const;
+  Value evaluate(const AdditiveOperatorNode* node);
+  Value evaluate(const MultiplicativeOperatorNode* node);
+  Value evaluate(const ExponentiationOperatorNode* node);
+  Value evaluate(const MatrixOperatorNode* node);
+  Value evaluate(const ValueNode* node);
+  Value evaluate(const IdentifierNode* node);
+  Value evaluate(const ExpressionNode* node);
+  Value evaluate(const LogicalOperatorNode* node);
+  Value evaluate(const AssignmentNode* node);
+  Value evaluate(const VariableNode* node);
+  Value evaluate(const MatrixVariable* node);
+  Value evaluate(const ArgumentNode* node);
+  Value evaluate(const IfStatementNode* node);
+  Value evaluate(const OtherwiseStatementNode* node);
+  Value evaluate(const LoopStatementNode* node);
+  Value evaluate(const AslasStatementNode* node);
+  Value evaluate(const FunctionStatementNode* node);
+  Value evaluate(const FunctionCallNode* node);
+  Value evaluate(const ConditionStatementNode* node);
+  Value evaluate(const CaseStatementNode* node);
+  Value evaluate(const DefaultStatementNode* node);
 
   bool checkZeroDivision(const Value value) const;
   std::optional<VariableInfo> searchVariable(std::string identifier,

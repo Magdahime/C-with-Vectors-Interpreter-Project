@@ -1010,3 +1010,59 @@ TEST(EvaluatorTest, MIX_LOGICAL_NOT_LOGICAL_OP) {
   ExpressionNodeUptr node = parser.parseMultipleTestExpressions();
   EXPECT_EQ(std::get<int64_t>(node->accept(evaluator)), 1);
 }
+
+TEST(EvaluatorTest, EvaluateAssignment) {
+  std::string test = R"(integer wiek = 2021 - 1999)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("wiek", 0)).value), 22);
+  EXPECT_EQ(varMap.at(std::make_pair("wiek", 0)).type, Type::Integer);
+}
+
+TEST(EvaluatorTest, EvaluateAssignment2) {
+  try {
+    std::string test = R"(integer cena = 20.50)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    parser.parseProgram();
+    Evaluator evaluator;
+    parser.getProgramNode()->accept(evaluator);
+    FAIL() << "Expect SemanticError throw";
+  } catch (const SemanticError& err) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Expect SemanticError throw";
+  }
+}
+
+TEST(EvaluatorTest, EvaluateAssignment3) {
+  std::string test = R"(double cena = 20.50)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("cena", 0)).value), 20.50);
+  EXPECT_EQ(varMap.at(std::make_pair("cena", 0)).type, Type::Double);
+}
+
+TEST(EvaluatorTest, EvaluateAssignment4) {
+  std::string test = R"(text cena = "cena produktu")";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<std::string>(varMap.at(std::make_pair("cena", 0)).value), "cena produktu");
+  EXPECT_EQ(varMap.at(std::make_pair("cena", 0)).type, Type::String);
+}

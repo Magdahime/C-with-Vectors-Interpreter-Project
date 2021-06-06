@@ -50,11 +50,11 @@ class Node {
 class StatementNode : public Node {
  public:
   using Node::Node;
-  virtual Value accept(const Evaluator& evaluator) const = 0;
+  virtual Value accept(Evaluator& evaluator) const = 0;
 };
 
 class ExpressionNode : public StatementNode {
  public:
   ExpressionNode(Token token) : StatementNode(token) {}
-  Value accept(const Evaluator& evaluator) const =0;
+  Value accept(Evaluator& evaluator) const =0;
 };

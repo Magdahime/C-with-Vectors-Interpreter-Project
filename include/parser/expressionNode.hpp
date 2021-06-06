@@ -45,9 +45,7 @@ class ExpressionValueNode : public ExpressionNode {
     return expressions;
   }
 
-  const ExpressionNode* getLeft() const {
-    return expressions[0].get();
-  }
+  const ExpressionNode* getLeft() const { return expressions[0].get(); }
   const ExpressionNode* getRight() const {
     if (expressions.size() == 2) {
       return expressions[1].get();
@@ -82,8 +80,7 @@ class AdditiveOperatorNode : public ExpressionValueNode {
       this->type = NodeType::Minus;
   }
 
-  
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
   NodeType getType() const { return type; }
@@ -100,8 +97,8 @@ class MultiplicativeOperatorNode : public ExpressionValueNode {
     else
       this->type = NodeType::Division;
   }
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
   enum class NodeType { Multiplication, Division };
@@ -126,10 +123,9 @@ class LogicalOperatorNode : public ExpressionValueNode {
     Or,
     Not
   };
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
-    
   }
   NodeType getType() const { return type; }
 
@@ -139,8 +135,7 @@ class LogicalOperatorNode : public ExpressionValueNode {
 
 class MatrixOperatorNode : public ExpressionValueNode {
  public:
-  
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
   MatrixOperatorNode(Token token);
@@ -154,8 +149,8 @@ class MatrixOperatorNode : public ExpressionValueNode {
 class AssignmentNode : public ExpressionValueNode {
  public:
   AssignmentNode(Token token) : ExpressionValueNode(token){};
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -165,8 +160,8 @@ class AssignmentNode : public ExpressionValueNode {
 class ExponentiationOperatorNode : public ExpressionValueNode {
  public:
   ExponentiationOperatorNode(Token token) : ExpressionValueNode(token) {}
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 };
@@ -174,7 +169,7 @@ class ExponentiationOperatorNode : public ExpressionValueNode {
 class ValueNode : public ExpressionLeafNode {
  public:
   using ExpressionLeafNode::ExpressionLeafNode;
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -198,7 +193,7 @@ class ValueNode : public ExpressionLeafNode {
 
 class IdentifierNode : public ValueNode {
  public:
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
   IdentifierNode(Token token) : ValueNode(token){};
@@ -235,10 +230,11 @@ class VariableNode : public ExpressionLeafNode {
  public:
   VariableNode(Token token) : ExpressionLeafNode(token) {}
   void setIdentifier(std::string identifier) { this->identifier = identifier; }
+  std::string getIdentifier() const { return identifier; }
   void setValue(ValueNodeUptr value) { this->variableValue = std::move(value); }
   const ValueNode* getValue() const { return variableValue.get(); }
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -259,8 +255,8 @@ class MatrixVariable : public VariableNode {
 
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -276,8 +272,8 @@ class ArgumentNode : public ExpressionLeafNode {
     this->defaultValue = std::move(value);
   }
   void buildTreeStringStream(std::stringstream& tree) const;
-  
-  Value accept(const Evaluator& evaluator) const override {
+
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 

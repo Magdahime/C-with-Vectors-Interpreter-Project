@@ -3,14 +3,14 @@
 #include "parser/statementNode.hpp"
 
 std::optional<VariableInfo> Evaluator::searchVariable(std::string identifier,
-                                                      int currentDepth) const {
+                                                      int currentDepth) const{
   auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
   if (iter != variableMap.end()) return iter->second;
   return {};
 }
 
 std::optional<const FunctionStatementNode*> Evaluator::searchFunction(
-    std::string identifier) const {
+    std::string identifier) const{
   auto iter = functionsMap.find(identifier);
   if (iter != functionsMap.end()) return iter->second;
   return {};
@@ -70,11 +70,9 @@ void Evaluator::enterVariable(std::string identifier, TokenVariant value) {
     enterVariable(identifier, std::get<std::string>(value));
 }
 
-Value Evaluator::evaluate(const ValueNode* node) const {
-  return node->getValue();
-}
+Value Evaluator::evaluate(const ValueNode* node) { return node->getValue(); }
 
-Value Evaluator::evaluate(const IdentifierNode* node) const {
+Value Evaluator::evaluate(const IdentifierNode* node) {
   std::string identifier = std::get<std::string>(node->getValue());
   std::optional<VariableInfo> var = searchVariable(identifier, currentDepth);
   if (var) return var->value;
@@ -82,7 +80,7 @@ Value Evaluator::evaluate(const IdentifierNode* node) const {
                       " at:" + node->getToken().getLinePositionString());
 }
 
-Value Evaluator::evaluate(const AdditiveOperatorNode* node) const {
+Value Evaluator::evaluate(const AdditiveOperatorNode* node) {
   auto left = node->getLeft();
   auto right = node->getRight();
   bool isPlus = (node->getType() == AdditiveOperatorNode::NodeType::Plus);
@@ -181,7 +179,7 @@ Value Evaluator::evaluate(const AdditiveOperatorNode* node) const {
   return leftValue;
 }
 
-Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
+Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) {
   auto left = node->getLeft();
   auto right = node->getRight();
   bool isMulti =
@@ -253,7 +251,7 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) const {
                           "double:double.");
   }
 }
-Value Evaluator::evaluate(const ExponentiationOperatorNode* node) const {
+Value Evaluator::evaluate(const ExponentiationOperatorNode* node) {
   auto left = node->getLeft();
   auto right = node->getRight();
   Value leftValue = left->accept(*this);
@@ -282,7 +280,7 @@ Value Evaluator::evaluate(const ExponentiationOperatorNode* node) const {
                           "double:double.");
   }
 }
-Value Evaluator::evaluate(const MatrixOperatorNode* node) const {
+Value Evaluator::evaluate(const MatrixOperatorNode* node) {
   auto left = node->getLeft();
   Value leftValue = left->accept(*this);
   bool isDet = node->getType() == MatrixOperatorNode::NodeType::Det;
@@ -308,7 +306,7 @@ Value Evaluator::evaluate(const MatrixOperatorNode* node) const {
   }
 }
 
-Value Evaluator::evaluate(const LogicalOperatorNode* node) const {
+Value Evaluator::evaluate(const LogicalOperatorNode* node) {
   auto left = node->getLeft();
   auto right = node->getRight();
   Value leftValue = left->accept(*this);
@@ -500,60 +498,109 @@ Value Evaluator::evaluate(const LogicalOperatorNode* node) const {
     }
   }
 }
-Value Evaluator::evaluate(const AssignmentNode* node) const {
-  throw SemanticError("AssignmentNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+Value Evaluator::evaluate(const AssignmentNode* node) {
+  auto left = node->getLeft();
+  auto right = node->getRight();
+  Value rightValue = right->accept(*this);
+  switch (rightValue.index()) {
+    case 0:
+      if (left->getToken() == Token::TokenType::IntegerToken) {
+        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+                      std::get<int64_t>(rightValue));
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Type of assign expression is integer, but type "
+                            "of variable is not!");
+      }
+    case 1:
+      if (left->getToken() == Token::TokenType::DoubleToken) {
+        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+                      std::get<double>(rightValue));
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Type of assign expression is double, but type "
+                            "of variable is not!");
+      }
+    case 2:
+      if (left->getToken() == Token::TokenType::TextToken) {
+        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+                      std::get<std::string>(rightValue));
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Type of assign expression is text, but type "
+                            "of variable is not!");
+      }
+    case 3:
+      if (left->getToken() == Token::TokenType::MatrixToken) {
+        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
+                      std::get<Matrix>(rightValue));
+        break;
+      } else {
+        throw SemanticError("Illegal assignment at " +
+                            node->getToken().getLinePositionString() +
+                            " Type of assign expression is matrix, but type "
+                            "of variable is not!");
+      }
+  }
+  return {};
 }
-Value Evaluator::evaluate(const VariableNode* node) const {
+
+Value Evaluator::evaluate(const VariableNode* node) {
   throw SemanticError("VariableNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const MatrixVariable* node) const {
+Value Evaluator::evaluate(const MatrixVariable* node) {
   throw SemanticError("MatrixVariable Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const ArgumentNode* node) const {
+Value Evaluator::evaluate(const ArgumentNode* node) {
   throw SemanticError("ArgumentNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const IfStatementNode* node) const {
+Value Evaluator::evaluate(const IfStatementNode* node) {
   throw SemanticError("IfStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const OtherwiseStatementNode* node) const {
+Value Evaluator::evaluate(const OtherwiseStatementNode* node) {
   throw SemanticError("OtherwiseStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const LoopStatementNode* node) const {
+Value Evaluator::evaluate(const LoopStatementNode* node) {
   throw SemanticError("LoopStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const AslasStatementNode* node) const {
+Value Evaluator::evaluate(const AslasStatementNode* node) {
   throw SemanticError("AslasStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const FunctionStatementNode* node) const {
+Value Evaluator::evaluate(const FunctionStatementNode* node) {
   throw SemanticError("FunctionStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const FunctionCallNode* node) const {
+Value Evaluator::evaluate(const FunctionCallNode* node) {
   throw SemanticError("FunctionCallNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const ConditionStatementNode* node) const {
+Value Evaluator::evaluate(const ConditionStatementNode* node) {
   throw SemanticError("ConditionStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const CaseStatementNode* node) const {
+Value Evaluator::evaluate(const CaseStatementNode* node) {
   throw SemanticError("CaseStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
-Value Evaluator::evaluate(const DefaultStatementNode* node) const {
+Value Evaluator::evaluate(const DefaultStatementNode* node) {
   throw SemanticError("DefaultStatementNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
 
-Value Evaluator::evaluate(const ExpressionNode* node) const {
+Value Evaluator::evaluate(const ExpressionNode* node) {
   throw SemanticError("ExpressionNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }

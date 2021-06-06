@@ -35,7 +35,7 @@ class ChildrenStatementNode : public StatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   void remove(const StatementNode* node);
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     for (const auto& child : children) {
       child->accept(evaluator);
     }
@@ -55,7 +55,7 @@ class IfStatementNode : public ChildrenStatementNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -66,7 +66,7 @@ class IfStatementNode : public ChildrenStatementNode {
 class OtherwiseStatementNode : public ChildrenStatementNode {
  public:
   OtherwiseStatementNode(Token token) : ChildrenStatementNode(token){};
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -84,7 +84,7 @@ class LoopStatementNode : public ChildrenStatementNode {
   std::variant<std::string, int64_t> getEnd() { return end; }
   std::variant<std::string, int64_t> getStep() { return step; }
 
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -102,7 +102,7 @@ class AslasStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -122,7 +122,7 @@ class FunctionStatementNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -141,7 +141,7 @@ class FunctionCallNode : public ChildrenStatementNode {
   }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -155,7 +155,7 @@ class ConditionStatementNode : public ChildrenStatementNode {
   ConditionStatementNode(Token token) : ChildrenStatementNode(token){};
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -168,7 +168,7 @@ class CaseStatementNode : public ChildrenStatementNode {
   void setCaseExpression(ExpressionNodeUptr expression) {
     this->caseExpression = std::move(expression);
   }
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
@@ -179,7 +179,7 @@ class CaseStatementNode : public ChildrenStatementNode {
 class DefaultStatementNode : public ChildrenStatementNode {
  public:
   DefaultStatementNode(Token token) : ChildrenStatementNode(token){};
-  Value accept(const Evaluator& evaluator) const override {
+  Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
 
