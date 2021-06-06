@@ -113,38 +113,12 @@ TEST(LexicalAnalyzerTest, asLongAsKeywordTest) {
   EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
 }
 
-TEST(LexicalAnalyzerTest, continueKeywordTest) {
-  StringSource src("continue");
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::ContinueToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
-}
-
-TEST(LexicalAnalyzerTest, breakKeywordTest) {
-  StringSource src("break");
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::BreakToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
-}
 
 TEST(LexicalAnalyzerTest, defaultKeywordTest) {
   StringSource src("default");
   LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::DefaultToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
-}
-
-TEST(LexicalAnalyzerTest, trueKeywordTest) {
-  StringSource src("true");
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::TrueToken);
   token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
 }
@@ -181,15 +155,6 @@ TEST(LexicalAnalyzerTest, notKeywordTest) {
   LexicalAnalyzer lexicAna(&src);
   std::optional<Token> token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::NotToken);
-  token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
-}
-
-TEST(LexicalAnalyzerTest, falseKeywordTest) {
-  StringSource src("false");
-  LexicalAnalyzer lexicAna(&src);
-  std::optional<Token> token = lexicAna.getToken();
-  EXPECT_EQ(token->getType(), Token::TokenType::FalseToken);
   token = lexicAna.getToken();
   EXPECT_EQ(token->getType(), Token::TokenType::EndOfFileToken);
 }
