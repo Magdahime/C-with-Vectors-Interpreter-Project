@@ -54,6 +54,7 @@ class Evaluator {
   searchFunction(std::string identifier) const;
 
   const VariableMap& getVariableMap() { return variableMap; }
+  const FunctionMap& getFunctionMap() { return functionsMap; }
 
  private:
   uint64_t currentDepth = 0;

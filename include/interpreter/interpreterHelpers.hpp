@@ -34,9 +34,14 @@ class MultiplicativeOperatorNode;
 class AdditiveOperatorNode;
 class IdentifierNode;
 
-using Value = std::variant<int64_t, double, std::string, Matrix>;
+enum class Type { Integer, Double, String, Matrix, Void };
 
-enum class Type { Integer, Double, String, Matrix };
+struct ArgumentInfo{
+  Type type;
+  std::string identifier;
+};
+
+using Value = std::variant<int64_t, double, std::string, Matrix>;
 
 enum class OperatorSignatures {
   INTEGER_INTEGER,
@@ -62,11 +67,6 @@ struct VariableInfo {
   Value value;
 };
 
-struct ArgumentInfo {
-  Type type;
-  std::string identifier;
-  Value defaultValue;
-};
 
 struct FunctionInfo {
   Type returnType;
@@ -78,7 +78,6 @@ struct LoopComp {
   int64_t end;
   int64_t step;
 };
-
 using VariableMap = std::map<std::pair<std::string, uint64_t>, VariableInfo>;
 using FunctionMap =
     std::map<std::string,

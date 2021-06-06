@@ -32,22 +32,6 @@ TEST(ParserTest, parseFunctionTest) {
   EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
 }
 
-TEST(ParserTest, parseFunctionDefaultArgumentsTest) {
-  std::string test =
-      R"(integer function count(integer int1 = 1, integer int2 = 10):
-    //tralalal
-)";
-  std::string answer =
-      "RootToken\n IntegerToken function count\nIntegerToken int1 IntegerToken "
-      "int2 ";
-  StringSource src(test);
-  LexicalAnalyzer lexicAna(&src);
-  Parser parser(lexicAna);
-  parser.parseProgram();
-  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
-  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
-}
-
 TEST(ParserTest, assignmentIntegerTest) {
   std::string test = R"(integer wiek = rokUrodzenia - obecnyRok)";
   std::string answer =

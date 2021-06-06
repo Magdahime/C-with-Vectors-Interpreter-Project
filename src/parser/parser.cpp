@@ -349,40 +349,11 @@ std::vector<ArgumentNodeUptr> Parser::parseArguments() {
     expect(Token::TokenType::IdentifierToken);
     argument->setIdentifier(currentToken.getString());
     shiftToken();
-    ExpressionNodeUptr value = parseDefaultArgument();
-    if (value) argument->setDefaultValue(std::move(value));
     arguments.push_back(std::move(argument));
     if (!accept(Token::TokenType::CommaToken)) break;
     shiftToken();
   }
   if (!arguments.empty()) return arguments;
-  return {};
-}
-
-//[arguments] ::= type, identifier ['=', 'value'] \{',', type, identifier
-//['=','value']\};
-ExpressionNodeUptr Parser::parseDefaultArgument() {
-  if (accept(Token::TokenType::AssignmentOperatorToken)) {
-    shiftToken();
-    if (!accept({Token::TokenType::IntegerLiteralToken,
-                 Token::TokenType::DoubleLiteralToken,
-                 Token::TokenType::StringLiteralToken})) {
-      MatrixValueNodeUptr matrix = parseMatrixValue();
-      if (matrix) {
-        return matrix;
-        ExpressionNodeUptr expression = parseExpression();
-        if (expression) return expression;
-      } else {
-        throw UnexpectedToken("Unexpected token at " +
-                              currentToken.getLinePositionString() +
-                              ". Expecting: literal or identifier.");
-      }
-    } else {
-      ValueNodeUptr returnToken = std::make_unique<ValueNode>(currentToken);
-      shiftToken();
-      return returnToken;
-    }
-  }
   return {};
 }
 
@@ -444,7 +415,8 @@ ExpressionNodeUptr Parser::parseAssignment(AssignmentNodeUptr root) {
 // identifier, '=', matrix value;
 StatementNodeUptr Parser::parseFunStatOrAssignment() {
   if (accept({Token::TokenType::IntegerToken, Token::TokenType::DoubleToken,
-              Token::TokenType::MatrixToken, Token::TokenType::TextToken})) {
+              Token::TokenType::MatrixToken, Token::TokenType::TextToken,
+              Token::TokenType::VoidToken})) {
     Token typeToken = currentToken;
     shiftToken();
     if (accept(Token::TokenType::FunctionToken)) {

@@ -140,7 +140,7 @@ class FunctionStatementNode : public ChildrenStatementNode {
 
   const Token& getReturnType() const { return returnType; }
   std::string getIdentifier() const { return identifier; }
-  const std::vector<ArgumentNodeUptr>& getArguments() { return arguments; }
+  const std::vector<ArgumentNodeUptr>& getArguments() const{ return arguments; }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   Value accept(Evaluator& evaluator) const override {

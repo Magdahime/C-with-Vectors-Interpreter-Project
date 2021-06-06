@@ -291,9 +291,7 @@ class ArgumentNode : public ExpressionLeafNode {
  public:
   ArgumentNode(Token token) : ExpressionLeafNode(token){};
   void setIdentifier(std::string identifier) { this->identifier = identifier; }
-  void setDefaultValue(ExpressionNodeUptr value) {
-    this->defaultValue = std::move(value);
-  }
+  std::string getIdentifier() const { return identifier; }
   void buildTreeStringStream(std::stringstream& tree) const;
 
   Value accept(Evaluator& evaluator) const override {
@@ -302,5 +300,4 @@ class ArgumentNode : public ExpressionLeafNode {
 
  private:
   std::string identifier;
-  ExpressionNodeUptr defaultValue;
 };

@@ -18,7 +18,7 @@ class Parser {
   Parser(LexicalAnalyzer& newLexer)
       : programNode(std::make_unique<ChildrenStatementNode>()),
         lexer(newLexer),
-        currentToken(*lexer.getToken()) {}
+        currentToken(getToken()) {}
 
   const ChildrenStatementNode* getProgramNode() const {
     return programNode.get();
@@ -42,7 +42,6 @@ class Parser {
 
   std::vector<ArgumentNodeUptr> parseArguments();
   std::vector<ExpressionNodeUptr> parseFunCallArguments();
-  ExpressionNodeUptr parseDefaultArgument();
 
   StatementNodeUptr parseFunCallOrAssignment();
   StatementNodeUptr parseFunStatOrAssignment();

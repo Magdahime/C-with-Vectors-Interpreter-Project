@@ -31,8 +31,8 @@ void Evaluator::updateVariable(std::string identifier, int currentDepth,
   }
 }
 
-std::optional<std::pair<const FunctionStatementNode*, FunctionInfo>> Evaluator::searchFunction(
-    std::string identifier) const {
+std::optional<std::pair<const FunctionStatementNode*, FunctionInfo>>
+Evaluator::searchFunction(std::string identifier) const {
   auto iter = functionsMap.find(identifier);
   if (iter != functionsMap.end()) return iter->second;
   return {};
@@ -97,6 +97,12 @@ void Evaluator::enterFunction(std::string identifier,
                               std::vector<ArgumentInfo> args)
 
 {
+  if (searchFunction(identifier)) {
+    throw SemanticError("Function of identifier: " + identifier +
+                        " already exists! There cannot be twoi functions of "
+                        "the same identifier. At: " +
+                        node->getToken().getLinePositionString());
+  }
   Token returnType = node->getReturnType();
   Type type;
   switch (returnType.getType()) {
@@ -111,6 +117,9 @@ void Evaluator::enterFunction(std::string identifier,
       break;
     case Token::TokenType::TextToken:
       type = Type::String;
+      break;
+    case Token::TokenType::VoidToken:
+      type = Type::Void;
       break;
     default:
       throw SemanticError("Invalid return type for function at: " +
@@ -766,11 +775,6 @@ Value Evaluator::evaluate(const OtherwiseStatementNode* node) {
   return {};
 }
 
-Value Evaluator::evaluate(const ArgumentNode* node) {
-  throw SemanticError("ArgumentNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
-}
-
 Value Evaluator::evaluate(const LoopStatementNode* node) {
   const std::vector<StatementNodeUptr>& loopChildren = node->getChildren();
   LoopComp comp = checkLoopComponents(node);
@@ -904,8 +908,14 @@ Value Evaluator::evaluate(const DefaultStatementNode* node) {
 }
 
 Value Evaluator::evaluate(const FunctionStatementNode* node) {
-  throw SemanticError("FunctionStatementNode Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  std::string identifier = node->getIdentifier();
+  std::vector<ArgumentInfo> args;
+  for (const auto& argument : node->getArguments()) {
+    int64_t argType = std::get<int64_t>(argument->accept(*this));
+    args.emplace_back(static_cast<Type>(argType), argument->getIdentifier());
+  }
+  enterFunction(identifier, node, args);
+  return {};
 }
 Value Evaluator::evaluate(const FunctionCallNode* node) {
   throw SemanticError("FunctionCallNode Not implemented! At: " +
@@ -915,6 +925,30 @@ Value Evaluator::evaluate(const FunctionCallNode* node) {
 Value Evaluator::evaluate(const ExpressionNode* node) {
   throw SemanticError("ExpressionNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
+}
+
+Value Evaluator::evaluate(const ArgumentNode* node) {
+  Token argToken = node->getToken();
+  Type argType;
+  switch (argToken.getType()) {
+    case Token::TokenType::IntegerToken:
+      argType = Type::Integer;
+      break;
+    case Token::TokenType::DoubleToken:
+      argType = Type::Double;
+      break;
+    case Token::TokenType::TextToken:
+      argType = Type::String;
+      break;
+    case Token::TokenType::MatrixToken:
+      argType = Type::Matrix;
+      break;
+    default:
+      throw SemanticError("Invalid type for argument at: " +
+                          node->getToken().getLinePositionString() +
+                          " Valid types are integer, double, text, matrix.");
+  }
+  return static_cast<int64_t>(argType);
 }
 
 bool Evaluator::checkZeroDivision(const Value value) const {

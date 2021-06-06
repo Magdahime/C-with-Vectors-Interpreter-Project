@@ -1282,7 +1282,7 @@ asLongAs(licznik > 0):
   auto varMap = evaluator.getVariableMap();
   EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
             32);
-   EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("licznik", 0)).value),
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("licznik", 0)).value),
             0);
 }
 
@@ -1302,7 +1302,7 @@ asLongAs(licznik > 0 and zmienna < 10):
   auto varMap = evaluator.getVariableMap();
   EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
             16);
-   EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("licznik", 0)).value),
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("licznik", 0)).value),
             1);
 }
 
@@ -1356,4 +1356,45 @@ condition:
   auto varMap = evaluator.getVariableMap();
   EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("price", 0)).value),
             25.0);
+}
+
+TEST(EvaluatorTest, EvaluateFunctionStatementTest) {
+  std::string test = R"(
+void function concat(text tekst1, text tekst2):
+  return tekst1 + tekst2)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto funMap = evaluator.getFunctionMap();
+  auto funInfo = funMap.at("concat").second;
+  EXPECT_EQ(funInfo.returnType, Type::Void);
+  EXPECT_EQ(funInfo.arguments.size(), 2);
+  EXPECT_EQ(funInfo.arguments[0].type, Type::String);
+  EXPECT_EQ(funInfo.arguments[0].identifier, "tekst1");
+  EXPECT_EQ(funInfo.arguments[1].type, Type::String);
+  EXPECT_EQ(funInfo.arguments[1].identifier, "tekst2");
+}
+
+TEST(EvaluatorTest, EvaluateFunctionStatementTest2) {
+  try {
+    std::string test = R"(
+void function concat(text tekst1, text tekst2):
+  return tekst1 + tekst2
+integer function concat(integer int1, integer int2):
+  return int1 + int2)";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    parser.parseProgram();
+    Evaluator evaluator;
+    parser.getProgramNode()->accept(evaluator);
+    FAIL();
+  } catch (const SemanticError& err) {
+    SUCCEED();
+  } catch (...) {
+    FAIL();
+  }
 }
