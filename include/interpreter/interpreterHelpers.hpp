@@ -62,12 +62,25 @@ struct VariableInfo {
   Value value;
 };
 
-struct LoopComp{
+struct ArgumentInfo {
+  Type type;
+  std::string identifier;
+  Value defaultValue;
+};
+
+struct FunctionInfo {
+  Type returnType;
+  std::vector<ArgumentInfo> arguments;
+};
+
+struct LoopComp {
   int64_t start;
   int64_t end;
   int64_t step;
 };
 
 using VariableMap = std::map<std::pair<std::string, uint64_t>, VariableInfo>;
-using FunctionMap = std::map<std::string, const FunctionStatementNode*>;
+using FunctionMap =
+    std::map<std::string,
+             std::pair<const FunctionStatementNode*, FunctionInfo>>;
 using ScopeStack = std::stack<std::pair<uint64_t, std::set<std::string>>>;

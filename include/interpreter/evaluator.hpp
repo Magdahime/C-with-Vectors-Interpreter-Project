@@ -50,8 +50,8 @@ class Evaluator {
   Matrix combineSizeValues(const AssignmentNode* node, const Matrix& size,
                            const Matrix& values) const;
 
-  std::optional<const FunctionStatementNode*> searchFunction(
-      std::string identifier) const;
+  std::optional<std::pair<const FunctionStatementNode*, FunctionInfo>>
+  searchFunction(std::string identifier) const;
 
   const VariableMap& getVariableMap() { return variableMap; }
 
@@ -62,5 +62,6 @@ class Evaluator {
   FunctionMap functionsMap;
   ScopeStack scopeStack;
 
-  void enterFunction(std::string identifier, FunctionStatementNode* node);
+  void enterFunction(std::string identifier, const FunctionStatementNode* node,
+                     std::vector<ArgumentInfo> args);
 };

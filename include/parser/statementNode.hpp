@@ -137,6 +137,10 @@ class FunctionStatementNode : public ChildrenStatementNode {
   void setArgumentsNodes(std::vector<ArgumentNodeUptr>& arguments) {
     std::ranges::move(arguments, std::back_inserter(this->arguments));
   }
+
+  const Token& getReturnType() const { return returnType; }
+  std::string getIdentifier() const { return identifier; }
+  const std::vector<ArgumentNodeUptr>& getArguments() { return arguments; }
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
   Value accept(Evaluator& evaluator) const override {
@@ -193,7 +197,7 @@ class CaseStatementNode : public ChildrenStatementNode {
   void setCaseExpression(ExpressionNodeUptr expression) {
     this->caseExpression = std::move(expression);
   }
-  const ExpressionNode* getCaseExpression() const{
+  const ExpressionNode* getCaseExpression() const {
     return caseExpression.get();
   }
 

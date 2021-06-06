@@ -31,7 +31,7 @@ void Evaluator::updateVariable(std::string identifier, int currentDepth,
   }
 }
 
-std::optional<const FunctionStatementNode*> Evaluator::searchFunction(
+std::optional<std::pair<const FunctionStatementNode*, FunctionInfo>> Evaluator::searchFunction(
     std::string identifier) const {
   auto iter = functionsMap.find(identifier);
   if (iter != functionsMap.end()) return iter->second;
@@ -93,8 +93,32 @@ void Evaluator::enterVariable(std::string identifier, int64_t value) {
 }
 
 void Evaluator::enterFunction(std::string identifier,
-                              FunctionStatementNode* node) {
-  functionsMap.emplace(std::make_pair(identifier, node));
+                              const FunctionStatementNode* node,
+                              std::vector<ArgumentInfo> args)
+
+{
+  Token returnType = node->getReturnType();
+  Type type;
+  switch (returnType.getType()) {
+    case Token::TokenType::IntegerToken:
+      type = Type::Integer;
+      break;
+    case Token::TokenType::DoubleToken:
+      type = Type::Double;
+      break;
+    case Token::TokenType::MatrixToken:
+      type = Type::Matrix;
+      break;
+    case Token::TokenType::TextToken:
+      type = Type::String;
+      break;
+    default:
+      throw SemanticError("Invalid return type for function at: " +
+                          node->getToken().getLinePositionString() +
+                          " Correct types are integer, double, matrix, text.");
+  }
+  FunctionInfo info = {type, args};
+  functionsMap.emplace(std::make_pair(identifier, std::make_pair(node, info)));
 }
 
 void Evaluator::enterVariable(std::string identifier, TokenVariant value) {
@@ -779,7 +803,7 @@ LoopComp Evaluator::checkLoopComponents(const LoopStatementNode* node) {
       startValue = std::get<int64_t>(start);
       if (startValue < 0)
         throw SemanticError("Start value cannot be less than 0. At: " +
-                                 node->getToken().getLinePositionString());
+                            node->getToken().getLinePositionString());
       break;
     default:
       throw SemanticError("Start value can only be of type integer at: " +
@@ -789,9 +813,8 @@ LoopComp Evaluator::checkLoopComponents(const LoopStatementNode* node) {
     case 0:
       endValue = std::get<int64_t>(end);
       if (startValue > endValue)
-        throw SemanticError(
-            "End value must be bigger than startValue. At: " +
-            node->getToken().getLinePositionString());
+        throw SemanticError("End value must be bigger than startValue. At: " +
+                            node->getToken().getLinePositionString());
       break;
     default:
       throw SemanticError("End value can only be of type integer at: " +
@@ -802,7 +825,7 @@ LoopComp Evaluator::checkLoopComponents(const LoopStatementNode* node) {
       stepValue = std::get<int64_t>(step);
       if (stepValue <= 0)
         throw SemanticError("Step value must be bigger than 0. At: " +
-                                 node->getToken().getLinePositionString());
+                            node->getToken().getLinePositionString());
       break;
     default:
       throw SemanticError("Step value can only be of type integer at:" +
