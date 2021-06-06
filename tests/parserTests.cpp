@@ -171,7 +171,7 @@ TEST(ParserTest, assignmentIdentifierTest) {
 }
 
 TEST(ParserTest, assignmentMatrix1Test) {
-  std::string test = R"(matrix[2][2] macierz = [[1,2,3,4,5,6+7]])";
+  std::string test = R"(matrix[2][2] macierz = [1,2,3,4,5,6+7])";
   std::string answer =
       R"(RootToken
  AssignmentOperatorToken
@@ -197,7 +197,7 @@ TEST(ParserTest, assignmentMatrix1Test) {
 }
 
 TEST(ParserTest, assignmentMatrix2Test) {
-  std::string test = R"(matrix[2][2+2] macierz = [[1,2,3,4,5,6+7]])";
+  std::string test = R"(matrix[2][2+2] macierz = [1,2,3,4,5,6+7])";
   std::string answer =
       R"(RootToken
  AssignmentOperatorToken

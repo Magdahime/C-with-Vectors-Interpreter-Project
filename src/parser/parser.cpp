@@ -530,15 +530,10 @@ MatrixValueNodeUptr Parser::parseMatrixValue() {
   if (accept(Token::TokenType::OpenSquareBracketToken)) {
     std::vector<ExpressionNodeUptr> matrixValues;
     shiftToken();
-    while (accept(Token::TokenType::OpenSquareBracketToken)) {
-      shiftToken();
-      ExpressionNodeUptr expression;
-      while (expression = parseExpression()) {
-        matrixValues.push_back(std::move(expression));
-        if (!accept(Token::TokenType::CommaToken)) break;
-        shiftToken();
-      }
-      expect(Token::TokenType::CloseSquareBracketToken);
+    ExpressionNodeUptr expression;
+    while (expression = parseExpression()) {
+      matrixValues.push_back(std::move(expression));
+      if (!accept(Token::TokenType::CommaToken)) break;
       shiftToken();
     }
     expect(Token::TokenType::CloseSquareBracketToken);
@@ -558,13 +553,12 @@ MatrixSizeNodeUptr Parser::parseMatrixSize() {
     sizes.push_back(std::move(expression));
     expect(Token::TokenType::CloseSquareBracketToken);
     shiftToken();
-    while (accept(Token::TokenType::OpenSquareBracketToken)) {
-      shiftToken();
-      expression = parseExpression();
-      sizes.push_back(std::move(expression));
-      expect(Token::TokenType::CloseSquareBracketToken);
-      shiftToken();
-    }
+    expect(Token::TokenType::OpenSquareBracketToken);
+    shiftToken();
+    expression = parseExpression();
+    sizes.push_back(std::move(expression));
+    expect(Token::TokenType::CloseSquareBracketToken);
+    shiftToken();
     MatrixSizeNodeUptr matrixSizeNode = std::make_unique<MatrixSizeNode>(sizes);
     return matrixSizeNode;
   }

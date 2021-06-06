@@ -26,6 +26,8 @@ class Evaluator {
   Value evaluate(const AssignmentNode* node);
   Value evaluate(const VariableNode* node);
   Value evaluate(const MatrixVariable* node);
+  Value evaluate(const MatrixValueNode* node);
+  Value evaluate(const MatrixSizeNode* node);
   Value evaluate(const ArgumentNode* node);
   Value evaluate(const IfStatementNode* node);
   Value evaluate(const OtherwiseStatementNode* node);
@@ -40,6 +42,8 @@ class Evaluator {
   bool checkZeroDivision(const Value value) const;
   std::optional<VariableInfo> searchVariable(std::string identifier,
                                              int currentDepth) const;
+
+  Matrix combineSizeValues(const AssignmentNode* node, const Matrix& size, const Matrix& values) const;
 
   std::optional<const FunctionStatementNode*> searchFunction(
       std::string identifier) const;

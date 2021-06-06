@@ -3,14 +3,14 @@
 #include "parser/statementNode.hpp"
 
 std::optional<VariableInfo> Evaluator::searchVariable(std::string identifier,
-                                                      int currentDepth) const{
+                                                      int currentDepth) const {
   auto iter = variableMap.find(std::make_pair(identifier, currentDepth));
   if (iter != variableMap.end()) return iter->second;
   return {};
 }
 
 std::optional<const FunctionStatementNode*> Evaluator::searchFunction(
-    std::string identifier) const{
+    std::string identifier) const {
   auto iter = functionsMap.find(identifier);
   if (iter != functionsMap.end()) return iter->second;
   return {};
@@ -538,8 +538,11 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
       }
     case 3:
       if (left->getToken() == Token::TokenType::MatrixToken) {
-        enterVariable(static_cast<const VariableNode*>(left)->getIdentifier(),
-                      std::get<Matrix>(rightValue));
+        Value leftValue = left->accept(*this);
+        Matrix valueMatrix = std::get<Matrix>(rightValue);
+        Matrix sizeMatrix = std::get<Matrix>(leftValue);
+        enterVariable(static_cast<const MatrixVariable*>(left)->getIdentifier(),
+                      combineSizeValues(node, sizeMatrix, valueMatrix));
         break;
       } else {
         throw SemanticError("Illegal assignment at " +
@@ -551,13 +554,72 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
   return {};
 }
 
+Value Evaluator::evaluate(const MatrixSizeNode* node) {
+  const std::vector<ExpressionNodeUptr>& values = node->getValues();
+  std::vector<int64_t> evaluatedValues;
+  try {
+    for (const auto& value : values) {
+      evaluatedValues.push_back(std::get<int64_t>(value->accept(*this)));
+    }
+  } catch (...) {
+    throw SemanticError("Invalid values in Matrix size at " +
+                        node->getToken().getLinePositionString() +
+                        " matrix size shoud be of type numeric: integer.");
+  }
+  return Matrix(evaluatedValues[0], evaluatedValues[1]);
+}
+
+Value Evaluator::evaluate(const MatrixValueNode* node) {
+  const std::vector<ExpressionNodeUptr>& values = node->getValues();
+  std::vector<double> evaluatedValues;
+  for (const auto& value : values) {
+    Value evalValue = value->accept(*this);
+    switch (evalValue.index()) {
+      case 0:
+        evaluatedValues.push_back(std::get<int64_t>(evalValue));
+        break;
+      case 1:
+        evaluatedValues.push_back(std::get<double>(evalValue));
+        break;
+      default:
+        throw SemanticError(
+            "Invalid values in Matrix at " +
+            node->getToken().getLinePositionString() +
+            " values shoud be of type numeric: integer/double.");
+    }
+  }
+
+  return Matrix(evaluatedValues);
+}
+
+Matrix Evaluator::combineSizeValues(const AssignmentNode* node,
+                                    const Matrix& size,
+                                    const Matrix& values) const {
+  const std::vector<double>& matrixValues = values.getValues();
+  std::vector<double> finalValues;
+  int64_t rows = size.getRows();
+  int64_t columns = size.getColumns();
+  int64_t diff = rows * columns - matrixValues.size();
+  if (diff < 0) {
+    throw SemanticError("More values in matrix than declared at: " +
+                        node->getToken().getLinePositionString());
+  }
+  for (const auto& value : matrixValues) {
+    finalValues.push_back(value);
+  }
+  for (int64_t i = 0; i < diff; i++) {
+    finalValues.push_back(0.0);
+  }
+
+  return Matrix(rows, columns, finalValues);
+}
+
 Value Evaluator::evaluate(const VariableNode* node) {
   throw SemanticError("VariableNode Not implemented! At: " +
                       node->getToken().getLinePositionString());
 }
 Value Evaluator::evaluate(const MatrixVariable* node) {
-  throw SemanticError("MatrixVariable Not implemented! At: " +
-                      node->getToken().getLinePositionString());
+  return node->getMatrixSizeNode()->accept(*this);
 }
 Value Evaluator::evaluate(const ArgumentNode* node) {
   throw SemanticError("ArgumentNode Not implemented! At: " +

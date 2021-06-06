@@ -26,6 +26,7 @@ class VariableNode;
 class MatrixVariable;
 class AssignmentNode;
 class ValueNode;
+class MatrixSizeNode;
 class MatrixOperatorNode;
 class LogicalOperatorNode;
 class MultiplicativeOperatorNode;

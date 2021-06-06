@@ -149,11 +149,9 @@ class MatrixOperatorNode : public ExpressionValueNode {
 class AssignmentNode : public ExpressionValueNode {
  public:
   AssignmentNode(Token token) : ExpressionValueNode(token){};
-
   Value accept(Evaluator& evaluator) const override {
     return evaluator.evaluate(this);
   }
-
  private:
 };
 
@@ -209,6 +207,12 @@ class MatrixValueNode : public ValueNode {
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
 
+  const std::vector<ExpressionNodeUptr>& getValues() const { return values; }
+
+  Value accept(Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
+
  private:
   std::vector<ExpressionNodeUptr> values;
 };
@@ -221,6 +225,10 @@ class MatrixSizeNode : public ValueNode {
   };
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;
+  const std::vector<ExpressionNodeUptr>& getValues() const {return values;}
+  Value accept(Evaluator& evaluator) const override {
+    return evaluator.evaluate(this);
+  }
 
  private:
   std::vector<ExpressionNodeUptr> values;
@@ -252,6 +260,8 @@ class MatrixVariable : public VariableNode {
   void setValue(MatrixValueNodeUptr value) {
     this->variableValue = std::move(value);
   }
+
+  const MatrixSizeNode* getMatrixSizeNode() const {return matrixSize.get();}  
 
   void buildTreeStringStream(int64_t depth,
                              std::stringstream& tree) const override;

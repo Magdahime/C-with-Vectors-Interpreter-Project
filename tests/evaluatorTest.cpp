@@ -1050,7 +1050,8 @@ TEST(EvaluatorTest, EvaluateAssignment3) {
   Evaluator evaluator;
   parser.getProgramNode()->accept(evaluator);
   auto varMap = evaluator.getVariableMap();
-  EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("cena", 0)).value), 20.50);
+  EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("cena", 0)).value),
+            20.50);
   EXPECT_EQ(varMap.at(std::make_pair("cena", 0)).type, Type::Double);
 }
 
@@ -1063,6 +1064,72 @@ TEST(EvaluatorTest, EvaluateAssignment4) {
   Evaluator evaluator;
   parser.getProgramNode()->accept(evaluator);
   auto varMap = evaluator.getVariableMap();
-  EXPECT_EQ(std::get<std::string>(varMap.at(std::make_pair("cena", 0)).value), "cena produktu");
+  EXPECT_EQ(std::get<std::string>(varMap.at(std::make_pair("cena", 0)).value),
+            "cena produktu");
   EXPECT_EQ(varMap.at(std::make_pair("cena", 0)).type, Type::String);
+}
+
+TEST(EvaluatorTest, EvaluateMatrixAssignment) {
+  std::string test = R"(matrix[2][2] macierz = [0])";
+  Matrix matrix(2, 2);
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<Matrix>(varMap.at(std::make_pair("macierz", 0)).value),
+            matrix);
+  EXPECT_EQ(varMap.at(std::make_pair("macierz", 0)).type, Type::Matrix);
+}
+
+TEST(EvaluatorTest, EvaluateMatrixAssignment2) {
+  try {
+    std::string test = R"(matrix[2][2] macierz = [1,2,3,4,5])";
+    StringSource src(test);
+    LexicalAnalyzer lexicAna(&src);
+    Parser parser(lexicAna);
+    parser.parseProgram();
+    Evaluator evaluator;
+    parser.getProgramNode()->accept(evaluator);
+    FAIL();
+  } catch (const SemanticError& err) {
+    SUCCEED();
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(EvaluatorTest, EvaluateMatrixAssignment3) {
+  std::string test = R"(matrix[2][2] macierz = [1,2,3,4])";
+  std::vector<double> vec = {1, 2, 3, 4};
+  Matrix matrix(2, 2, vec);
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<Matrix>(varMap.at(std::make_pair("macierz", 0)).value),
+            matrix);
+  EXPECT_EQ(varMap.at(std::make_pair("macierz", 0)).type, Type::Matrix);
+}
+
+TEST(EvaluatorTest, EvaluateMatrixAssignment4) {
+  std::string test = R"(integer zmienna = 4
+matrix[2][2] macierz = [zmienna,zmienna,zmienna,zmienna])";
+  std::vector<double> vec = {4, 4, 4, 4};
+  Matrix matrix(2, 2, vec);
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<Matrix>(varMap.at(std::make_pair("macierz", 0)).value),
+            matrix);
+  EXPECT_EQ(varMap.at(std::make_pair("macierz", 0)).type, Type::Matrix);
 }

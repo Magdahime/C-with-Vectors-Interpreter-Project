@@ -11,6 +11,7 @@ class Matrix {
       : rows(rows), columns(columns), values(values){};
   Matrix(uint64_t rows, uint64_t columns)
       : rows(rows), columns(columns), values(rows * columns, 0.0){};
+  Matrix(std::vector<double>& values) : values(values){};
   bool empty() const { return values.empty(); };
   bool isSquare() const { return columns == rows; }
   const std::vector<double>& getValues() const { return values; }
