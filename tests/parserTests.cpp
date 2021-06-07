@@ -23,7 +23,19 @@ TEST(ParserTest, parseFunctionTest) {
     //tralalal
 )";
   std::string answer =
-      "RootToken\n IntegerToken function count\nIntegerToken int1 IntegerToken int2 ";
+      "RootToken\n IntegerToken function count\nIntegerToken int1 IntegerToken "
+      "int2 ";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  EXPECT_EQ(parser.getProgramNode()->getChildren().size(), 1);
+  EXPECT_EQ(parser.getProgramNode()->getPrintTree(), answer);
+}
+
+TEST(ParserTest, parsePrintTest) {
+  std::string test = R"(print(zmienna))";
+  std::string answer = "RootToken\n PrintToken \n  IdentifierToken\n ";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);
@@ -312,7 +324,7 @@ TEST(ParserTest, conditionCaseTest1) {
     print('Child')
 )";
   std::string answer =
-      "RootToken\n ConditionToken\n  CaseToken\n   FunctionToken print\n    "
+      "RootToken\n ConditionToken\n  CaseToken\n   PrintToken \n    "
       "StringLiteralToken\n ";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
@@ -336,24 +348,12 @@ TEST(ParserTest, condsitionCaseTest2) {
         print('Error')
 )";
   std::string answer =
-      R"(RootToken
- ConditionToken
-  CaseToken
-   FunctionToken print
-    StringLiteralToken
-   CaseToken
-   FunctionToken print
-    StringLiteralToken
-   CaseToken
-   FunctionToken print
-    StringLiteralToken
-   CaseToken
-   FunctionToken print
-    StringLiteralToken
-   DefaultToken
-   FunctionToken print
-    StringLiteralToken
- )";
+      "RootToken\n ConditionToken\n  CaseToken\n   PrintToken \n    "
+      "StringLiteralToken\n   CaseToken\n   PrintToken \n    "
+      "StringLiteralToken\n   CaseToken\n   PrintToken \n    "
+      "StringLiteralToken\n   CaseToken\n   PrintToken \n    "
+      "StringLiteralToken\n   DefaultToken\n   PrintToken \n    "
+      "StringLiteralToken\n ";
   StringSource src(test);
   LexicalAnalyzer lexicAna(&src);
   Parser parser(lexicAna);

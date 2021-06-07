@@ -9,11 +9,3 @@ det(matrix4)// wyznacznik macierzy
 
 loop(1:counter):
     print(counter)
-
-// przyklad zastosowania break i continue do wychodzenia z petli
-asLongAs(true):
-    print(counter)
-    if(counter == 10):
-        break
-    otherwise:
-        continue

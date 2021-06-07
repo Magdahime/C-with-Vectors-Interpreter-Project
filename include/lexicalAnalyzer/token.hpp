@@ -57,6 +57,7 @@ class Token {
     TransToken,
     InvToken,
     ReturnToken,
+    PrintToken
   };
 
   enum class TokenSubtype {

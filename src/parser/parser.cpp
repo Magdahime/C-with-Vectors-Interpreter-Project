@@ -59,7 +59,7 @@ StatementNodeUptr Parser::parseStatement() {
   if ((node = parseLoopStatement()) || (node = parseReturnStatement()) ||
       (node = parseFunStatOrAssignment()) || (node = parseAsLAsStatement()) ||
       (node = parseIfStatement()) || (node = parseFunCallOrAssignment()) ||
-      (node = parseConditionStatement())) {
+      (node = parseConditionStatement()) || (node = parsePrintStatement())) {
     return node;
   }
   return StatementNodeUptr{};
@@ -173,6 +173,22 @@ StatementNodeUptr Parser::parseCaseStatement() {
         {Token::TokenType::EndOfFileToken, Token::TokenType::CloseBlockToken});
     shiftToken();
     return caseNode;
+  }
+  return StatementNodeUptr{};
+}
+
+StatementNodeUptr Parser::parsePrintStatement() {
+  if (accept(Token::TokenType::PrintToken)) {
+    FunctionCallNodeUptr funcallNode =
+        std::make_unique<FunctionCallNode>(currentToken);
+    shiftToken();
+    expect(Token::TokenType::OpenRoundBracketToken);
+    shiftToken();
+    std::vector<ExpressionNodeUptr> arguments = parseFunCallArguments();
+    funcallNode->setArgumentsNodes(arguments);
+    expect(Token::TokenType::CloseRoundBracketToken);
+    shiftToken();
+    return funcallNode;
   }
   return StatementNodeUptr{};
 }
@@ -628,9 +644,6 @@ ExpressionNodeUptr Parser::parseParenthesesExpression() {
     ExpressionNodeUptr expressionNode = parseExpression();
     matrixOperatorNode->add(std::move(expressionNode));
     return matrixOperatorNode;
-  } else if (accept(Token::TokenType::OpenSquareBracketToken)) {
-    MatrixValueNodeUptr node = parseMatrixValue();
-    return node;
   } else if (accept(Token::TokenType::NotToken)) {
     LogicalOperatorNodeUptr logicalNode =
         std::make_unique<LogicalOperatorNode>(currentToken);

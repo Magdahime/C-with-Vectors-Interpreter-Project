@@ -24,7 +24,8 @@ const static std::unordered_map<std::string, Token::TokenType> keywordTable = {
     {"det", Token::TokenType::DetToken},
     {"trans", Token::TokenType::TransToken},
     {"inv", Token::TokenType::InvToken},
-    {"return", Token::TokenType::ReturnToken}};
+    {"return", Token::TokenType::ReturnToken},
+    {"print", Token::TokenType::PrintToken}};
 
 const static std::unordered_map<std::string, char> escapeTable = {
     {"\\n", '\n'},  {"\\t", '\t'}, {"\\'", '\''},
@@ -77,6 +78,7 @@ const static std::unordered_map<Token::TokenType, std::string>
         {Token::TokenType::DetToken, "DetToken"},
         {Token::TokenType::TransToken, "TransToken"},
         {Token::TokenType::InvToken, "InvToken"},
-        {Token::TokenType::ReturnToken, "ReturnToken"}};
+        {Token::TokenType::ReturnToken, "ReturnToken"},
+        {Token::TokenType::PrintToken, "PrintToken"}};
 
 }  // namespace LexicalTable

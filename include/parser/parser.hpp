@@ -38,6 +38,8 @@ class Parser {
   StatementNodeUptr parseCaseStatement();
   StatementNodeUptr parseDefaultStatement();
   StatementNodeUptr parseReturnStatement();
+  StatementNodeUptr parsePrintStatement();
+  
   ExpressionNodeUptr parseFunCall(FunctionCallNodeUptr root);
 
   std::vector<ArgumentNodeUptr> parseArguments();

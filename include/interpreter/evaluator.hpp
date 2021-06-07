@@ -43,6 +43,8 @@ class Evaluator {
   Value evaluate(const CaseStatementNode* node);
   Value evaluate(const DefaultStatementNode* node);
   Value evaluate(const ReturnStatementNode* node);
+  void evaluatePrint(const FunctionCallNode* node);
+
 
   LoopComp checkLoopComponents(const LoopStatementNode* node);
   Value checkAslasExpression(const ExpressionNode* node);

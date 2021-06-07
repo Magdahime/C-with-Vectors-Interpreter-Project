@@ -926,6 +926,11 @@ Value Evaluator::evaluate(const FunctionStatementNode* node) {
   return {};
 }
 Value Evaluator::evaluate(const FunctionCallNode* node) {
+  if (node->getToken() == Token::TokenType::PrintToken) {
+    evaluatePrint(node);
+    return {};
+  }
+
   std::string identifier = node->getIdentifier();
   auto functionInfo = searchFunction(identifier);
   if (!functionInfo) {
@@ -1005,6 +1010,26 @@ Value Evaluator::evaluate(const FunctionCallNode* node) {
   insideFunctionCounter--;
   closeBlock();
   return returnValue;
+}
+
+void Evaluator::evaluatePrint(const FunctionCallNode* node) {
+  for (const auto& arg : node->getArguments()) {
+    Value value = arg->accept(*this);
+    switch (value.index()) {
+      case 0:
+        std::cout << std::to_string(std::get<int64_t>(value)) << "\n";
+        break;
+      case 1:
+        std::cout << std::to_string(std::get<double>(value)) << "\n";
+        break;
+      case 2:
+        std::cout << std::get<std::string>(value) << "\n";
+        break;
+      case 3:
+        std::cout << std::get<Matrix>(value).toString() << "\n";
+        break;
+    }
+  }
 }
 
 Value Evaluator::evaluate(const ReturnStatementNode* node) {
