@@ -61,13 +61,18 @@ void Program::showHelp() {
 }
 
 void Program::startInterpreter() {
-  parser->parseProgram();
-  parser->getProgramNode()->accept(*evaluator.get());
-  printVariablesAndFunctions(evaluator->getVariableMap(),
-                             evaluator->getFunctionMap());
+  try {
+    parser->parseProgram();
+    parser->getProgramNode()->accept(*evaluator.get());
+    printVariablesAndFunctions(evaluator->getVariableMap(),
+                               evaluator->getFunctionMap());
+  } catch (const Exception &err) {
+    std::cout << err.what() << std::endl;
+  }
 }
 
-void Program::printVariablesAndFunctions(VariableMap varMap, FunctionMap funMap) {
+void Program::printVariablesAndFunctions(VariableMap varMap,
+                                         FunctionMap funMap) {
   for (auto const &[key, val] : varMap) {
     std::cout << key.first << '\t' << type2StringTable.at(val.type) << '\t'
               << std::visit(Program::make_string_functor(), val.value)

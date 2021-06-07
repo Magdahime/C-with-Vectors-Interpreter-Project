@@ -780,6 +780,7 @@ Value Evaluator::evaluate(const LoopStatementNode* node) {
   LoopComp comp = checkLoopComponents(node);
   int64_t counter = comp.start;
   enterBlock();
+  enterVariable("counter", counter);
   if (comp.end - comp.start > 0) {
     while (counter < comp.end) {
       for (const auto& child : loopChildren) child->accept(*this);
@@ -879,7 +880,7 @@ Value Evaluator::evaluate(const ConditionStatementNode* node) {
       break;
     }
   }
-  if (!caseCompleted) {
+  if (!caseCompleted && node->getDefault()) {
     node->getDefault()->accept(*this);
   }
   return {};

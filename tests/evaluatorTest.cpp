@@ -1350,7 +1350,7 @@ condition:
             15.0);
 }
 
-TEST(EvaluatorTest, ConditionCaseTest3) {
+TEST(EvaluatorTest, ConditionCaseTest2) {
   std::string test = R"(integer age = 60
 double price = 0.0
 condition:
@@ -1374,6 +1374,29 @@ condition:
   auto varMap = evaluator.getVariableMap();
   EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("price", 0)).value),
             25.0);
+}
+
+
+TEST(EvaluatorTest, ConditionCaseTest3) {
+  std::string test = R"(integer age = 60
+double price = 0.0
+condition:
+    case(age < 10):
+        price = 5.0
+    case(age >= 10 and age < 20):
+        price = 15.0
+    case(age >= 20 and age < 60):
+        price = 25.0
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<double>(varMap.at(std::make_pair("price", 0)).value),
+            0.0);
 }
 
 TEST(EvaluatorTest, EvaluateFunctionStatementTest) {
