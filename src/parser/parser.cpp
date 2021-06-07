@@ -59,7 +59,8 @@ StatementNodeUptr Parser::parseStatement() {
   if ((node = parseLoopStatement()) || (node = parseReturnStatement()) ||
       (node = parseFunStatOrAssignment()) || (node = parseAsLAsStatement()) ||
       (node = parseIfStatement()) || (node = parseFunCallOrAssignment()) ||
-      (node = parseConditionStatement()) || (node = parsePrintStatement())) {
+      (node = parseConditionStatement()) || (node = parsePrintStatement()) ||
+      (node = parseExpression())) {
     return node;
   }
   return StatementNodeUptr{};
@@ -493,12 +494,13 @@ ExpressionNodeUptr Parser::parseMatrixAssignment(
     ExpressionValueNodeUptr assignmentNode =
         std::make_unique<AssignmentNode>(currentToken);
     shiftToken();
-    MatrixValueNodeUptr matrixValues = parseMatrixValue();
+    ExpressionNodeUptr matrixValues = parseMatrixValue();
     if (!matrixValues) {
-      std::string message = "Unexpected token at " +
-                            currentToken.getLinePositionString() +
-                            ". Matrix values are missing!";
-      throw UnexpectedToken(message);
+      matrixValues = parseExpression();
+      if (!matrixValues)
+        throw UnexpectedToken("Unexpected token at " +
+                              currentToken.getLinePositionString() +
+                              ". Matrix values are missing!");
     }
     assignmentNode->add(std::move(matrixNode));
     assignmentNode->add(std::move(matrixValues));

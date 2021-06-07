@@ -1,4 +1,5 @@
 #include <cmath>
+#include <stdexcept>
 #include "matrix.hpp"
 
 bool approximatelyEqual(float a, float b, float epsilon = std::numeric_limits<double>::epsilon())
@@ -24,6 +25,7 @@ Matrix operator+(const Matrix& lhs, const Matrix& rhs) {
     }
     return resultMatrix;
   }
+   throw std::runtime_error("Matrices cannot be added, because their dimensions are invalid!");
   return Matrix();
 }
 
@@ -58,6 +60,7 @@ Matrix operator-(const Matrix& lhs, const Matrix& rhs) {
     }
     return resultMatrix;
   }
+   throw std::runtime_error("Matrices cannot be subtracted, because their dimensions are invalid!");
   return Matrix();
 }
 
@@ -129,6 +132,7 @@ Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
     }
     return returnMatrix;
   }
+  throw std::runtime_error("Matrices cannot be multiplied, because their dimensions are invalid!");
   return Matrix();
 }
 

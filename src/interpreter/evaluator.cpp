@@ -161,75 +161,81 @@ Value Evaluator::evaluate(const AdditiveOperatorNode* node) {
     int signature =
         std::variant_size_v<Value> * leftValue.index() + rightValue.index();
     Matrix returnMatrix;
-    switch (static_cast<OperatorSignatures>(signature)) {
-      case OperatorSignatures::INTEGER_INTEGER:
-        if (isPlus)
-          return std::get<int64_t>(leftValue) + std::get<int64_t>(rightValue);
-        else
-          return std::get<int64_t>(leftValue) - std::get<int64_t>(rightValue);
-      case OperatorSignatures::INTEGER_DOUBLE:
-        if (isPlus)
-          return std::get<int64_t>(leftValue) + std::get<double>(rightValue);
-        else
-          return std::get<int64_t>(leftValue) - std::get<double>(rightValue);
-      case OperatorSignatures::DOUBLE_INTEGER:
-        if (isPlus)
-          return std::get<double>(leftValue) + std::get<int64_t>(rightValue);
-        else
-          return std::get<double>(leftValue) - std::get<int64_t>(rightValue);
-      case OperatorSignatures::DOUBLE_DOUBLE:
-        if (isPlus)
-          return std::get<double>(leftValue) + std::get<double>(rightValue);
-        else
-          return std::get<double>(leftValue) - std::get<double>(rightValue);
-      case OperatorSignatures::STRING_STRING:
-        if (isPlus)
-          return std::get<std::string>(leftValue) +
-                 std::get<std::string>(rightValue);
-        else
-          throw SemanticError("Invalid operation in AdditiveOperator at " +
+    try {
+      switch (static_cast<OperatorSignatures>(signature)) {
+        case OperatorSignatures::INTEGER_INTEGER:
+          if (isPlus)
+            return std::get<int64_t>(leftValue) + std::get<int64_t>(rightValue);
+          else
+            return std::get<int64_t>(leftValue) - std::get<int64_t>(rightValue);
+        case OperatorSignatures::INTEGER_DOUBLE:
+          if (isPlus)
+            return std::get<int64_t>(leftValue) + std::get<double>(rightValue);
+          else
+            return std::get<int64_t>(leftValue) - std::get<double>(rightValue);
+        case OperatorSignatures::DOUBLE_INTEGER:
+          if (isPlus)
+            return std::get<double>(leftValue) + std::get<int64_t>(rightValue);
+          else
+            return std::get<double>(leftValue) - std::get<int64_t>(rightValue);
+        case OperatorSignatures::DOUBLE_DOUBLE:
+          if (isPlus)
+            return std::get<double>(leftValue) + std::get<double>(rightValue);
+          else
+            return std::get<double>(leftValue) - std::get<double>(rightValue);
+        case OperatorSignatures::STRING_STRING:
+          if (isPlus)
+            return std::get<std::string>(leftValue) +
+                   std::get<std::string>(rightValue);
+          else
+            throw SemanticError("Invalid operation in AdditiveOperator at " +
+                                node->getToken().getLinePositionString() +
+                                ". Operator-(const std::string&, "
+                                "std::string& ) is undefinded.");
+        case OperatorSignatures::MATRIX_INTEGER:
+          if (isPlus)
+            return std::get<Matrix>(leftValue) + std::get<int64_t>(rightValue);
+          else
+            return std::get<Matrix>(leftValue) - std::get<int64_t>(rightValue);
+        case OperatorSignatures::INTEGER_MATRIX:
+          if (isPlus)
+            return std::get<int64_t>(leftValue) + std::get<Matrix>(rightValue);
+          else
+            return std::get<int64_t>(leftValue) - std::get<Matrix>(rightValue);
+        case OperatorSignatures::MATRIX_DOUBLE:
+          if (isPlus)
+            return std::get<Matrix>(leftValue) + std::get<double>(rightValue);
+          else
+            return std::get<Matrix>(leftValue) - std::get<double>(rightValue);
+        case OperatorSignatures::DOUBLE_MATRIX:
+          if (isPlus)
+            return std::get<double>(leftValue) + std::get<Matrix>(rightValue);
+          else
+            return std::get<double>(leftValue) - std::get<Matrix>(rightValue);
+        case OperatorSignatures::MATRIX_MATRIX:
+          if (isPlus)
+            returnMatrix =
+                std::get<Matrix>(leftValue) + std::get<Matrix>(rightValue);
+          else
+            returnMatrix =
+                std::get<Matrix>(leftValue) - std::get<Matrix>(rightValue);
+          if (!returnMatrix.empty()) return returnMatrix;
+          throw SemanticError("Invalid types in AdditiveOperator at " +
                               node->getToken().getLinePositionString() +
-                              ". Operator-(const std::string&, "
-                              "std::string& ) is undefinded.");
-      case OperatorSignatures::MATRIX_INTEGER:
-        if (isPlus)
-          return std::get<Matrix>(leftValue) + std::get<int64_t>(rightValue);
-        else
-          return std::get<Matrix>(leftValue) - std::get<int64_t>(rightValue);
-      case OperatorSignatures::INTEGER_MATRIX:
-        if (isPlus)
-          return std::get<int64_t>(leftValue) + std::get<Matrix>(rightValue);
-        else
-          return std::get<int64_t>(leftValue) - std::get<Matrix>(rightValue);
-      case OperatorSignatures::MATRIX_DOUBLE:
-        if (isPlus)
-          return std::get<Matrix>(leftValue) + std::get<double>(rightValue);
-        else
-          return std::get<Matrix>(leftValue) - std::get<double>(rightValue);
-      case OperatorSignatures::DOUBLE_MATRIX:
-        if (isPlus)
-          return std::get<double>(leftValue) + std::get<Matrix>(rightValue);
-        else
-          return std::get<double>(leftValue) - std::get<Matrix>(rightValue);
-      case OperatorSignatures::MATRIX_MATRIX:
-        if (isPlus)
-          returnMatrix =
-              std::get<Matrix>(leftValue) + std::get<Matrix>(rightValue);
-        else
-          returnMatrix =
-              std::get<Matrix>(leftValue) - std::get<Matrix>(rightValue);
-        if (!returnMatrix.empty()) return returnMatrix;
-        throw SemanticError("Invalid types in AdditiveOperator at " +
-                            node->getToken().getLinePositionString() +
-                            ". Matrix's dimensions are not compatible.");
-      default:
-        throw SemanticError(
-            "Wrong types in AdditiveOperator at " +
-            node->getToken().getLinePositionString() +
-            ". Correct types are matrix:matrix, matrix:double, double:matrix, "
-            "matrix:integer, integer:matrix, "
-            "string:string, integer:integer, integer:double, double:integer, "
-            "double:double.");
+                              ". Matrix's dimensions are not compatible.");
+        default:
+          throw SemanticError(
+              "Wrong types in AdditiveOperator at " +
+              node->getToken().getLinePositionString() +
+              ". Correct types are matrix:matrix, matrix:double, "
+              "double:matrix, "
+              "matrix:integer, integer:matrix, "
+              "string:string, integer:integer, integer:double, double:integer, "
+              "double:double.");
+      }
+    } catch (const std::runtime_error&) {
+      throw SemanticError("Invalid matrices operation at:" +
+                          node->getToken().getLinePositionString());
     }
   } else {
     if (!isPlus) {
@@ -247,6 +253,7 @@ Value Evaluator::evaluate(const AdditiveOperatorNode* node) {
       }
     }
   }
+
   return leftValue;
 }
 
@@ -263,63 +270,72 @@ Value Evaluator::evaluate(const MultiplicativeOperatorNode* node) {
   int signature =
       std::variant_size_v<Value> * leftValue.index() + rightValue.index();
   Matrix returnMatrix;
-  switch (static_cast<OperatorSignatures>(signature)) {
-    case OperatorSignatures::INTEGER_INTEGER:
-      if (isMulti)
-        return std::get<int64_t>(leftValue) * std::get<int64_t>(rightValue);
-      else
-        return std::get<int64_t>(leftValue) / std::get<int64_t>(rightValue);
-    case OperatorSignatures::INTEGER_DOUBLE:
-      if (isMulti)
-        return std::get<int64_t>(leftValue) * std::get<double>(rightValue);
-      else
-        return std::get<int64_t>(leftValue) / std::get<double>(rightValue);
-    case OperatorSignatures::DOUBLE_INTEGER:
-      if (isMulti)
-        return std::get<double>(leftValue) * std::get<int64_t>(rightValue);
-      else
-        return std::get<double>(leftValue) / std::get<int64_t>(rightValue);
-    case OperatorSignatures::DOUBLE_DOUBLE:
-      if (isMulti)
-        return std::get<double>(leftValue) * std::get<double>(rightValue);
-      else
-        return std::get<double>(leftValue) / std::get<double>(rightValue);
-    case OperatorSignatures::MATRIX_INTEGER:
-      if (isMulti)
-        return std::get<Matrix>(leftValue) * std::get<int64_t>(rightValue);
-      else
-        return std::get<Matrix>(leftValue) / std::get<int64_t>(rightValue);
-    case OperatorSignatures::INTEGER_MATRIX:
-      if (isMulti)
-        return std::get<int64_t>(leftValue) * std::get<Matrix>(rightValue);
-      else
-        throw SemanticError("Invalid operation in MultiplicativeOperator at " +
-                            node->getToken().getLinePositionString() +
-                            ". Integer Matrix division is illegal.");
-    case OperatorSignatures::MATRIX_DOUBLE:
-      if (isMulti)
-        return std::get<Matrix>(leftValue) * std::get<double>(rightValue);
-      else
-        return std::get<Matrix>(leftValue) / std::get<double>(rightValue);
-    case OperatorSignatures::DOUBLE_MATRIX:
-      if (isMulti)
-        return std::get<double>(leftValue) * std::get<Matrix>(rightValue);
-      else
-        throw SemanticError("Invalid operation in MultiplicativeOperator at " +
-                            node->getToken().getLinePositionString() +
-                            ". Double Matrix division is illegal.");
-    case OperatorSignatures::MATRIX_MATRIX:
-      if (isMulti)
-        return std::get<Matrix>(leftValue) * std::get<Matrix>(rightValue);
-      else
-        return std::get<Matrix>(leftValue) / std::get<Matrix>(rightValue);
-    default:
-      throw SemanticError("Wrong types in MultiplicativeOperator at " +
-                          node->getToken().getLinePositionString() +
-                          ". Correct types are matrix:matrix, " +
-                          "matrix:double, " + "matrix:integer," +
-                          "integer:integer, integer:double, double:integer, " +
-                          "double:double.");
+  try {
+    switch (static_cast<OperatorSignatures>(signature)) {
+      case OperatorSignatures::INTEGER_INTEGER:
+        if (isMulti)
+          return std::get<int64_t>(leftValue) * std::get<int64_t>(rightValue);
+        else
+          return std::get<int64_t>(leftValue) / std::get<int64_t>(rightValue);
+      case OperatorSignatures::INTEGER_DOUBLE:
+        if (isMulti)
+          return std::get<int64_t>(leftValue) * std::get<double>(rightValue);
+        else
+          return std::get<int64_t>(leftValue) / std::get<double>(rightValue);
+      case OperatorSignatures::DOUBLE_INTEGER:
+        if (isMulti)
+          return std::get<double>(leftValue) * std::get<int64_t>(rightValue);
+        else
+          return std::get<double>(leftValue) / std::get<int64_t>(rightValue);
+      case OperatorSignatures::DOUBLE_DOUBLE:
+        if (isMulti)
+          return std::get<double>(leftValue) * std::get<double>(rightValue);
+        else
+          return std::get<double>(leftValue) / std::get<double>(rightValue);
+      case OperatorSignatures::MATRIX_INTEGER:
+        if (isMulti)
+          return std::get<Matrix>(leftValue) * std::get<int64_t>(rightValue);
+        else
+          return std::get<Matrix>(leftValue) / std::get<int64_t>(rightValue);
+      case OperatorSignatures::INTEGER_MATRIX:
+        if (isMulti)
+          return std::get<int64_t>(leftValue) * std::get<Matrix>(rightValue);
+        else
+          throw SemanticError(
+              "Invalid operation in MultiplicativeOperator at " +
+              node->getToken().getLinePositionString() +
+              ". Integer Matrix division is illegal.");
+      case OperatorSignatures::MATRIX_DOUBLE:
+        if (isMulti)
+          return std::get<Matrix>(leftValue) * std::get<double>(rightValue);
+        else
+          return std::get<Matrix>(leftValue) / std::get<double>(rightValue);
+      case OperatorSignatures::DOUBLE_MATRIX:
+        if (isMulti)
+          return std::get<double>(leftValue) * std::get<Matrix>(rightValue);
+        else
+          throw SemanticError(
+              "Invalid operation in MultiplicativeOperator at " +
+              node->getToken().getLinePositionString() +
+              ". Double Matrix division is illegal.");
+      case OperatorSignatures::MATRIX_MATRIX:
+        if (isMulti)
+          return std::get<Matrix>(leftValue) * std::get<Matrix>(rightValue);
+        else
+          return std::get<Matrix>(leftValue) / std::get<Matrix>(rightValue);
+      default:
+        throw SemanticError(
+            "Wrong types in MultiplicativeOperator at " +
+            node->getToken().getLinePositionString() +
+            ". Correct types are matrix:matrix, " + "matrix:double, " +
+            "matrix:integer," +
+            "integer:integer, integer:double, double:integer, " +
+            "double:double.");
+    }
+
+  } catch (const std::runtime_error&) {
+    throw SemanticError("Invalid matrices operation at:" +
+                        node->getToken().getLinePositionString());
   }
 }
 Value Evaluator::evaluate(const ExponentiationOperatorNode* node) {
@@ -358,22 +374,27 @@ Value Evaluator::evaluate(const MatrixOperatorNode* node) {
   bool isInv = node->getType() == MatrixOperatorNode::NodeType::Inverse;
   bool isTrans = node->getType() == MatrixOperatorNode::NodeType::Transpose;
 
-  switch (leftValue.index()) {
-    case 3:
-      if (isDet) {
-        return std::get<Matrix>(leftValue).det();
-      } else if (isInv) {
-        return std::get<Matrix>(leftValue).inverse();
-      } else if (isTrans) {
-        return std::get<Matrix>(leftValue).transpose();
-      } else {
-        throw SemanticError("Invalid MatrixOperator at " +
-                            node->getToken().getLinePositionString());
-      }
-    default:
-      throw SemanticError("Wrong type in MatrixOperatorNode at " +
-                          node->getToken().getLinePositionString() +
-                          ". You can only use this operators with matrices!");
+  try {
+    switch (leftValue.index()) {
+      case 3:
+        if (isDet) {
+          return std::get<Matrix>(leftValue).det();
+        } else if (isInv) {
+          return std::get<Matrix>(leftValue).inverse();
+        } else if (isTrans) {
+          return std::get<Matrix>(leftValue).transpose();
+        } else {
+          throw SemanticError("Invalid MatrixOperator at " +
+                              node->getToken().getLinePositionString());
+        }
+      default:
+        throw SemanticError("Wrong type in MatrixOperatorNode at " +
+                            node->getToken().getLinePositionString() +
+                            ". You can only use this operators with matrices!");
+    }
+  } catch (const std::runtime_error& err) {
+    throw SemanticError("Invalid matrices operation at:" +
+                        node->getToken().getLinePositionString());
   }
 }
 
@@ -575,54 +596,67 @@ Value Evaluator::evaluate(const AssignmentNode* node) {
   auto right = node->getRight();
   Value leftValue = left->accept(*this);
   Value rightValue = right->accept(*this);
-  switch (rightValue.index()) {
-    case 0:
-      if (left->getToken() == Token::TokenType::IntegerToken) {
-        enterVariable(std::get<std::string>(leftValue),
-                      std::get<int64_t>(rightValue));
-        break;
-      } else {
-        throw SemanticError("Illegal assignment at " +
-                            node->getToken().getLinePositionString() +
-                            " Type of assign expression is integer, but type "
-                            "of variable is not!");
-      }
-    case 1:
-      if (left->getToken() == Token::TokenType::DoubleToken) {
-        enterVariable(std::get<std::string>(leftValue),
-                      std::get<double>(rightValue));
-        break;
-      } else {
-        throw SemanticError("Illegal assignment at " +
-                            node->getToken().getLinePositionString() +
-                            " Type of assign expression is double, but type "
-                            "of variable is not!");
-      }
-    case 2:
-      if (left->getToken() == Token::TokenType::TextToken) {
-        enterVariable(std::get<std::string>(leftValue),
-                      std::get<std::string>(rightValue));
-        break;
-      } else {
-        throw SemanticError("Illegal assignment at " +
-                            node->getToken().getLinePositionString() +
-                            " Type of assign expression is text, but type "
-                            "of variable is not!");
-      }
-    case 3:
-      if (left->getToken() == Token::TokenType::MatrixToken) {
-        Matrix valueMatrix = std::get<Matrix>(rightValue);
-        Matrix sizeMatrix = std::get<Matrix>(leftValue);
-        enterVariable(static_cast<const MatrixVariable*>(left)->getIdentifier(),
-                      combineSizeValues(node, sizeMatrix, valueMatrix));
-        break;
-      } else {
-        throw SemanticError("Illegal assignment at " +
-                            node->getToken().getLinePositionString() +
-                            " Type of assign expression is matrix, but type "
-                            "of variable is not!");
-      }
+  try {
+    switch (rightValue.index()) {
+      case 0:
+        if (left->getToken() == Token::TokenType::IntegerToken) {
+          enterVariable(std::get<std::string>(leftValue),
+                        std::get<int64_t>(rightValue));
+          break;
+        } else {
+          throw SemanticError("Illegal assignment at " +
+                              node->getToken().getLinePositionString() +
+                              " Type of assign expression is integer, but type "
+                              "of variable is not!");
+        }
+      case 1:
+        if (left->getToken() == Token::TokenType::DoubleToken) {
+          enterVariable(std::get<std::string>(leftValue),
+                        std::get<double>(rightValue));
+          break;
+        } else {
+          throw SemanticError("Illegal assignment at " +
+                              node->getToken().getLinePositionString() +
+                              " Type of assign expression is double, but type "
+                              "of variable is not!");
+        }
+      case 2:
+        if (left->getToken() == Token::TokenType::TextToken) {
+          enterVariable(std::get<std::string>(leftValue),
+                        std::get<std::string>(rightValue));
+          break;
+        } else {
+          throw SemanticError("Illegal assignment at " +
+                              node->getToken().getLinePositionString() +
+                              " Type of assign expression is text, but type "
+                              "of variable is not!");
+        }
+      case 3:
+        if (left->getToken() == Token::TokenType::MatrixToken) {
+          Matrix valueMatrix = std::get<Matrix>(rightValue);
+          Matrix sizeMatrix = std::get<Matrix>(leftValue);
+          if (valueMatrix.getRows() != 0 &&
+              (valueMatrix.getRows() != sizeMatrix.getRows() ||
+               valueMatrix.getColumns() != sizeMatrix.getColumns()))
+            throw SemanticError("Illegal assignment at " +
+                                node->getToken().getLinePositionString() +
+                                " Dimensions of given matrices doesn't match");
+          enterVariable(
+              static_cast<const MatrixVariable*>(left)->getIdentifier(),
+              combineSizeValues(node, sizeMatrix, valueMatrix));
+          break;
+        } else {
+          throw SemanticError("Illegal assignment at " +
+                              node->getToken().getLinePositionString() +
+                              " Type of assign expression is matrix, but type "
+                              "of variable is not!");
+        }
+    }
+  } catch (const std::runtime_error&) {
+    throw SemanticError("Invalid matrices operation at:" +
+                        node->getToken().getLinePositionString());
   }
+
   return {};
 }
 
@@ -632,6 +666,8 @@ Value Evaluator::evaluate(const AssignNewValueNode* node) {
   Value leftValue = left->accept(*this);
   std::string identifier = std::get<std::string>(leftValue);
   Value rightValue = right->accept(*this);
+  Matrix valueMatrix;
+  Matrix sizeMatrix;
   std::optional<VariableInfo> info = searchVariable(identifier, currentDepth);
   switch (rightValue.index()) {
     case 0:
@@ -663,6 +699,14 @@ Value Evaluator::evaluate(const AssignNewValueNode* node) {
       }
     case 3:
       if (info && info->type == Type::Matrix) {
+        valueMatrix = std::get<Matrix>(rightValue);
+        sizeMatrix = std::get<Matrix>(info->value);
+        if (valueMatrix.getRows() != 0 &&
+            (valueMatrix.getRows() != sizeMatrix.getRows() &&
+             valueMatrix.getColumns() != sizeMatrix.getColumns()))
+          throw SemanticError("Illegal assignment at " +
+                              node->getToken().getLinePositionString() +
+                              " Dimensions of given matrices doesn't match");
         updateVariable(identifier, currentDepth, rightValue);
         break;
       } else {
@@ -758,7 +802,8 @@ Value Evaluator::evaluate(const IfStatementNode* node) {
       break;
     default:
       throw SemanticError(
-          "Condition expression in if statement is not evaluable to bool at:" +
+          "Condition expression in if statement is not evaluable to bool "
+          "at:" +
           node->getToken().getLinePositionString());
       break;
   }
@@ -785,11 +830,13 @@ Value Evaluator::evaluate(const LoopStatementNode* node) {
     while (counter < comp.end) {
       for (const auto& child : loopChildren) child->accept(*this);
       counter += comp.step;
+      updateVariable("counter", currentDepth, counter);
     }
   } else {
     while (counter > comp.end) {
       for (const auto& child : loopChildren) child->accept(*this);
       counter -= comp.step;
+      updateVariable("counter", currentDepth, counter);
     }
   }
   closeBlock();
@@ -949,7 +996,8 @@ Value Evaluator::evaluate(const FunctionCallNode* node) {
     Value value = userArguments[i]->accept(*this);
     if (!checkArgument(value, declaredArguments[i].type))
       throw SemanticError(
-          "Argument expression type and declared argument type are different!  "
+          "Argument expression type and declared argument type are "
+          "different!  "
           "At: " +
           node->getToken().getLinePositionString());
     realValues.push_back(value);
