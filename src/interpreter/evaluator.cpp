@@ -798,10 +798,27 @@ Value Evaluator::evaluate(const LoopStatementNode* node) {
 LoopComp Evaluator::checkLoopComponents(const LoopStatementNode* node) {
   Value start = node->getStart()->accept(*this);
   Value end = node->getEnd()->accept(*this);
-  Value step = node->getStep()->accept(*this);
+
   int64_t startValue;
   int64_t endValue;
   int64_t stepValue;
+  if (node->getStep()) {
+    Value step = node->getStep()->accept(*this);
+    switch (step.index()) {
+      case 0:
+        stepValue = std::get<int64_t>(step);
+        if (stepValue <= 0)
+          throw SemanticError("Step value must be bigger than 0. At: " +
+                              node->getToken().getLinePositionString());
+        break;
+      default:
+        throw SemanticError("Step value can only be of type integer at:" +
+                            node->getToken().getLinePositionString());
+    }
+  } else {
+    stepValue = 1;
+  }
+
   switch (start.index()) {
     case 0:
       startValue = std::get<int64_t>(start);
@@ -824,17 +841,7 @@ LoopComp Evaluator::checkLoopComponents(const LoopStatementNode* node) {
       throw SemanticError("End value can only be of type integer at: " +
                           node->getToken().getLinePositionString());
   }
-  switch (step.index()) {
-    case 0:
-      stepValue = std::get<int64_t>(step);
-      if (stepValue <= 0)
-        throw SemanticError("Step value must be bigger than 0. At: " +
-                            node->getToken().getLinePositionString());
-      break;
-    default:
-      throw SemanticError("Step value can only be of type integer at:" +
-                          node->getToken().getLinePositionString());
-  }
+
   return LoopComp{startValue, endValue, stepValue};
 }
 

@@ -1266,6 +1266,24 @@ loop(0:2*licznik:-2):
   }
 }
 
+TEST(EvaluatorTest, EvaluateLoopTest4) {
+  std::string test = R"(integer licznik = 5
+integer zmienna = 0
+loop(0:2*licznik):
+  zmienna = zmienna + 1
+)";
+  StringSource src(test);
+  LexicalAnalyzer lexicAna(&src);
+  Parser parser(lexicAna);
+  parser.parseProgram();
+  Evaluator evaluator;
+  parser.getProgramNode()->accept(evaluator);
+  auto varMap = evaluator.getVariableMap();
+  EXPECT_EQ(std::get<int64_t>(varMap.at(std::make_pair("zmienna", 0)).value),
+            10);
+  EXPECT_EQ(varMap.at(std::make_pair("zmienna", 0)).type, Type::Integer);
+}
+
 TEST(EvaluatorTest, EvaluateAsLongAsTest) {
   std::string test = R"(integer licznik = 5
 integer zmienna = 1
